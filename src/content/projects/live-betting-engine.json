@@ -1,0 +1,670 @@
+{
+  "slug": "live-betting-engine",
+  "category": "corporate",
+  "title": {
+    "en": "Live Betting Real-Time Engine",
+    "es": "Motor en Tiempo Real de Apuestas en Vivo"
+  },
+  "tagline": {
+    "en": "Multi-tenant grading, limits and settlement workers for live sports betting",
+    "es": "Workers multi-tenant de calificación, límites y liquidación en vivo"
+  },
+  "summary": {
+    "en": "Multi-tenant back-office and settlement engine for an online sports betting operator's live product. It grades live straight and parlay wagers when games finish, posts accounting to per-tenant Kafka streams, keeps odds integrity audits, and serves limits configuration, reporting and a Blazor administration UI.",
+    "es": "Motor multi-tenant de back-office y liquidación para el producto en vivo de un operador de apuestas deportivas en línea. Califica apuestas live simples y parlays al finalizar los juegos, publica la contabilidad en flujos Kafka por tenant, audita la integridad de las cuotas y sirve configuración de límites, reportes y una UI administrativa en Blazor."
+  },
+  "problem": {
+    "en": "Live betting generated a high volume of short-lived wagers that had to be graded exactly like the legacy ledger, without double-settling, across several tenants and with strict financial correctness. The legacy approach was a single, tightly coupled grading flow with no retry or dead-letter handling and little visibility into discrepancies.",
+    "es": "Las apuestas en vivo generaban un alto volumen de apuestas efímeras que debían calificarse exactamente como en el libro heredado, sin doble liquidación, entre varios tenants y con estricta corrección financiera. El enfoque heredado era un flujo de calificación único y fuertemente acoplado, sin reintentos ni dead-letter y con poca visibilidad de discrepancias."
+  },
+  "role": {
+    "en": "Senior backend engineer: architecture, grading and accounting workers, Kafka resilience, SQL grading procedures, reporting workers, Blazor admin UI and CI/CD.",
+    "es": "Ingeniero backend senior: arquitectura, workers de calificación y contabilidad, resiliencia en Kafka, procedimientos SQL de calificación, workers de reportes, UI administrativa en Blazor y CI/CD."
+  },
+  "status": "production",
+  "year": "2026",
+  "links": {
+    "live": null,
+    "github": null
+  },
+  "stack": [
+    {
+      "name": "C#",
+      "category": "language"
+    },
+    {
+      "name": ".NET 10",
+      "category": "backend"
+    },
+    {
+      "name": "ASP.NET Core Minimal APIs",
+      "category": "backend"
+    },
+    {
+      "name": "Entity Framework Core",
+      "category": "data"
+    },
+    {
+      "name": "Dapper",
+      "category": "data"
+    },
+    {
+      "name": "SQL Server",
+      "category": "data"
+    },
+    {
+      "name": "Kafka",
+      "category": "messaging"
+    },
+    {
+      "name": "Redis",
+      "category": "data"
+    },
+    {
+      "name": "Polly",
+      "category": "backend"
+    },
+    {
+      "name": "FluentValidation",
+      "category": "backend"
+    },
+    {
+      "name": "Blazor WebAssembly",
+      "category": "frontend"
+    },
+    {
+      "name": "MudBlazor",
+      "category": "frontend"
+    },
+    {
+      "name": "xUnit",
+      "category": "testing"
+    },
+    {
+      "name": "Windows Services / IIS",
+      "category": "devops"
+    },
+    {
+      "name": "GitLab CI",
+      "category": "devops"
+    },
+    {
+      "name": "Slack webhooks",
+      "category": "other"
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Built a database-queue grading pipeline: a game-finished trigger runs a grading procedure, enqueues wagers, and a grading worker settles accounting inside SERIALIZABLE transactions to protect player balances.",
+      "es": "Construí un pipeline de calificación con cola en base de datos: un trigger de fin de juego ejecuta un procedimiento de calificación, encola apuestas y un worker liquida la contabilidad en transacciones SERIALIZABLE para proteger los saldos."
+    },
+    {
+      "en": "Added an outbox-style worker that batches graded wagers (50 per message) into per-tenant Kafka topics, cutting broker round trips by roughly 98 percent versus one message per wager.",
+      "es": "Añadí un worker estilo outbox que agrupa apuestas calificadas (50 por mensaje) en tópicos Kafka por tenant, reduciendo los viajes al broker en aproximadamente 98 por ciento frente a un mensaje por apuesta."
+    },
+    {
+      "en": "Implemented a three-tier Kafka consumption model (main topic, exponential-backoff retry topic, dead-letter topic with chat alerting) behind a generic message-handler abstraction.",
+      "es": "Implementé un modelo de consumo Kafka en tres niveles (tópico principal, tópico de reintento con backoff exponencial y tópico dead-letter con alertas por chat) tras una abstracción genérica de handlers."
+    },
+    {
+      "en": "Guaranteed idempotent grading using unique bet-group tracking and optimistic concurrency, and validated results against the legacy system with a dedicated comparison CLI that surfaced rounding variances in reduced parlays.",
+      "es": "Garanticé calificación idempotente mediante seguimiento único de grupos de apuestas y concurrencia optimista, y validé resultados contra el sistema heredado con una CLI de comparación que reveló variaciones de redondeo en parlays reducidos."
+    },
+    {
+      "en": "Delivered a family of scheduled workers: score ingestion with dead-lettering, timeline derivation and reconciliation, weekly top-player and hold-percentage fact tables, and an odds line-integrity auditor that compares each accepted bet to archived market data.",
+      "es": "Entregué una familia de workers programados: ingesta de marcadores con dead-lettering, derivación y reconciliación de timelines, tablas de hechos semanales de mejores jugadores y hold percentage, y un auditor de integridad de líneas que compara cada apuesta aceptada con datos de mercado archivados."
+    },
+    {
+      "en": "Delivered a modular Blazor admin UI (ten component libraries) with a tenant-configurable theme and Redis-backed caching, plus reporting endpoints that answer in under two seconds from precomputed facts.",
+      "es": "Entregué una UI administrativa modular en Blazor (diez bibliotecas de componentes) con tema configurable por tenant y caché en Redis, además de endpoints de reportes que responden en menos de dos segundos desde hechos precalculados."
+    }
+  ],
+  "decisions": [
+    {
+      "title": {
+        "en": "Database queue for grading, Kafka for fan-out",
+        "es": "Cola en base de datos para calificación, Kafka para distribución"
+      },
+      "why": {
+        "en": "Grading must be atomic with balance updates, so the queue lives in the same transactional store as the wagers. Kafka is used only after settlement to distribute results to tenants, where at-least-once delivery with idempotent consumers is acceptable.",
+        "es": "La calificación debe ser atómica con la actualización de saldos, por lo que la cola vive en el mismo almacén transaccional que las apuestas. Kafka se usa solo tras la liquidación para distribuir resultados a los tenants, donde basta entrega al menos una vez con consumidores idempotentes."
+      }
+    },
+    {
+      "title": {
+        "en": "Retry topic and dead-letter instead of in-place retry loops",
+        "es": "Tópico de reintento y dead-letter en lugar de bucles de reintento en sitio"
+      },
+      "why": {
+        "en": "Failing messages move off the hot path so one poison message cannot block a partition. Backoff is applied on the retry topic and permanent failures are surfaced to operators with context.",
+        "es": "Los mensajes fallidos salen de la ruta principal para que un mensaje venenoso no bloquee una partición. El backoff se aplica en el tópico de reintento y los fallos permanentes se comunican a operadores con contexto."
+      }
+    },
+    {
+      "title": {
+        "en": "Batching in the outbox worker",
+        "es": "Agrupación en el worker outbox"
+      },
+      "why": {
+        "en": "Single-wager messages saturated the broker at peak. Batching 50 wagers per message per tenant preserved ordering by tenant while multiplying throughput.",
+        "es": "Los mensajes de una sola apuesta saturaban el broker en picos. Agrupar 50 apuestas por mensaje y por tenant preservó el orden por tenant y multiplicó el rendimiento."
+      }
+    },
+    {
+      "title": {
+        "en": "Workers never crash the host on bad data",
+        "es": "Los workers nunca tumban el host por datos malos"
+      },
+      "why": {
+        "en": "Message handlers return an explicit disposition (commit, retry, dead-letter). Permanent data errors are dead-lettered and committed, infrastructure errors retry, and a health endpoint exposes last-successful-message time so monitoring decides about restarts.",
+        "es": "Los handlers devuelven una disposición explícita (confirmar, reintentar, dead-letter). Los errores permanentes de datos se envían a dead-letter y se confirman, los de infraestructura se reintentan y un endpoint de salud expone la última marca de éxito para que el monitoreo decida reinicios."
+      }
+    },
+    {
+      "title": {
+        "en": "Precomputed weekly facts for reporting",
+        "es": "Hechos semanales precalculados para reportes"
+      },
+      "why": {
+        "en": "Aggregating settled wagers on demand was too slow. Scheduled workers recompute a rolling window to absorb late gradings, so the report API serves indexed fact tables in seconds.",
+        "es": "Agregar apuestas liquidadas bajo demanda era demasiado lento. Workers programados recalculan una ventana móvil para absorber calificaciones tardías, de modo que la API de reportes sirve tablas de hechos indexadas en segundos."
+      }
+    },
+    {
+      "title": {
+        "en": "Clean Architecture with Result types",
+        "es": "Clean Architecture con tipos Result"
+      },
+      "why": {
+        "en": "Domain, application, infrastructure and API layers register through extension methods, and business operations return Result values instead of exceptions, keeping error mapping explicit and unit tests simple.",
+        "es": "Las capas de dominio, aplicación, infraestructura y API se registran mediante métodos de extensión y las operaciones de negocio devuelven valores Result en lugar de excepciones, manteniendo explícito el mapeo de errores y simples las pruebas unitarias."
+      }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      {
+        "id": "api",
+        "label": {
+          "en": "APIs & UI",
+          "es": "APIs y UI"
+        }
+      },
+      {
+        "id": "grading",
+        "label": {
+          "en": "Grading Pipeline",
+          "es": "Pipeline de Calificación"
+        }
+      },
+      {
+        "id": "feeds",
+        "label": {
+          "en": "Feed Ingestion",
+          "es": "Ingesta de Feeds"
+        }
+      },
+      {
+        "id": "reports",
+        "label": {
+          "en": "Reporting & Audit",
+          "es": "Reportes y Auditoría"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Data Stores",
+          "es": "Almacenes de Datos"
+        }
+      },
+      {
+        "id": "ext",
+        "label": {
+          "en": "External",
+          "es": "Externos"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "ui",
+        "label": "Admin Web UI",
+        "sublabel": {
+          "en": "Blazor WebAssembly app for limits, reports and wager history",
+          "es": "App Blazor WebAssembly para límites, reportes e historial de apuestas"
+        },
+        "kind": "client",
+        "group": "api"
+      },
+      {
+        "id": "liveapi",
+        "label": "Live Configuration API",
+        "sublabel": {
+          "en": "Limits, tenants, players, reports and wager history endpoints",
+          "es": "Endpoints de límites, tenants, jugadores, reportes e historial"
+        },
+        "kind": "gateway",
+        "group": "api"
+      },
+      {
+        "id": "redis",
+        "label": "Distributed Cache",
+        "sublabel": {
+          "en": "Redis cache for hierarchies and configuration",
+          "es": "Caché Redis para jerarquías y configuración"
+        },
+        "kind": "cache",
+        "group": "data"
+      },
+      {
+        "id": "sqldb",
+        "label": "Wagering & Grading Database",
+        "sublabel": {
+          "en": "SQL Server: live wagers, games, queues, graded archive, accounting",
+          "es": "SQL Server: apuestas en vivo, juegos, colas, archivo calificado, contabilidad"
+        },
+        "kind": "db",
+        "group": "data"
+      },
+      {
+        "id": "gamegrader",
+        "label": "Game Grading Procedure",
+        "sublabel": {
+          "en": "Trigger-driven stored procedure grading straights and parlays",
+          "es": "Procedimiento almacenado activado por trigger que califica simples y parlays"
+        },
+        "kind": "worker",
+        "group": "grading"
+      },
+      {
+        "id": "wagerworker",
+        "label": "Wager Grading Worker",
+        "sublabel": {
+          "en": "Polls grading queue, settles accounting in serializable transactions",
+          "es": "Consulta la cola de calificación y liquida contabilidad en transacciones serializables"
+        },
+        "kind": "worker",
+        "group": "grading"
+      },
+      {
+        "id": "outbox",
+        "label": "Outbox Publisher Worker",
+        "sublabel": {
+          "en": "Batches 50 graded wagers per message per tenant",
+          "es": "Agrupa 50 apuestas calificadas por mensaje y por tenant"
+        },
+        "kind": "worker",
+        "group": "grading"
+      },
+      {
+        "id": "ktenant",
+        "label": "Per-Tenant Grade Topics",
+        "sublabel": {
+          "en": "Kafka topics carrying graded results per tenant",
+          "es": "Tópicos Kafka con resultados calificados por tenant"
+        },
+        "kind": "queue",
+        "group": "grading"
+      },
+      {
+        "id": "syncworker",
+        "label": "Grade Sync Worker",
+        "sublabel": {
+          "en": "Consumes main and retry topics, calls integration API",
+          "es": "Consume tópicos principal y de reintento, llama a la API de integración"
+        },
+        "kind": "worker",
+        "group": "grading"
+      },
+      {
+        "id": "kretry",
+        "label": "Retry & Dead-Letter Topics",
+        "sublabel": {
+          "en": "Exponential backoff, then DLQ with chat alert",
+          "es": "Backoff exponencial y luego DLQ con alerta por chat"
+        },
+        "kind": "queue",
+        "group": "grading"
+      },
+      {
+        "id": "integapi",
+        "label": "Bet Integration API",
+        "sublabel": {
+          "en": "Idempotent batch bet insertion, grading and hierarchy endpoints",
+          "es": "Inserción idempotente por lotes, calificación y endpoints de jerarquía"
+        },
+        "kind": "service",
+        "group": "api"
+      },
+      {
+        "id": "ledger",
+        "label": "Bet Ledger Database",
+        "sublabel": {
+          "en": "Wager headers, player balances, accounting, duplicate tracking",
+          "es": "Encabezados de apuestas, saldos, contabilidad, control de duplicados"
+        },
+        "kind": "db",
+        "group": "data"
+      },
+      {
+        "id": "feedprov",
+        "label": "Odds Feed Provider",
+        "sublabel": {
+          "en": "Fixtures, markets, live scores and archived market snapshots",
+          "es": "Fixtures, mercados, marcadores en vivo y snapshots archivados de mercado"
+        },
+        "kind": "external",
+        "group": "ext"
+      },
+      {
+        "id": "kevents",
+        "label": "Live Event Topic",
+        "sublabel": {
+          "en": "Event and settlement messages from the lines system",
+          "es": "Mensajes de eventos y liquidaciones del sistema de líneas"
+        },
+        "kind": "queue",
+        "group": "feeds"
+      },
+      {
+        "id": "scoreworker",
+        "label": "Score & Timeline Workers",
+        "sublabel": {
+          "en": "Score updates with dead-letter, timeline derivation and reconciliation",
+          "es": "Actualización de marcadores con dead-letter, derivación y reconciliación de timelines"
+        },
+        "kind": "worker",
+        "group": "feeds"
+      },
+      {
+        "id": "lineverify",
+        "label": "Line Verification Worker",
+        "sublabel": {
+          "en": "Audits accepted odds and lines against archived market data",
+          "es": "Audita cuotas y líneas aceptadas contra datos archivados de mercado"
+        },
+        "kind": "worker",
+        "group": "reports"
+      },
+      {
+        "id": "holdworker",
+        "label": "Hold & Top-Player Workers",
+        "sublabel": {
+          "en": "Scheduled weekly fact-table recomputation",
+          "es": "Recálculo programado de tablas de hechos semanales"
+        },
+        "kind": "scheduler",
+        "group": "reports"
+      },
+      {
+        "id": "chat",
+        "label": "Chat Alerting",
+        "sublabel": {
+          "en": "Webhook notifications for DLQ and odds discrepancies",
+          "es": "Notificaciones por webhook para DLQ y discrepancias de cuotas"
+        },
+        "kind": "external",
+        "group": "ext"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "ui",
+        "to": "liveapi",
+        "label": {
+          "en": "Configure limits, run reports",
+          "es": "Configurar límites, ejecutar reportes"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "liveapi",
+        "to": "redis",
+        "label": {
+          "en": "Cache hierarchies and config",
+          "es": "Cachear jerarquías y configuración"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "liveapi",
+        "to": "sqldb",
+        "label": {
+          "en": "Read and write limits, history, facts",
+          "es": "Leer y escribir límites, historial, hechos"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "sqldb",
+        "to": "gamegrader",
+        "label": {
+          "en": "Game finished or cancelled trigger",
+          "es": "Trigger de juego finalizado o cancelado"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "gamegrader",
+        "to": "sqldb",
+        "label": {
+          "en": "Mark results, enqueue wagers",
+          "es": "Marcar resultados, encolar apuestas"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "wagerworker",
+        "to": "sqldb",
+        "label": {
+          "en": "Poll queue, serializable settlement",
+          "es": "Consultar cola, liquidación serializable"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "wagerworker",
+        "to": "outbox",
+        "label": {
+          "en": "Accounting queue rows",
+          "es": "Filas de la cola de contabilidad"
+        },
+        "async": true
+      },
+      {
+        "id": "e8",
+        "from": "outbox",
+        "to": "ktenant",
+        "label": {
+          "en": "Publish batches per tenant",
+          "es": "Publicar lotes por tenant"
+        },
+        "async": true
+      },
+      {
+        "id": "e9",
+        "from": "ktenant",
+        "to": "syncworker",
+        "label": {
+          "en": "Consume graded batch",
+          "es": "Consumir lote calificado"
+        },
+        "async": true
+      },
+      {
+        "id": "e10",
+        "from": "syncworker",
+        "to": "integapi",
+        "label": {
+          "en": "Apply grading (HTTP, circuit breaker)",
+          "es": "Aplicar calificación (HTTP, circuit breaker)"
+        },
+        "async": false
+      },
+      {
+        "id": "e11",
+        "from": "integapi",
+        "to": "ledger",
+        "label": {
+          "en": "Idempotent write with optimistic concurrency",
+          "es": "Escritura idempotente con concurrencia optimista"
+        },
+        "async": false
+      },
+      {
+        "id": "e12",
+        "from": "syncworker",
+        "to": "kretry",
+        "label": {
+          "en": "On failure: retry, then DLQ",
+          "es": "Si falla: reintento y luego DLQ"
+        },
+        "async": true
+      },
+      {
+        "id": "e13",
+        "from": "kretry",
+        "to": "chat",
+        "label": {
+          "en": "Alert on dead-letter",
+          "es": "Alerta en dead-letter"
+        },
+        "async": true
+      },
+      {
+        "id": "e14",
+        "from": "feedprov",
+        "to": "kevents",
+        "label": {
+          "en": "Event and settlement messages",
+          "es": "Mensajes de eventos y liquidaciones"
+        },
+        "async": true
+      },
+      {
+        "id": "e15",
+        "from": "kevents",
+        "to": "scoreworker",
+        "label": {
+          "en": "Consume with explicit disposition",
+          "es": "Consumir con disposición explícita"
+        },
+        "async": true
+      },
+      {
+        "id": "e16",
+        "from": "scoreworker",
+        "to": "sqldb",
+        "label": {
+          "en": "Update scores and timelines",
+          "es": "Actualizar marcadores y timelines"
+        },
+        "async": false
+      },
+      {
+        "id": "e17",
+        "from": "lineverify",
+        "to": "feedprov",
+        "label": {
+          "en": "Fetch archived market snapshot per fixture",
+          "es": "Obtener snapshot archivado de mercado por fixture"
+        },
+        "async": false
+      },
+      {
+        "id": "e18",
+        "from": "lineverify",
+        "to": "sqldb",
+        "label": {
+          "en": "Claim pending wagers (row locks), save result",
+          "es": "Reclamar apuestas pendientes (bloqueos de fila), guardar resultado"
+        },
+        "async": false
+      },
+      {
+        "id": "e19",
+        "from": "lineverify",
+        "to": "chat",
+        "label": {
+          "en": "Alert on odds discrepancy",
+          "es": "Alerta por discrepancia de cuotas"
+        },
+        "async": true
+      },
+      {
+        "id": "e20",
+        "from": "holdworker",
+        "to": "sqldb",
+        "label": {
+          "en": "Aggregate graded wagers into weekly facts",
+          "es": "Agregar apuestas calificadas en hechos semanales"
+        },
+        "async": false
+      }
+    ],
+    "flows": [
+      {
+        "id": "flow-grading",
+        "name": {
+          "en": "Game settlement to ledger",
+          "es": "De la liquidación del juego al libro"
+        },
+        "description": {
+          "en": "A finished game fires a trigger, grading marks wager results and enqueues them, the grading worker settles accounting, the outbox batches results per tenant into Kafka and the sync worker applies them idempotently to the ledger.",
+          "es": "Un juego finalizado dispara un trigger, la calificación marca resultados y encola apuestas, el worker liquida la contabilidad, el outbox agrupa resultados por tenant en Kafka y el sync worker los aplica de forma idempotente al libro."
+        },
+        "edges": [
+          "e4",
+          "e5",
+          "e6",
+          "e7",
+          "e8",
+          "e9",
+          "e10",
+          "e11"
+        ]
+      },
+      {
+        "id": "flow-retry",
+        "name": {
+          "en": "Failure handling: retry and dead-letter",
+          "es": "Manejo de fallos: reintento y dead-letter"
+        },
+        "description": {
+          "en": "When the integration call fails, the message moves to a retry topic with exponential backoff and finally to a dead-letter topic that alerts operators.",
+          "es": "Cuando falla la llamada de integración, el mensaje pasa a un tópico de reintento con backoff exponencial y finalmente a un dead-letter que alerta a los operadores."
+        },
+        "edges": [
+          "e9",
+          "e10",
+          "e12",
+          "e13"
+        ]
+      },
+      {
+        "id": "flow-integrity",
+        "name": {
+          "en": "Odds integrity audit",
+          "es": "Auditoría de integridad de cuotas"
+        },
+        "description": {
+          "en": "The audit worker claims pending wagers, compares the line and odds the player received with the archived market state at bet time and alerts on any discrepancy.",
+          "es": "El worker de auditoría reclama apuestas pendientes, compara la línea y cuota recibidas por el jugador con el estado de mercado archivado al momento de la apuesta y alerta ante cualquier discrepancia."
+        },
+        "edges": [
+          "e18",
+          "e17",
+          "e19"
+        ]
+      }
+    ]
+  }
+}

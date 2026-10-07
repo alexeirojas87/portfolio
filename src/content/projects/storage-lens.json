@@ -1,0 +1,47 @@
+{
+"slug":"storage-lens","category":"personal",
+"title":{"en":"StorageLens","es":"StorageLens"},
+"tagline":{"en":"Native macOS app that shows where disk space went and reclaims it safely","es":"App nativa de macOS que muestra a dónde se fue el disco y lo recupera con seguridad"},
+"summary":{"en":"StorageLens is a native macOS app, planned as a trustworthy disk analyzer paired with a curated, evidence-backed cleanup catalog. It is early-stage: the measurement kit (volume capacity, physical file size, Full Disk Access detection) and a first SwiftUI capacity screen are built and tested. The scanner, treemap and cleanup catalog are still on the plan.","es":"StorageLens es una app nativa de macOS, planificada como analizador de disco confiable junto a un catálogo de limpieza curado y respaldado por evidencia. Está en etapa temprana: el kit de medición (capacidad de volumen, tamaño físico de archivos, detección de Full Disk Access) y una primera pantalla SwiftUI de capacidad están construidos y probados. El escáner, el treemap y el catálogo de limpieza siguen en el plan."},
+"problem":{"en":"macOS Storage settings hide what uses the disk and report several free-space numbers that disagree. Existing cleaners are opaque. StorageLens aims to show accurate numbers first and only then offer informed, recoverable cleanup.","es":"Los ajustes de Almacenamiento de macOS ocultan qué ocupa el disco e informan varias cifras de espacio libre que no coinciden. Los limpiadores existentes son opacos. StorageLens busca mostrar números exactos primero y solo después ofrecer una limpieza informada y recuperable."},
+"role":{"en":"Solo: product plan, architecture, Swift implementation","es":"Individual: plan de producto, arquitectura, implementación en Swift"},
+"status":"prototype","year":"2026",
+"links":{"live":null,"github":null},
+"stack":[
+{"name":"Swift 6","category":"language"},
+{"name":"SwiftUI","category":"frontend"},
+{"name":"Swift Package Manager","category":"devops"},
+{"name":"XcodeGen","category":"devops"},
+{"name":"Darwin APIs (statfs)","category":"backend"},
+{"name":"XCTest","category":"testing"}],
+"highlights":[
+{"en":"Capacity accounting surfaces the distinct free-space figures macOS reports (including purgeable space) instead of collapsing them into one misleading number.","es":"La contabilidad de capacidad muestra las distintas cifras de espacio libre que reporta macOS (incluido el espacio purgable) en lugar de reducirlas a un número engañoso."},
+{"en":"Measurement logic lives in a dependency-free local Swift package (StorageLensKit), separate from the SwiftUI app target, and covered by unit tests including comparison against system output.","es":"La lógica de medición vive en un paquete Swift local sin dependencias (StorageLensKit), separado del target SwiftUI, y está cubierta por tests unitarios, incluida la comparación con la salida del sistema."},
+{"en":"Full Disk Access probe returns a tri-state (granted, denied, unknown) rather than a Bool, so the UI can degrade honestly when it cannot tell.","es":"La sonda de Full Disk Access devuelve tres estados (concedido, denegado, desconocido) en lugar de un Bool, para que la UI degrade con honestidad cuando no puede saberlo."},
+{"en":"Xcode project is generated from a versioned XcodeGen spec, with Swift 6 strict settings, so the project file is never hand-edited.","es":"El proyecto Xcode se genera desde una especificación XcodeGen versionada, con ajustes estrictos de Swift 6, por lo que nunca se edita a mano."},
+{"en":"A written product and technical plan defines MVP scope, non-goals and conservative deletion semantics (Trash by default, dry-run, undo) before any deletion code exists.","es":"Un plan técnico y de producto escrito define el alcance del MVP, los no-objetivos y una semántica de borrado conservadora (Papelera por defecto, dry-run, deshacer) antes de escribir código de borrado."}],
+"decisions":[
+{"title":{"en":"Native Swift instead of a cross-platform stack","es":"Swift nativo en lugar de un stack multiplataforma"},"why":{"en":"Correct file semantics need low-level APIs: physical allocation via st_blocks, fast traversal via getattrlistbulk, and accurate volume stats via statfs.","es":"La semántica correcta de archivos requiere APIs de bajo nivel: asignación física con st_blocks, recorrido rápido con getattrlistbulk y estadísticas de volumen exactas con statfs."}},
+{"title":{"en":"Measurement kit separated from the UI","es":"Kit de medición separado de la UI"},"why":{"en":"A package with no external dependencies keeps the core testable and reusable, while formatting stays a UI concern.","es":"Un paquete sin dependencias externas mantiene el núcleo testeable y reutilizable, y el formateo queda como responsabilidad de la UI."}},
+{"title":{"en":"The catalog is the product, not the treemap","es":"El catálogo es el producto, no el treemap"},"why":{"en":"Visualizers and cleaners already exist; the differentiator planned is a versioned catalog of cleanup targets with risk tiers and plain-language consequences.","es":"Ya existen visualizadores y limpiadores; el diferenciador planeado es un catálogo versionado de objetivos de limpieza con niveles de riesgo y consecuencias explicadas."}},
+{"title":{"en":"Non-sandboxed, Developer ID distribution","es":"Distribución sin sandbox, con Developer ID"},"why":{"en":"Scanning the whole disk requires Full Disk Access, which does not fit the App Store sandbox; the plan targets a notarized DMG.","es":"Escanear todo el disco requiere Full Disk Access, que no encaja en el sandbox de la App Store; el plan apunta a un DMG notarizado."}}],
+"architecture":{
+"groups":[{"id":"app","label":{"en":"SwiftUI app","es":"App SwiftUI"}},{"id":"kit","label":{"en":"StorageLensKit package","es":"Paquete StorageLensKit"}},{"id":"os","label":{"en":"macOS","es":"macOS"}}],
+"nodes":[
+{"id":"view","label":"DiskSummaryView","sublabel":{"en":"Capacity screen and access banner","es":"Pantalla de capacidad y banner de acceso"},"kind":"client","group":"app"},
+{"id":"model","label":"DiskSummaryModel","sublabel":{"en":"Presentation state","es":"Estado de presentación"},"kind":"service","group":"app"},
+{"id":"vol","label":"VolumeStats","sublabel":{"en":"Capacity accounting per volume","es":"Contabilidad de capacidad por volumen"},"kind":"service","group":"kit"},
+{"id":"size","label":"FileSize","sublabel":{"en":"Physical allocation measurement","es":"Medición de asignación física"},"kind":"service","group":"kit"},
+{"id":"fda","label":"FullDiskAccess","sublabel":{"en":"Tri-state permission probe","es":"Sonda de permiso de tres estados"},"kind":"service","group":"kit"},
+{"id":"sys","label":"statfs / file attributes","sublabel":{"en":"Darwin system calls","es":"Llamadas de sistema Darwin"},"kind":"external","group":"os"},
+{"id":"tcc","label":"Full Disk Access (TCC)","sublabel":{"en":"Privacy permission","es":"Permiso de privacidad"},"kind":"external","group":"os"}],
+"edges":[
+{"id":"e1","from":"view","to":"model","label":{"en":"observes","es":"observa"},"async":false},
+{"id":"e2","from":"model","to":"vol","label":{"en":"load capacity","es":"carga capacidad"},"async":false},
+{"id":"e3","from":"model","to":"fda","label":{"en":"probe access","es":"sondea acceso"},"async":false},
+{"id":"e4","from":"vol","to":"sys","label":{"en":"statfs","es":"statfs"},"async":false},
+{"id":"e5","from":"fda","to":"tcc","label":{"en":"attempt protected read","es":"intenta lectura protegida"},"async":false},
+{"id":"e6","from":"size","to":"sys","label":{"en":"read allocated blocks","es":"lee bloques asignados"},"async":false}],
+"flows":[
+{"id":"f1","name":{"en":"Show disk capacity","es":"Mostrar capacidad del disco"},"description":{"en":"The view asks the model for capacity; the kit calls statfs and returns the distinct free-space figures, and the model also checks Full Disk Access to show a banner if needed.","es":"La vista pide la capacidad al modelo; el kit llama a statfs y devuelve las cifras de espacio libre, y el modelo también revisa Full Disk Access para mostrar un banner si hace falta."},"edges":["e1","e2","e4","e3","e5"]}]}
+}

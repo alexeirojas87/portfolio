@@ -1,0 +1,117 @@
+{
+  "slug": "apagones-habana",
+  "category": "personal",
+  "title": { "en": "Apagones Habana", "es": "Apagones Habana" },
+  "tagline": { "en": "Near-real-time Havana blackout map built from a Telegram channel", "es": "Mapa de apagones de La Habana casi en tiempo real, hecho desde un canal de Telegram" },
+  "summary": {
+    "en": "A public map and Telegram bot that tells Havana residents which blocks and circuits have power. It ingests the utility's Telegram channel and its comment group, extracts outage events with rules plus LLM enrichment, and publishes a static, Cuba-reachable site with analytics, circuit pages and a conversational assistant.",
+    "es": "Un mapa público y un bot de Telegram que indican a los habaneros qué bloques y circuitos tienen corriente. Ingiere el canal de Telegram de la empresa eléctrica y su grupo de comentarios, extrae eventos de apagón con reglas más enriquecimiento con LLM, y publica un sitio estático accesible desde Cuba con analítica, páginas por circuito y un asistente conversacional."
+  },
+  "problem": {
+    "en": "Outage information in Havana is scattered across free-text posts and comments on a Telegram channel. Residents have no structured, searchable view of current state, hours without power per circuit, or history.",
+    "es": "La información de apagones en La Habana está dispersa en publicaciones y comentarios de texto libre en un canal de Telegram. Los vecinos no tienen una vista estructurada y consultable del estado actual, las horas sin corriente por circuito ni el histórico."
+  },
+  "role": { "en": "Solo: architecture, data pipeline, LLM integration, frontend, bot, deployment and ops", "es": "En solitario: arquitectura, pipeline de datos, integración LLM, frontend, bot, despliegue y operación" },
+  "status": "live",
+  "year": "2026",
+  "links": { "live": "https://apagoneshabana.lat/", "github": "https://github.com/alexeirojas87/apagones-habana" },
+  "stack": [
+    { "name": "Python 3.12", "category": "language" },
+    { "name": "JavaScript", "category": "language" },
+    { "name": "Leaflet + GeoJSON", "category": "frontend" },
+    { "name": "Cloudflare Pages", "category": "cloud" },
+    { "name": "Cloudflare Workers", "category": "cloud" },
+    { "name": "Supabase (PostgreSQL)", "category": "data" },
+    { "name": "pgvector", "category": "data" },
+    { "name": "Telethon (MTProto)", "category": "messaging" },
+    { "name": "Telegram Bot API", "category": "messaging" },
+    { "name": "NaN Builders / NVIDIA NIM / Cloudflare Workers AI", "category": "ai" },
+    { "name": "Whisper transcription", "category": "ai" },
+    { "name": "GitHub Actions", "category": "devops" },
+    { "name": "unittest regression suite", "category": "testing" }
+  ],
+  "highlights": [
+    { "en": "End-to-end pipeline from raw Telegram posts to a published static site, run by GitHub Actions and deployed to Cloudflare Pages with no always-on server.", "es": "Pipeline completo desde publicaciones crudas de Telegram hasta un sitio estático publicado, ejecutado por GitHub Actions y desplegado en Cloudflare Pages sin servidor encendido." },
+    { "en": "Independent watchdog Worker detects stale published data, cancels zombie CI runs, re-triggers ingestion and opens an alert issue after a real 18-hour stall.", "es": "Un Worker guardián independiente detecta datos publicados viejos, cancela corridas zombi de CI, relanza la ingesta y abre un issue de alerta tras un atasco real de 18 horas." },
+    { "en": "Multi-provider LLM client with preference order, fallback and per-provider daily quota tracking; the LLM enriches free text but never replaces deterministic rules.", "es": "Cliente LLM multi-proveedor con orden de preferencia, respaldo y control de cuota diaria por proveedor; el LLM enriquece texto libre pero nunca reemplaza las reglas deterministas." },
+    { "en": "Telegram assistant uses tool-calling over precomputed data and a pgvector RAG fallback, so every figure comes from deterministic tools rather than model arithmetic.", "es": "El asistente de Telegram usa tool-calling sobre datos precalculados y un RAG con pgvector de respaldo, de modo que cada cifra sale de herramientas deterministas y no de aritmética del modelo." },
+    { "en": "Extensive regression suite (about 37 test modules) gates every publish: a failing test stops deployment instead of shipping wrong state.", "es": "Suite de regresión extensa (unas 37 módulos de prueba) que bloquea cada publicación: si una prueba falla, no se despliega en lugar de publicar un estado erróneo." },
+    { "en": "Privacy-aware neighbor reports: IPs are salted and hashed, rate-limited per IP, and location is bounded to Havana.", "es": "Reportes vecinales con privacidad: las IP se hashean con sal, se limitan por IP y la ubicación se acota a La Habana." }
+  ],
+  "decisions": [
+    {
+      "title": { "en": "Cloudflare for hosting instead of Vercel/AWS", "es": "Cloudflare como hosting en vez de Vercel/AWS" },
+      "why": { "en": "Cloudflare is generally reachable from Cuban IPs, which matters because the users are in Cuba. Tiles and data are served from the same origin so nothing depends on blocked third parties.", "es": "Cloudflare normalmente es accesible desde IPs cubanas, y los usuarios están en Cuba. Los tiles y datos se sirven desde el mismo origen para no depender de terceros bloqueados." }
+    },
+    {
+      "title": { "en": "Pull-based ingestion via CI cron, not a persistent connection", "es": "Ingesta por pull con cron de CI, no una conexión persistente" },
+      "why": { "en": "Telethon fetches messages since the last stored id on each run, avoiding a paid always-on server. A user MTProto account is required because a bot cannot read the channel.", "es": "Telethon trae los mensajes desde el último id guardado en cada corrida, evitando un servidor pago siempre encendido. Hace falta una cuenta de usuario MTProto porque un bot no puede leer el canal." }
+    },
+    {
+      "title": { "en": "A Cloudflare Worker as the only trigger and watchdog", "es": "Un Worker de Cloudflare como único disparador y guardián" },
+      "why": { "en": "GitHub's own scheduler arrived late on average and overlapping triggers cancelled each other. A component outside GitHub fires workflow_dispatch and monitors freshness, so a GitHub stall cannot hide itself.", "es": "El scheduler de GitHub llegaba tarde de media y los disparos solapados se cancelaban entre sí. Un componente fuera de GitHub dispara workflow_dispatch y vigila la frescura, así un atasco de GitHub no puede ocultarse." }
+    },
+    {
+      "title": { "en": "Rules first, LLM as best-effort enrichment", "es": "Reglas primero, LLM como enriquecimiento best-effort" },
+      "why": { "en": "Official posts are highly regular, so regex rules handle most of them cheaply and predictably. LLM steps are non-blocking and state ages to unknown when there is no news, avoiding confident wrong answers.", "es": "Los partes oficiales son muy regulares, así que las reglas regex resuelven la mayoría de forma barata y predecible. Los pasos LLM no bloquean y el estado envejece a desconocido sin noticias, evitando respuestas erróneas con falsa confianza." }
+    },
+    {
+      "title": { "en": "Embeddings in Supabase pgvector instead of a static JSON", "es": "Embeddings en pgvector de Supabase en vez de un JSON estático" },
+      "why": { "en": "The vector index was too large to ship as a static file. Keeping it in the database means vectors never leave the server; the worker sends the query and receives only the top-k fragments, using 1024-dim Matryoshka embeddings to fit ivfflat limits.", "es": "El índice vectorial era demasiado grande para servirlo como archivo estático. Mantenerlo en la base evita que los vectores salgan del servidor; el worker envía la consulta y recibe solo los k fragmentos más relevantes, con embeddings Matryoshka de 1024 dimensiones para respetar los límites de ivfflat." }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      { "id": "sources", "label": { "en": "Sources and users", "es": "Fuentes y usuarios" } },
+      { "id": "pipeline", "label": { "en": "Ingestion pipeline", "es": "Pipeline de ingesta" } },
+      { "id": "data", "label": { "en": "Data", "es": "Datos" } },
+      { "id": "edge", "label": { "en": "Edge and delivery", "es": "Edge y entrega" } },
+      { "id": "external", "label": { "en": "External services", "es": "Servicios externos" } }
+    ],
+    "nodes": [
+      { "id": "tg", "label": "Telegram channel + comments", "sublabel": { "en": "Utility's official posts and discussion group", "es": "Partes oficiales y grupo de discusión" }, "kind": "external", "group": "sources" },
+      { "id": "users", "label": "Residents", "sublabel": { "en": "Web visitors and Telegram users", "es": "Visitantes web y usuarios de Telegram" }, "kind": "client", "group": "sources" },
+      { "id": "cron", "label": "Cloudflare Worker cron", "sublabel": { "en": "Trigger and freshness watchdog", "es": "Disparador y guardián de frescura" }, "kind": "scheduler", "group": "pipeline" },
+      { "id": "gha", "label": "GitHub Actions", "sublabel": { "en": "Test gate, ingest, build, deploy", "es": "Pruebas, ingesta, build y deploy" }, "kind": "worker", "group": "pipeline" },
+      { "id": "ingest", "label": "Telethon ingestor", "sublabel": { "en": "Pulls new messages and voice notes", "es": "Trae mensajes nuevos y audios" }, "kind": "service", "group": "pipeline" },
+      { "id": "extract", "label": "Rule extractor", "sublabel": { "en": "Regex events by block, circuit, zone", "es": "Eventos por regex: bloque, circuito, zona" }, "kind": "service", "group": "pipeline" },
+      { "id": "llm", "label": "LLM provider chain", "sublabel": { "en": "NaN, NVIDIA NIM, Workers AI, Whisper", "es": "NaN, NVIDIA NIM, Workers AI, Whisper" }, "kind": "ai", "group": "external" },
+      { "id": "build", "label": "Static data builders", "sublabel": { "en": "estado.json, circuits, analytics, SEO", "es": "estado.json, circuitos, analítica, SEO" }, "kind": "service", "group": "pipeline" },
+      { "id": "db", "label": "Supabase PostgreSQL", "sublabel": { "en": "Messages, events, reports, pgvector index", "es": "Mensajes, eventos, reportes, índice pgvector" }, "kind": "db", "group": "data" },
+      { "id": "pages", "label": "Cloudflare Pages + Worker API", "sublabel": { "en": "Static site, /api/reporte, /api/reportes", "es": "Sitio estático, /api/reporte, /api/reportes" }, "kind": "gateway", "group": "edge" },
+      { "id": "web", "label": "Leaflet web map", "sublabel": { "en": "Map, circuits, analytics, FAQ", "es": "Mapa, circuitos, analítica, FAQ" }, "kind": "client", "group": "edge" },
+      { "id": "bot", "label": "Telegram bot Worker", "sublabel": { "en": "Tool-calling agent plus RAG", "es": "Agente con tool-calling y RAG" }, "kind": "service", "group": "edge" },
+      { "id": "gh", "label": "GitHub Issues", "sublabel": { "en": "Suggestions inbox and guardian alerts", "es": "Buzón de sugerencias y alertas del guardián" }, "kind": "external", "group": "external" },
+      { "id": "mail", "label": "Mailtrap", "sublabel": { "en": "Weekly summary email", "es": "Resumen semanal por email" }, "kind": "external", "group": "external" }
+    ],
+    "edges": [
+      { "id": "e1", "from": "cron", "to": "gha", "label": { "en": "workflow_dispatch", "es": "workflow_dispatch" }, "async": true },
+      { "id": "e2", "from": "gha", "to": "ingest", "label": { "en": "runs after tests pass", "es": "corre tras pasar las pruebas" }, "async": false },
+      { "id": "e3", "from": "tg", "to": "ingest", "label": { "en": "MTProto pull since last id", "es": "Pull MTProto desde el último id" }, "async": false },
+      { "id": "e4", "from": "ingest", "to": "db", "label": { "en": "raw messages", "es": "mensajes crudos" }, "async": false },
+      { "id": "e5", "from": "db", "to": "extract", "label": { "en": "unprocessed messages", "es": "mensajes sin procesar" }, "async": false },
+      { "id": "e6", "from": "extract", "to": "db", "label": { "en": "outage events", "es": "eventos de apagón" }, "async": false },
+      { "id": "e7", "from": "db", "to": "llm", "label": { "en": "free-text partes and comments", "es": "partes y comentarios en texto libre" }, "async": false },
+      { "id": "e8", "from": "llm", "to": "db", "label": { "en": "structured enrichment", "es": "enriquecimiento estructurado" }, "async": false },
+      { "id": "e9", "from": "db", "to": "build", "label": { "en": "aggregate current state", "es": "agrega el estado actual" }, "async": false },
+      { "id": "e10", "from": "build", "to": "pages", "label": { "en": "wrangler pages deploy", "es": "wrangler pages deploy" }, "async": false },
+      { "id": "e11", "from": "pages", "to": "web", "label": { "en": "static assets and JSON", "es": "assets estáticos y JSON" }, "async": false },
+      { "id": "e12", "from": "web", "to": "pages", "label": { "en": "POST /api/reporte", "es": "POST /api/reporte" }, "async": false },
+      { "id": "e13", "from": "pages", "to": "db", "label": { "en": "hashed-IP report insert", "es": "inserta reporte con IP hasheada" }, "async": false },
+      { "id": "e14", "from": "users", "to": "bot", "label": { "en": "Telegram webhook", "es": "webhook de Telegram" }, "async": false },
+      { "id": "e15", "from": "bot", "to": "llm", "label": { "en": "tool-calling chat completion", "es": "chat completion con tool-calling" }, "async": false },
+      { "id": "e16", "from": "bot", "to": "db", "label": { "en": "pgvector semantic search", "es": "búsqueda semántica pgvector" }, "async": false },
+      { "id": "e17", "from": "bot", "to": "pages", "label": { "en": "reads precomputed JSON", "es": "lee JSON precalculado" }, "async": false },
+      { "id": "e18", "from": "cron", "to": "pages", "label": { "en": "checks estado.json age", "es": "revisa la edad de estado.json" }, "async": false },
+      { "id": "e19", "from": "cron", "to": "gh", "label": { "en": "cancels zombie runs, opens alert", "es": "cancela corridas zombi, abre alerta" }, "async": true },
+      { "id": "e20", "from": "pages", "to": "gh", "label": { "en": "suggestions become issues", "es": "las sugerencias se vuelven issues" }, "async": true },
+      { "id": "e21", "from": "build", "to": "mail", "label": { "en": "weekly digest", "es": "resumen semanal" }, "async": true }
+    ],
+    "flows": [
+      { "id": "f1", "name": { "en": "From Telegram post to published map", "es": "De publicación de Telegram a mapa publicado" }, "description": { "en": "The cron Worker dispatches the pipeline, the ingestor pulls new posts, rules and the LLM turn them into events, and builders publish fresh static data to Pages.", "es": "El Worker cron dispara el pipeline, el ingestor trae las publicaciones nuevas, las reglas y el LLM las convierten en eventos y los builders publican datos estáticos frescos en Pages." }, "edges": ["e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "e10", "e11"] },
+      { "id": "f2", "name": { "en": "Self-healing watchdog", "es": "Guardián autorreparable" }, "description": { "en": "When the published state looks stale, the Worker clears stuck CI runs, re-dispatches ingestion and raises an issue if it stays stale.", "es": "Cuando el estado publicado parece viejo, el Worker limpia corridas de CI atascadas, relanza la ingesta y abre un issue si sigue viejo." }, "edges": ["e18", "e19", "e1"] },
+      { "id": "f3", "name": { "en": "Asking the Telegram bot", "es": "Preguntar al bot de Telegram" }, "description": { "en": "A user question reaches the bot webhook; the LLM calls deterministic tools over published data and falls back to vector search over raw partes.", "es": "La pregunta llega al webhook del bot; el LLM llama herramientas deterministas sobre datos publicados y recurre a búsqueda vectorial sobre partes crudos." }, "edges": ["e14", "e15", "e17", "e16"] },
+      { "id": "f4", "name": { "en": "Neighbor outage report", "es": "Reporte vecinal de apagón" }, "description": { "en": "A visitor reports no power from the map; the Worker validates, rate-limits by hashed IP and stores it.", "es": "Un visitante reporta que no hay corriente desde el mapa; el Worker valida, limita por IP hasheada y lo guarda." }, "edges": ["e12", "e13"] }
+    ]
+  }
+}

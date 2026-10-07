@@ -1,0 +1,684 @@
+{
+  "slug": "agentic-orchestration",
+  "category": "corporate",
+  "title": {
+    "en": "Agentic SDLC Orchestration Platform",
+    "es": "Plataforma de Orquestación Agéntica del SDLC"
+  },
+  "tagline": {
+    "en": "Persisted state machine coordinating AI agents from backlog item to approved pull request",
+    "es": "Máquina de estados que coordina agentes de IA del backlog al PR aprobado"
+  },
+  "summary": {
+    "en": "An internal platform that turns work-tracking items into reviewed pull requests by coordinating specialized AI agents for requirements, QA planning, development, adversarial review and CI repair. A multi-provider LLM gateway with a prompt-safety layer, an MCP server exposing scoped tools, vector memory and a code-to-graph indexer provide the shared infrastructure, with human approval gates at every critical step.",
+    "es": "Plataforma interna que convierte ítems de un sistema de seguimiento de trabajo en pull requests revisados, coordinando agentes de IA especializados en requisitos, planificación de QA, desarrollo, revisión adversarial y reparación de CI. Un gateway de LLM multi-proveedor con capa de seguridad de prompts, un servidor MCP con herramientas acotadas, memoria vectorial y un indexador código a grafo forman la infraestructura compartida, con aprobación humana en cada paso crítico."
+  },
+  "problem": {
+    "en": "Teams wanted LLM-assisted delivery but could not allow agents to talk directly to providers, leak sensitive data in prompts, hold unrestricted repository or backlog access, or lose work when a long-running run crashed. The challenge was to make agent behavior auditable, resumable and governed, rather than a chain of ad hoc prompts.",
+    "es": "Los equipos querían entrega asistida por LLM pero no podían permitir que los agentes hablaran directo con los proveedores, filtraran datos sensibles en prompts, tuvieran acceso irrestricto al repositorio o al backlog, ni perdieran trabajo cuando una ejecución larga fallaba. El reto era volver auditable, reanudable y gobernado el comportamiento de los agentes, en lugar de una cadena de prompts ad hoc."
+  },
+  "role": {
+    "en": "Lead engineer and architect: workflow state machine, LLM gateway, prompt-safety integration, MCP tool surface, vector memory, indexer design, portal and deployment shape.",
+    "es": "Ingeniero líder y arquitecto: máquina de estados de flujos, gateway de LLM, integración de seguridad de prompts, superficie de herramientas MCP, memoria vectorial, diseño del indexador, portal y forma de despliegue."
+  },
+  "status": "production",
+  "year": "2026",
+  "links": {
+    "live": null,
+    "github": null
+  },
+  "stack": [
+    {
+      "name": "C#",
+      "category": "language"
+    },
+    {
+      "name": ".NET 10",
+      "category": "backend"
+    },
+    {
+      "name": "ASP.NET Core",
+      "category": "backend"
+    },
+    {
+      "name": "Model Context Protocol (MCP)",
+      "category": "ai"
+    },
+    {
+      "name": "OpenAI",
+      "category": "ai"
+    },
+    {
+      "name": "Anthropic",
+      "category": "ai"
+    },
+    {
+      "name": "Self-hosted LLM",
+      "category": "ai"
+    },
+    {
+      "name": "Qdrant",
+      "category": "data"
+    },
+    {
+      "name": "Embeddings (OpenAI / Voyage)",
+      "category": "ai"
+    },
+    {
+      "name": "Couchbase",
+      "category": "data"
+    },
+    {
+      "name": "Azure Blob Storage",
+      "category": "cloud"
+    },
+    {
+      "name": "Azure Key Vault",
+      "category": "cloud"
+    },
+    {
+      "name": "Azure DevOps",
+      "category": "devops"
+    },
+    {
+      "name": "Microsoft Teams bot",
+      "category": "other"
+    },
+    {
+      "name": "Roslyn",
+      "category": "backend"
+    },
+    {
+      "name": "React",
+      "category": "frontend"
+    },
+    {
+      "name": "TypeScript",
+      "category": "language"
+    },
+    {
+      "name": "SignalR",
+      "category": "frontend"
+    },
+    {
+      "name": "Playwright",
+      "category": "testing"
+    },
+    {
+      "name": "Docker",
+      "category": "devops"
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Designed a persisted workflow state machine (requirements, QA planning, plan approval, development, review, rework, PR publishing, CI monitoring and fixing, human approval) with durable pending-work queues, leases and recovery, so runs survive restarts and resume exactly where they stopped.",
+      "es": "Diseñé una máquina de estados persistida (requisitos, planificación de QA, aprobación de plan, desarrollo, revisión, retrabajo, publicación de PR, monitoreo y reparación de CI, aprobación humana) con colas de trabajo pendientes durables, leases y recuperación, de modo que las ejecuciones sobreviven reinicios y retoman exactamente donde se detuvieron."
+    },
+    {
+      "en": "Built a multi-provider LLM gateway with role-based routing, per-role rate limiting, provider fallback with circuit breaking, automatic continuation of truncated responses, health monitoring with operational alerts, and full audit with optional payload archival.",
+      "es": "Construí un gateway de LLM multi-proveedor con enrutamiento por rol, límites de tasa por rol, fallback entre proveedores con circuit breaker, continuación automática de respuestas truncadas, monitoreo de salud con alertas operativas y auditoría completa con archivado opcional de payloads."
+    },
+    {
+      "en": "Integrated an in-process prompt-safety layer driven by shared detection rules that blocks secrets, credentials and personal or payment data before any request leaves the trust boundary.",
+      "es": "Integré una capa de seguridad de prompts en proceso, guiada por reglas de detección compartidas, que bloquea secretos, credenciales y datos personales o de pago antes de que cualquier solicitud salga del límite de confianza."
+    },
+    {
+      "en": "Implemented an MCP server exposing least-privilege tools for work-item reading and tagging, branch, file and pull-request operations, code-graph queries, vector memory and test execution, with role-scoped permissions and audit records enforced at runtime.",
+      "es": "Implementé un servidor MCP con herramientas de mínimo privilegio para lectura y etiquetado de ítems, operaciones de ramas, archivos y pull requests, consultas al grafo de código, memoria vectorial y ejecución de pruebas, con permisos por rol y registros de auditoría aplicados en tiempo de ejecución."
+    },
+    {
+      "en": "Created a Roslyn-based indexer that emits an immutable, commit-addressed structural graph of projects, types, members and references, giving the planner and dev agent precise code context instead of raw file dumps.",
+      "es": "Creé un indexador basado en Roslyn que emite un grafo estructural inmutable, direccionado por commit, de proyectos, tipos, miembros y referencias, dando al planificador y al agente de desarrollo contexto de código preciso en lugar de volcados de archivos."
+    },
+    {
+      "en": "Isolated code execution in a container-based workspace worker that clones, edits, builds and tests repositories, plus a browser test runner producing evidence artifacts, all behind approval gates for risky commands.",
+      "es": "Aislé la ejecución de código en un worker de workspace en contenedor que clona, edita, compila y prueba repositorios, además de un runner de pruebas de navegador que produce evidencia, todo tras puertas de aprobación para comandos riesgosos."
+    },
+    {
+      "en": "Shipped a real-time portal showing the lifecycle, live agent activity, gates and run history, with approvals and clarifications available both in the portal and as chat cards.",
+      "es": "Entregué un portal en tiempo real que muestra el ciclo de vida, la actividad en vivo de los agentes, las puertas y el historial de ejecuciones, con aprobaciones y aclaraciones disponibles tanto en el portal como en tarjetas de chat."
+    }
+  ],
+  "decisions": [
+    {
+      "title": {
+        "en": "The agent is not the model, and the gateway is not the agent",
+        "es": "El agente no es el modelo y el gateway no es el agente"
+      },
+      "why": {
+        "en": "Workflow state, tools and memory live in the orchestrator and agent runtimes; the gateway only provides safe, audited, routed model access and knows nothing about work items or branches. This keeps each concern replaceable and the gateway reusable by any caller.",
+        "es": "El estado del flujo, las herramientas y la memoria viven en el orquestador y los runtimes de agentes; el gateway solo ofrece acceso al modelo seguro, auditado y enrutado, y no sabe nada de ítems ni ramas. Así cada responsabilidad es reemplazable y el gateway reutilizable por cualquier cliente."
+      }
+    },
+    {
+      "title": {
+        "en": "Durable, leased state machine instead of in-memory loops",
+        "es": "Máquina de estados durable con leases en lugar de bucles en memoria"
+      },
+      "why": {
+        "en": "LLM runs are long, flaky and expensive. Persisting the phase, pending work and execution lease allows recovery after crashes, scheduled retries on provider failures, and parking runs that need a human decision, then resuming the same transcript and plan.",
+        "es": "Las ejecuciones con LLM son largas, frágiles y costosas. Persistir la fase, el trabajo pendiente y el lease permite recuperación tras caídas, reintentos programados ante fallos de proveedor y estacionar ejecuciones que requieren decisión humana, para luego reanudar la misma transcripción y plan."
+      }
+    },
+    {
+      "title": {
+        "en": "Prompt safety as an in-process pre-flight gate",
+        "es": "Seguridad de prompts como compuerta previa en proceso"
+      },
+      "why": {
+        "en": "Scanning before routing means sensitive content never reaches an external provider, with no extra network hop. Rules are shared data, so they evolve without redeploying the gateway.",
+        "es": "Escanear antes del enrutamiento garantiza que el contenido sensible nunca llegue a un proveedor externo, sin salto de red adicional. Las reglas son datos compartidos, por lo que evolucionan sin redesplegar el gateway."
+      }
+    },
+    {
+      "title": {
+        "en": "Separate roles and providers for builder and reviewer",
+        "es": "Roles y proveedores separados para constructor y revisor"
+      },
+      "why": {
+        "en": "An adversarial reviewer on a different role, and preferably a different model, reduces correlated blind spots. Review findings flow back to the dev agent as structured rework, with a bounded number of iterations before escalating to a human.",
+        "es": "Un revisor adversarial con otro rol, y preferiblemente otro modelo, reduce puntos ciegos correlacionados. Los hallazgos regresan al agente de desarrollo como retrabajo estructurado, con un número acotado de iteraciones antes de escalar a una persona."
+      }
+    },
+    {
+      "title": {
+        "en": "Tools enforced by the MCP server, not by prompt text",
+        "es": "Herramientas impuestas por el servidor MCP, no por texto del prompt"
+      },
+      "why": {
+        "en": "Permissions per agent role, protected-branch rules and branch naming are validated server-side, and no generic mutation tool exists. A compromised or confused prompt cannot exceed its authority.",
+        "es": "Los permisos por rol de agente, las reglas de ramas protegidas y la nomenclatura de ramas se validan en el servidor y no existe una herramienta genérica de mutación. Un prompt comprometido o confundido no puede exceder su autoridad."
+      }
+    },
+    {
+      "title": {
+        "en": "Immutable commit-addressed code graph",
+        "es": "Grafo de código inmutable direccionado por commit"
+      },
+      "why": {
+        "en": "Stable symbol identities (hash of repo, qualified name and signature) and per-commit generations make context retrieval reproducible and cheap, and let multi-solution repositories merge into a single index.",
+        "es": "Identidades de símbolo estables (hash de repositorio, nombre calificado y firma) y generaciones por commit hacen la recuperación de contexto reproducible y barata, y permiten fusionar repositorios multi-solución en un único índice."
+      }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      {
+        "id": "entry",
+        "label": {
+          "en": "Entry & Human Gates",
+          "es": "Entrada y Puertas Humanas"
+        }
+      },
+      {
+        "id": "orch",
+        "label": {
+          "en": "Orchestration & Agents",
+          "es": "Orquestación y Agentes"
+        }
+      },
+      {
+        "id": "tools",
+        "label": {
+          "en": "Tools & Context (MCP)",
+          "es": "Herramientas y Contexto (MCP)"
+        }
+      },
+      {
+        "id": "gw",
+        "label": {
+          "en": "LLM Gateway",
+          "es": "Gateway de LLM"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Data Stores",
+          "es": "Almacenes de Datos"
+        }
+      },
+      {
+        "id": "ext",
+        "label": {
+          "en": "External Systems",
+          "es": "Sistemas Externos"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "portal",
+        "label": "Agent Portal",
+        "sublabel": {
+          "en": "Real-time lifecycle view, gates, approvals and run history",
+          "es": "Vista en tiempo real del ciclo, puertas, aprobaciones e historial"
+        },
+        "kind": "client",
+        "group": "entry"
+      },
+      {
+        "id": "chat",
+        "label": "Chat Bot Channel",
+        "sublabel": {
+          "en": "Commands, approval cards and clarifications in team chat",
+          "es": "Comandos, tarjetas de aprobación y aclaraciones en el chat del equipo"
+        },
+        "kind": "client",
+        "group": "entry"
+      },
+      {
+        "id": "orchestrator",
+        "label": "Workflow Orchestrator",
+        "sublabel": {
+          "en": "Persisted state machine: dispatch, park, resume, recover",
+          "es": "Máquina de estados persistida: despachar, estacionar, reanudar, recuperar"
+        },
+        "kind": "service",
+        "group": "orch"
+      },
+      {
+        "id": "runstore",
+        "label": "Run & Lease Store",
+        "sublabel": {
+          "en": "Couchbase: runs, pending work, leases, notifications",
+          "es": "Couchbase: ejecuciones, trabajo pendiente, leases, notificaciones"
+        },
+        "kind": "db",
+        "group": "data"
+      },
+      {
+        "id": "defagent",
+        "label": "Definition Agent",
+        "sublabel": {
+          "en": "Drafts AI-ready work items from requests",
+          "es": "Redacta ítems listos para IA a partir de solicitudes"
+        },
+        "kind": "worker",
+        "group": "orch"
+      },
+      {
+        "id": "qaagent",
+        "label": "QA Agent",
+        "sublabel": {
+          "en": "Generates test plans and suites",
+          "es": "Genera planes y suites de pruebas"
+        },
+        "kind": "worker",
+        "group": "orch"
+      },
+      {
+        "id": "devagent",
+        "label": "Dev Agent",
+        "sublabel": {
+          "en": "Plans, edits code, runs tests, handles rework and CI fixes",
+          "es": "Planifica, edita código, ejecuta pruebas, atiende retrabajo y arreglos de CI"
+        },
+        "kind": "worker",
+        "group": "orch"
+      },
+      {
+        "id": "reviewagent",
+        "label": "Review Agent",
+        "sublabel": {
+          "en": "Adversarial pull-request review on a separate role",
+          "es": "Revisión adversarial de pull requests en un rol separado"
+        },
+        "kind": "worker",
+        "group": "orch"
+      },
+      {
+        "id": "mcp",
+        "label": "MCP Tool Server",
+        "sublabel": {
+          "en": "Role-scoped tools: work items, repos, PRs, memory, code graph, tests",
+          "es": "Herramientas por rol: ítems, repos, PRs, memoria, grafo de código, pruebas"
+        },
+        "kind": "gateway",
+        "group": "tools"
+      },
+      {
+        "id": "workspace",
+        "label": "Containerized Workspace Worker",
+        "sublabel": {
+          "en": "Clones, edits, builds and tests repositories in isolation",
+          "es": "Clona, edita, compila y prueba repositorios de forma aislada"
+        },
+        "kind": "worker",
+        "group": "tools"
+      },
+      {
+        "id": "indexer",
+        "label": "Code-to-Graph Indexer",
+        "sublabel": {
+          "en": "Roslyn structural graph emitted per commit",
+          "es": "Grafo estructural con Roslyn emitido por commit"
+        },
+        "kind": "worker",
+        "group": "tools"
+      },
+      {
+        "id": "vector",
+        "label": "Vector Memory",
+        "sublabel": {
+          "en": "Curated episodic memory with embeddings",
+          "es": "Memoria episódica curada con embeddings"
+        },
+        "kind": "db",
+        "group": "data"
+      },
+      {
+        "id": "gateway",
+        "label": "LLM Gateway",
+        "sublabel": {
+          "en": "Input analysis, rate limits, routing, continuation, audit",
+          "es": "Análisis de entrada, límites, enrutamiento, continuación, auditoría"
+        },
+        "kind": "gateway",
+        "group": "gw"
+      },
+      {
+        "id": "safety",
+        "label": "Prompt Safety Scanner",
+        "sublabel": {
+          "en": "In-process detection of secrets and sensitive data",
+          "es": "Detección en proceso de secretos y datos sensibles"
+        },
+        "kind": "ai",
+        "group": "gw"
+      },
+      {
+        "id": "provider",
+        "label": "LLM Providers",
+        "sublabel": {
+          "en": "Primary, fallback and self-hosted models with output validation",
+          "es": "Modelos primario, de respaldo y autoalojado con validación de salida"
+        },
+        "kind": "external",
+        "group": "ext"
+      },
+      {
+        "id": "audit",
+        "label": "Audit Log & Payload Archive",
+        "sublabel": {
+          "en": "Couchbase audit records and blob payload archive",
+          "es": "Registros de auditoría en Couchbase y archivo de payloads en blob"
+        },
+        "kind": "storage",
+        "group": "data"
+      },
+      {
+        "id": "ado",
+        "label": "Work-Tracking & Repos System",
+        "sublabel": {
+          "en": "Work items, branches, pull requests, pipelines",
+          "es": "Ítems de trabajo, ramas, pull requests, pipelines"
+        },
+        "kind": "external",
+        "group": "ext"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "ado",
+        "to": "orchestrator",
+        "label": {
+          "en": "Work item ready signal (webhook)",
+          "es": "Señal de ítem listo (webhook)"
+        },
+        "async": true
+      },
+      {
+        "id": "e2",
+        "from": "chat",
+        "to": "orchestrator",
+        "label": {
+          "en": "Commands and card actions",
+          "es": "Comandos y acciones de tarjeta"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "orchestrator",
+        "to": "runstore",
+        "label": {
+          "en": "Persist phase, pending work, lease",
+          "es": "Persistir fase, trabajo pendiente, lease"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "orchestrator",
+        "to": "defagent",
+        "label": {
+          "en": "Dispatch definition phase",
+          "es": "Despachar fase de definición"
+        },
+        "async": true
+      },
+      {
+        "id": "e5",
+        "from": "orchestrator",
+        "to": "qaagent",
+        "label": {
+          "en": "Dispatch QA planning",
+          "es": "Despachar planificación de QA"
+        },
+        "async": true
+      },
+      {
+        "id": "e6",
+        "from": "orchestrator",
+        "to": "devagent",
+        "label": {
+          "en": "Dispatch plan and dev phases",
+          "es": "Despachar fases de plan y desarrollo"
+        },
+        "async": true
+      },
+      {
+        "id": "e7",
+        "from": "orchestrator",
+        "to": "reviewagent",
+        "label": {
+          "en": "Dispatch review phase",
+          "es": "Despachar fase de revisión"
+        },
+        "async": true
+      },
+      {
+        "id": "e8",
+        "from": "devagent",
+        "to": "mcp",
+        "label": {
+          "en": "Tool calls: read item, memory, graph, push, PR",
+          "es": "Llamadas a herramientas: leer ítem, memoria, grafo, push, PR"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "mcp",
+        "to": "ado",
+        "label": {
+          "en": "Scoped item, branch and PR operations",
+          "es": "Operaciones acotadas de ítems, ramas y PRs"
+        },
+        "async": false
+      },
+      {
+        "id": "e10",
+        "from": "mcp",
+        "to": "workspace",
+        "label": {
+          "en": "Clone, edit, build, test",
+          "es": "Clonar, editar, compilar, probar"
+        },
+        "async": false
+      },
+      {
+        "id": "e11",
+        "from": "mcp",
+        "to": "vector",
+        "label": {
+          "en": "Search and upsert memory",
+          "es": "Buscar e insertar memoria"
+        },
+        "async": false
+      },
+      {
+        "id": "e12",
+        "from": "indexer",
+        "to": "mcp",
+        "label": {
+          "en": "Publish commit-addressed code graph",
+          "es": "Publicar grafo de código por commit"
+        },
+        "async": true
+      },
+      {
+        "id": "e13",
+        "from": "devagent",
+        "to": "gateway",
+        "label": {
+          "en": "Completion request",
+          "es": "Solicitud de completado"
+        },
+        "async": false
+      },
+      {
+        "id": "e14",
+        "from": "gateway",
+        "to": "safety",
+        "label": {
+          "en": "Scan prompt and metadata",
+          "es": "Escanear prompt y metadatos"
+        },
+        "async": false
+      },
+      {
+        "id": "e15",
+        "from": "gateway",
+        "to": "provider",
+        "label": {
+          "en": "Routed call, retry or fallback",
+          "es": "Llamada enrutada, reintento o fallback"
+        },
+        "async": false
+      },
+      {
+        "id": "e16",
+        "from": "gateway",
+        "to": "audit",
+        "label": {
+          "en": "Audit allowed and rejected requests",
+          "es": "Auditar solicitudes permitidas y rechazadas"
+        },
+        "async": true
+      },
+      {
+        "id": "e17",
+        "from": "reviewagent",
+        "to": "gateway",
+        "label": {
+          "en": "Review completions on separate role",
+          "es": "Completados de revisión en rol separado"
+        },
+        "async": false
+      },
+      {
+        "id": "e18",
+        "from": "orchestrator",
+        "to": "portal",
+        "label": {
+          "en": "Live events and gate state (SignalR)",
+          "es": "Eventos en vivo y estado de puertas (SignalR)"
+        },
+        "async": true
+      },
+      {
+        "id": "e19",
+        "from": "portal",
+        "to": "orchestrator",
+        "label": {
+          "en": "Human approvals and clarifications",
+          "es": "Aprobaciones y aclaraciones humanas"
+        },
+        "async": false
+      },
+      {
+        "id": "e20",
+        "from": "ado",
+        "to": "orchestrator",
+        "label": {
+          "en": "CI status and PR feedback",
+          "es": "Estado de CI y feedback del PR"
+        },
+        "async": true
+      }
+    ],
+    "flows": [
+      {
+        "id": "flow-lifecycle",
+        "name": {
+          "en": "Work item to approved pull request",
+          "es": "De ítem de trabajo a pull request aprobado"
+        },
+        "description": {
+          "en": "A ready signal creates a persisted run; the orchestrator dispatches definition, QA planning, plan approval, development, review and rework, then publishes a pull request, watches CI, and waits for human approval.",
+          "es": "Una señal de listo crea una ejecución persistida; el orquestador despacha definición, planificación de QA, aprobación de plan, desarrollo, revisión y retrabajo, luego publica un pull request, vigila el CI y espera aprobación humana."
+        },
+        "edges": [
+          "e1",
+          "e3",
+          "e4",
+          "e5",
+          "e6",
+          "e18",
+          "e19",
+          "e7",
+          "e20"
+        ]
+      },
+      {
+        "id": "flow-gateway",
+        "name": {
+          "en": "Safe LLM completion",
+          "es": "Completado seguro de LLM"
+        },
+        "description": {
+          "en": "An agent sends a request to the gateway, which applies role rate limits, scans for sensitive content, routes to a provider with fallback and continuation, validates output, and audits the outcome.",
+          "es": "Un agente envía una solicitud al gateway, que aplica límites por rol, escanea contenido sensible, enruta a un proveedor con fallback y continuación, valida la salida y audita el resultado."
+        },
+        "edges": [
+          "e13",
+          "e14",
+          "e15",
+          "e16"
+        ]
+      },
+      {
+        "id": "flow-dev-tools",
+        "name": {
+          "en": "Dev agent tool loop",
+          "es": "Bucle de herramientas del agente de desarrollo"
+        },
+        "description": {
+          "en": "The dev agent loads memory and code-graph context through MCP, calls the gateway, applies edits and tests in the isolated workspace, then pushes a branch and opens a pull request through scoped tools.",
+          "es": "El agente de desarrollo carga memoria y contexto del grafo por MCP, llama al gateway, aplica ediciones y pruebas en el workspace aislado, luego empuja una rama y abre un pull request con herramientas acotadas."
+        },
+        "edges": [
+          "e8",
+          "e11",
+          "e13",
+          "e10",
+          "e9",
+          "e12"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,657 @@
+{
+  "slug": "wagering-platform",
+  "category": "corporate",
+  "title": {
+    "en": "Sports Wagering Platform",
+    "es": "Plataforma de Apuestas Deportivas"
+  },
+  "tagline": {
+    "en": "Event-driven bet intake, validation and settlement pipeline on Kafka and .NET",
+    "es": "Pipeline orientado a eventos: recepción, validación y registro de apuestas"
+  },
+  "summary": {
+    "en": "Backend microservice suite for an online sports betting operator. It accepts pregame and live wagers, validates them against player limits and live odds, persists them into the bet ledger and pushes every state change back to the front-end in real time. Live wagers add player-specific delays, history-aware limits and transactional inserts under per-player locks.",
+    "es": "Suite de microservicios backend para un operador de apuestas deportivas en línea. Recibe apuestas pregame y en vivo, las valida contra límites del jugador y cuotas vigentes, las persiste en el libro de apuestas y devuelve cada cambio de estado al front-end en tiempo real. Las apuestas en vivo añaden retardos por jugador, límites con historial e inserciones transaccionales con bloqueo por jugador."
+  },
+  "problem": {
+    "en": "A monolithic, synchronous bet-insertion path could not absorb peak event traffic, gave players no feedback while a bet was being validated, and tied limit rules to a legacy stored-procedure model that was hard to test or evolve. The operator needed to decouple intake from validation and persistence, keep strict ordering per player, and introduce richer live-betting limit rules without breaking the legacy ledger.",
+    "es": "Una ruta monolítica y síncrona de inserción de apuestas no soportaba los picos de tráfico de eventos, no daba retroalimentación al jugador durante la validación y ataba las reglas de límites a un modelo heredado de procedimientos almacenados, difícil de probar y evolucionar. El operador necesitaba desacoplar recepción, validación y persistencia, mantener orden estricto por jugador e introducir reglas de límites en vivo más ricas sin romper el libro de apuestas heredado."
+  },
+  "role": {
+    "en": "Senior backend engineer: service and pipeline design, Kafka handlers, live-limits engine, transactional live-bet persistence, resilience, CI/CD and Kubernetes packaging.",
+    "es": "Ingeniero backend senior: diseño de servicios y pipeline, handlers de Kafka, motor de límites en vivo, persistencia transaccional de apuestas en vivo, resiliencia, CI/CD y empaquetado para Kubernetes."
+  },
+  "status": "production",
+  "year": "2026",
+  "links": {
+    "live": null,
+    "github": null
+  },
+  "stack": [
+    {
+      "name": "C#",
+      "category": "language"
+    },
+    {
+      "name": ".NET 10",
+      "category": "backend"
+    },
+    {
+      "name": "ASP.NET Core",
+      "category": "backend"
+    },
+    {
+      "name": "Kafka",
+      "category": "messaging"
+    },
+    {
+      "name": "Avro / Schema Registry",
+      "category": "messaging"
+    },
+    {
+      "name": "SignalR",
+      "category": "backend"
+    },
+    {
+      "name": "SQL Server",
+      "category": "data"
+    },
+    {
+      "name": "Dapper",
+      "category": "data"
+    },
+    {
+      "name": "Polly / Http.Resilience",
+      "category": "backend"
+    },
+    {
+      "name": "OpenTelemetry",
+      "category": "devops"
+    },
+    {
+      "name": "Serilog",
+      "category": "devops"
+    },
+    {
+      "name": "xUnit",
+      "category": "testing"
+    },
+    {
+      "name": "Docker",
+      "category": "devops"
+    },
+    {
+      "name": "Helm / Kubernetes",
+      "category": "devops"
+    },
+    {
+      "name": "GitLab CI",
+      "category": "devops"
+    },
+    {
+      "name": "NuGet (private feed)",
+      "category": "devops"
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Designed a three-stage Kafka pipeline (intake, validation, persistence) with a dedicated notification stream, so every wager moves through explicit states and the player always sees progress.",
+      "es": "Diseñé un pipeline de Kafka en tres etapas (recepción, validación, persistencia) con un flujo de notificación dedicado, de modo que cada apuesta avanza por estados explícitos y el jugador siempre ve el progreso."
+    },
+    {
+      "en": "Implemented live-bet delay as a loop-back on the validation topic: the batch is re-published keyed by player until the latest per-player delay elapses, preserving ordering without timers or extra infrastructure.",
+      "es": "Implementé el retardo de apuestas en vivo como un reenvío al mismo tópico de validación: el lote se republica con clave por jugador hasta que vence el mayor retardo, preservando el orden sin temporizadores ni infraestructura adicional."
+    },
+    {
+      "en": "Extracted a deterministic, infrastructure-free limits engine as a versioned NuGet package (static limits plus history-aware per-game caps and surpass rules) shared by the API, the validation service and a new Blazor client.",
+      "es": "Extraje un motor de límites determinista y sin infraestructura como paquete NuGet versionado (límites estáticos más topes por juego con historial y reglas de superación), compartido por la API, el servicio de validación y un nuevo cliente Blazor."
+    },
+    {
+      "en": "Made live-bet insertion transactional and concurrency-safe using per-player application locks, atomic upserts and bounded semaphores for catalog lookups, rejecting cleanly when upstream limit data is missing or inconsistent.",
+      "es": "Hice la inserción de apuestas en vivo transaccional y segura ante concurrencia con bloqueos de aplicación por jugador, upserts atómicos y semáforos acotados para consultas de catálogo, rechazando limpiamente cuando faltan datos de límites o son inconsistentes."
+    },
+    {
+      "en": "Added idempotency and age thresholds (stale wagers are rejected at both validation and persistence), plus stable transaction identifiers propagated through structured logs and notifications.",
+      "es": "Añadí idempotencia y umbrales de antigüedad (las apuestas obsoletas se rechazan en validación y persistencia), con identificadores de transacción estables propagados en logs estructurados y notificaciones."
+    },
+    {
+      "en": "Wrapped the legacy bet-insertion library behind an HTTP compatibility API so the new pipeline could ship incrementally while the legacy ledger remained the system of record.",
+      "es": "Encapsulé la biblioteca heredada de inserción de apuestas detrás de una API HTTP de compatibilidad, de modo que el nuevo pipeline pudo liberarse de forma incremental mientras el libro heredado seguía siendo la fuente de verdad."
+    },
+    {
+      "en": "Shipped multi-environment CI/CD: unit and end-to-end test stages, container builds, Helm-based rollouts, and parallel IIS deployment for legacy-hosted components.",
+      "es": "Entregué CI/CD multi-entorno: etapas de pruebas unitarias y end-to-end, construcción de contenedores, despliegues con Helm y despliegue paralelo en IIS para componentes alojados en infraestructura heredada."
+    }
+  ],
+  "decisions": [
+    {
+      "title": {
+        "en": "Kafka as the backbone between intake, validation and persistence",
+        "es": "Kafka como columna vertebral entre recepción, validación y persistencia"
+      },
+      "why": {
+        "en": "Decoupling lets the API acknowledge instantly, absorbs event-day spikes, and allows each stage to scale and fail independently. Messages are keyed by player so ordering is preserved per account, with manual offset commits and bounded retries.",
+        "es": "El desacople permite que la API responda al instante, absorbe picos en días de eventos y deja que cada etapa escale y falle de forma independiente. Los mensajes se particionan por jugador para preservar el orden por cuenta, con commits manuales de offsets y reintentos acotados."
+      }
+    },
+    {
+      "title": {
+        "en": "Limits engine as a pure library, not a service",
+        "es": "Motor de límites como biblioteca pura, no como servicio"
+      },
+      "why": {
+        "en": "Keeping the rules free of HTTP, database and Kafka dependencies makes them fully unit-testable and reusable on the server and in the browser. Callers supply a history snapshot; the engine only decides. Versions are pinned explicitly so contract changes are revalidated together.",
+        "es": "Mantener las reglas libres de dependencias HTTP, de base de datos y de Kafka las hace totalmente probables y reutilizables en servidor y navegador. Quien llama aporta una instantánea del historial; el motor solo decide. Las versiones se fijan explícitamente para revalidar juntos los cambios de contrato."
+      }
+    },
+    {
+      "title": {
+        "en": "Authoritative second validation inside the persistence transaction",
+        "es": "Segunda validación autoritativa dentro de la transacción de persistencia"
+      },
+      "why": {
+        "en": "A live wager is re-validated against the freshest limit snapshot after its delay and again under a per-player lock, so concurrent bets cannot jointly breach per-game caps. The public pre-check endpoint is explicitly preliminary.",
+        "es": "Una apuesta en vivo se revalida contra la instantánea de límites más reciente tras su retardo y otra vez bajo un bloqueo por jugador, de modo que apuestas concurrentes no superen en conjunto los topes por juego. El endpoint público de pre-verificación es explícitamente preliminar."
+      }
+    },
+    {
+      "title": {
+        "en": "Dedicated notification stream feeding SignalR",
+        "es": "Flujo de notificación dedicado que alimenta SignalR"
+      },
+      "why": {
+        "en": "Every service emits wager state changes to one topic; a single hub fans them out to clients. Services never talk to the front-end directly, which keeps them stateless and horizontally scalable.",
+        "es": "Cada servicio emite los cambios de estado de la apuesta a un solo tópico; un único hub los distribuye a los clientes. Los servicios nunca hablan directo con el front-end, lo que los mantiene sin estado y escalables horizontalmente."
+      }
+    },
+    {
+      "title": {
+        "en": "Strangler-style wrapper around the legacy insertion path",
+        "es": "Envoltorio estilo strangler sobre la ruta heredada de inserción"
+      },
+      "why": {
+        "en": "Re-implementing years of ledger rules was riskier than wrapping them. The legacy library is hosted behind an HTTP API, giving the new pipeline a stable contract while the rules are migrated feature by feature.",
+        "es": "Reimplementar años de reglas del libro era más riesgoso que encapsularlas. La biblioteca heredada se aloja tras una API HTTP, dando al nuevo pipeline un contrato estable mientras las reglas se migran funcionalidad por funcionalidad."
+      }
+    },
+    {
+      "title": {
+        "en": "Resilient HTTP clients with explicit timeouts",
+        "es": "Clientes HTTP resilientes con timeouts explícitos"
+      },
+      "why": {
+        "en": "All upstream calls (odds, player profile, legacy API) use typed clients with retry, timeout and circuit-breaker policies. Failures translate into explicit business error keys instead of silent drops.",
+        "es": "Todas las llamadas externas (cuotas, perfil de jugador, API heredada) usan clientes tipados con políticas de reintento, timeout y circuit breaker. Los fallos se traducen en claves de error de negocio explícitas en lugar de pérdidas silenciosas."
+      }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      {
+        "id": "client",
+        "label": {
+          "en": "Clients",
+          "es": "Clientes"
+        }
+      },
+      {
+        "id": "intake",
+        "label": {
+          "en": "Intake & Validation",
+          "es": "Recepción y Validación"
+        }
+      },
+      {
+        "id": "persist",
+        "label": {
+          "en": "Persistence Pipeline",
+          "es": "Pipeline de Persistencia"
+        }
+      },
+      {
+        "id": "rt",
+        "label": {
+          "en": "Real-Time Delivery",
+          "es": "Entrega en Tiempo Real"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Data Stores",
+          "es": "Almacenes de Datos"
+        }
+      },
+      {
+        "id": "ext",
+        "label": {
+          "en": "External Services",
+          "es": "Servicios Externos"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "web",
+        "label": "Betting Front-End",
+        "sublabel": {
+          "en": "Web client placing wagers and receiving live state",
+          "es": "Cliente web que coloca apuestas y recibe estado en vivo"
+        },
+        "kind": "client",
+        "group": "client"
+      },
+      {
+        "id": "api",
+        "label": "Bet Intake API",
+        "sublabel": {
+          "en": "Accepts wagers, exposes limits pre-check endpoint",
+          "es": "Recibe apuestas y expone endpoint de pre-verificación de límites"
+        },
+        "kind": "service",
+        "group": "intake"
+      },
+      {
+        "id": "limits",
+        "label": "Limits Engine Library",
+        "sublabel": {
+          "en": "Pure rules: static limits, per-game caps, surpass rules",
+          "es": "Reglas puras: límites estáticos, topes por juego, reglas de superación"
+        },
+        "kind": "service",
+        "group": "intake"
+      },
+      {
+        "id": "kvalid",
+        "label": "Validation Topic",
+        "sublabel": {
+          "en": "Wager requests keyed by player; also the delay loop-back",
+          "es": "Solicitudes de apuesta por jugador; también el reenvío por retardo"
+        },
+        "kind": "queue",
+        "group": "intake"
+      },
+      {
+        "id": "core",
+        "label": "Bet Validation Service",
+        "sublabel": {
+          "en": "Consumer: age checks, limits, delay, live transactional insert",
+          "es": "Consumidor: antigüedad, límites, retardo, inserción transaccional en vivo"
+        },
+        "kind": "worker",
+        "group": "intake"
+      },
+      {
+        "id": "cache",
+        "label": "Reference Cache",
+        "sublabel": {
+          "en": "TTL in-memory cache of system preferences and catalogs",
+          "es": "Caché en memoria con TTL de preferencias y catálogos"
+        },
+        "kind": "cache",
+        "group": "data"
+      },
+      {
+        "id": "profile",
+        "label": "Player Profile Service",
+        "sublabel": {
+          "en": "Scoped live limit profiles per player, sport and league",
+          "es": "Perfiles de límites en vivo por jugador, deporte y liga"
+        },
+        "kind": "external",
+        "group": "ext"
+      },
+      {
+        "id": "lines",
+        "label": "Odds & Fixtures Service",
+        "sublabel": {
+          "en": "Event, fixture and line lookup for validation",
+          "es": "Consulta de eventos, fixtures y líneas para validación"
+        },
+        "kind": "external",
+        "group": "ext"
+      },
+      {
+        "id": "livedb",
+        "label": "Live Wagering Database",
+        "sublabel": {
+          "en": "SQL Server: live wagers, details, history for caps",
+          "es": "SQL Server: apuestas en vivo, detalles e historial para topes"
+        },
+        "kind": "db",
+        "group": "data"
+      },
+      {
+        "id": "kledger",
+        "label": "Persistence Topic",
+        "sublabel": {
+          "en": "Validated pregame wagers awaiting ledger insert",
+          "es": "Apuestas pregame validadas pendientes de inserción en el libro"
+        },
+        "kind": "queue",
+        "group": "persist"
+      },
+      {
+        "id": "proc",
+        "label": "Bet Persistence Worker",
+        "sublabel": {
+          "en": "Consumes validated wagers, re-checks age, inserts",
+          "es": "Consume apuestas validadas, revisa antigüedad e inserta"
+        },
+        "kind": "worker",
+        "group": "persist"
+      },
+      {
+        "id": "legacy",
+        "label": "Legacy Compatibility API",
+        "sublabel": {
+          "en": "HTTP wrapper over the legacy bet-insertion library",
+          "es": "Envoltorio HTTP sobre la biblioteca heredada de inserción"
+        },
+        "kind": "service",
+        "group": "persist"
+      },
+      {
+        "id": "ledgerdb",
+        "label": "Bet Ledger Database",
+        "sublabel": {
+          "en": "SQL Server system of record for wagers and balances",
+          "es": "SQL Server, fuente de verdad de apuestas y saldos"
+        },
+        "kind": "db",
+        "group": "data"
+      },
+      {
+        "id": "knotify",
+        "label": "Notification Topic",
+        "sublabel": {
+          "en": "Wager state events from every stage",
+          "es": "Eventos de estado de apuesta de cada etapa"
+        },
+        "kind": "queue",
+        "group": "rt"
+      },
+      {
+        "id": "hub",
+        "label": "Real-Time Notification Hub",
+        "sublabel": {
+          "en": "SignalR hub fanning states out to clients",
+          "es": "Hub SignalR que distribuye estados a los clientes"
+        },
+        "kind": "gateway",
+        "group": "rt"
+      },
+      {
+        "id": "obs",
+        "label": "Telemetry Backend",
+        "sublabel": {
+          "en": "OpenTelemetry traces, metrics and structured logs",
+          "es": "Trazas, métricas y logs estructurados con OpenTelemetry"
+        },
+        "kind": "external",
+        "group": "ext"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "web",
+        "to": "api",
+        "label": {
+          "en": "Submit wager (HTTPS)",
+          "es": "Enviar apuesta (HTTPS)"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "api",
+        "to": "kvalid",
+        "label": {
+          "en": "Publish wager request",
+          "es": "Publicar solicitud de apuesta"
+        },
+        "async": true
+      },
+      {
+        "id": "e3",
+        "from": "kvalid",
+        "to": "core",
+        "label": {
+          "en": "Consume batch",
+          "es": "Consumir lote"
+        },
+        "async": true
+      },
+      {
+        "id": "e4",
+        "from": "core",
+        "to": "profile",
+        "label": {
+          "en": "Fetch scoped limit profiles",
+          "es": "Obtener perfiles de límites por alcance"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "core",
+        "to": "lines",
+        "label": {
+          "en": "Resolve events and fixtures",
+          "es": "Resolver eventos y fixtures"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "core",
+        "to": "limits",
+        "label": {
+          "en": "Evaluate limits and caps",
+          "es": "Evaluar límites y topes"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "core",
+        "to": "livedb",
+        "label": {
+          "en": "Per-player locked insert and history reads",
+          "es": "Inserción bloqueada por jugador y lectura de historial"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "core",
+        "to": "kvalid",
+        "label": {
+          "en": "Re-queue until live delay elapses",
+          "es": "Reencolar hasta que venza el retardo en vivo"
+        },
+        "async": true
+      },
+      {
+        "id": "e9",
+        "from": "core",
+        "to": "kledger",
+        "label": {
+          "en": "Publish validated wager",
+          "es": "Publicar apuesta validada"
+        },
+        "async": true
+      },
+      {
+        "id": "e10",
+        "from": "kledger",
+        "to": "proc",
+        "label": {
+          "en": "Consume validated wager",
+          "es": "Consumir apuesta validada"
+        },
+        "async": true
+      },
+      {
+        "id": "e11",
+        "from": "proc",
+        "to": "legacy",
+        "label": {
+          "en": "Insert via compatibility API",
+          "es": "Insertar vía API de compatibilidad"
+        },
+        "async": false
+      },
+      {
+        "id": "e12",
+        "from": "legacy",
+        "to": "ledgerdb",
+        "label": {
+          "en": "Write wager slip and balance",
+          "es": "Escribir boleto y saldo"
+        },
+        "async": false
+      },
+      {
+        "id": "e13",
+        "from": "core",
+        "to": "knotify",
+        "label": {
+          "en": "Validation state",
+          "es": "Estado de validación"
+        },
+        "async": true
+      },
+      {
+        "id": "e14",
+        "from": "proc",
+        "to": "knotify",
+        "label": {
+          "en": "Insertion result",
+          "es": "Resultado de inserción"
+        },
+        "async": true
+      },
+      {
+        "id": "e15",
+        "from": "knotify",
+        "to": "hub",
+        "label": {
+          "en": "Fan out state events",
+          "es": "Distribuir eventos de estado"
+        },
+        "async": true
+      },
+      {
+        "id": "e16",
+        "from": "hub",
+        "to": "web",
+        "label": {
+          "en": "Push wager state (WebSocket)",
+          "es": "Enviar estado de apuesta (WebSocket)"
+        },
+        "async": true
+      },
+      {
+        "id": "e17",
+        "from": "api",
+        "to": "limits",
+        "label": {
+          "en": "Preliminary static evaluation",
+          "es": "Evaluación estática preliminar"
+        },
+        "async": false
+      },
+      {
+        "id": "e18",
+        "from": "legacy",
+        "to": "cache",
+        "label": {
+          "en": "Read TTL-cached reference data",
+          "es": "Leer datos de referencia en caché con TTL"
+        },
+        "async": false
+      },
+      {
+        "id": "e19",
+        "from": "core",
+        "to": "obs",
+        "label": {
+          "en": "Traces, metrics, logs",
+          "es": "Trazas, métricas, logs"
+        },
+        "async": true
+      }
+    ],
+    "flows": [
+      {
+        "id": "flow-pregame",
+        "name": {
+          "en": "Pregame wager lifecycle",
+          "es": "Ciclo de vida de una apuesta pregame"
+        },
+        "description": {
+          "en": "The front-end submits a wager, the API queues it, the validation service checks it against profiles, fixtures and limits, a persistence worker inserts it into the ledger and each state is pushed back to the player.",
+          "es": "El front-end envía la apuesta, la API la encola, el servicio de validación la verifica contra perfiles, fixtures y límites, un worker de persistencia la inserta en el libro y cada estado se devuelve al jugador."
+        },
+        "edges": [
+          "e1",
+          "e2",
+          "e3",
+          "e4",
+          "e5",
+          "e6",
+          "e9",
+          "e10",
+          "e11",
+          "e12",
+          "e14",
+          "e15",
+          "e16"
+        ]
+      },
+      {
+        "id": "flow-live",
+        "name": {
+          "en": "Live wager with player delay",
+          "es": "Apuesta en vivo con retardo del jugador"
+        },
+        "description": {
+          "en": "A live wager is validated once to compute the player delay, re-queued on the same topic until the delay elapses, then re-validated against fresh limits and inserted transactionally under a per-player lock before the player is notified.",
+          "es": "Una apuesta en vivo se valida una vez para calcular el retardo, se reencola en el mismo tópico hasta que vence, luego se revalida con límites frescos y se inserta transaccionalmente bajo bloqueo por jugador antes de notificar al jugador."
+        },
+        "edges": [
+          "e1",
+          "e2",
+          "e3",
+          "e4",
+          "e6",
+          "e8",
+          "e3",
+          "e4",
+          "e6",
+          "e7",
+          "e13",
+          "e15",
+          "e16"
+        ]
+      },
+      {
+        "id": "flow-precheck",
+        "name": {
+          "en": "Limits pre-check",
+          "es": "Pre-verificación de límites"
+        },
+        "description": {
+          "en": "Before submitting, the client asks the API for a static limit evaluation. The result is preliminary; the validation service remains authoritative.",
+          "es": "Antes de enviar, el cliente pide a la API una evaluación estática de límites. El resultado es preliminar; el servicio de validación sigue siendo la autoridad."
+        },
+        "edges": [
+          "e1",
+          "e17"
+        ]
+      }
+    ]
+  }
+}

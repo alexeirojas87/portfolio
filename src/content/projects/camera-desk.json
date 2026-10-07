@@ -1,0 +1,75 @@
+{
+  "slug": "camera-desk",
+  "category": "personal",
+  "title": { "en": "CameraDesk", "es": "CameraDesk" },
+  "tagline": { "en": "Desktop viewer for a consumer camera cloud, via a signaling and WebRTC proxy", "es": "Visor de escritorio para la nube de una cámara de consumo, con proxy de señalización y WebRTC" },
+  "summary": {
+    "en": "A personal experiment to watch a home camera from a desktop app. A Node/Express backend logs in to the camera vendor's cloud, obtains WebRTC tickets and relays the signaling WebSocket, while a browser page and a .NET MAUI Mac Catalyst app act as clients.",
+    "es": "Un experimento personal para ver una cámara doméstica desde una app de escritorio. Un backend Node/Express inicia sesión en la nube del fabricante, obtiene tickets WebRTC y retransmite el WebSocket de señalización, mientras una página web y una app .NET MAUI para Mac Catalyst actúan como clientes."
+  },
+  "problem": {
+    "en": "The camera vendor only ships mobile apps. The goal was a desktop viewer with device status and controls, which required understanding the undocumented login, verification and WebRTC ticket flow.",
+    "es": "El fabricante de la cámara solo ofrece apps móviles. El objetivo era un visor de escritorio con estado y controles del dispositivo, lo que exigió entender el flujo no documentado de login, verificación y ticket WebRTC."
+  },
+  "role": { "en": "Solo: protocol analysis, Node proxy, web viewer, MAUI client", "es": "En solitario: análisis de protocolo, proxy Node, visor web, cliente MAUI" },
+  "status": "prototype",
+  "year": "2026",
+  "links": { "live": null, "github": null },
+  "stack": [
+    { "name": "JavaScript (Node.js)", "category": "language" },
+    { "name": "C# / .NET 10", "category": "language" },
+    { "name": ".NET MAUI (Mac Catalyst)", "category": "frontend" },
+    { "name": "Express 5", "category": "backend" },
+    { "name": "ws (WebSocket)", "category": "messaging" },
+    { "name": "WebRTC", "category": "frontend" },
+    { "name": "mitmproxy traffic analysis", "category": "other" }
+  ],
+  "highlights": [
+    { "en": "Reconstructed the vendor's login, OTP verification and WebRTC ticket flow from captured traffic and app analysis.", "es": "Reconstrucción del flujo de login, verificación OTP y ticket WebRTC del fabricante a partir de tráfico capturado y análisis de la app." },
+    { "en": "Express REST layer exposing session, login, device status, attributes, control, dormancy and AI settings endpoints.", "es": "Capa REST con Express que expone endpoints de sesión, login, estado del dispositivo, atributos, control, hibernación y ajustes de IA." },
+    { "en": "Custom WebSocket proxy that hand-builds the upgrade handshake and frames to relay signaling to the vendor over TLS.", "es": "Proxy WebSocket propio que construye a mano el handshake de upgrade y los frames para retransmitir la señalización al fabricante por TLS." },
+    { "en": "Browser client negotiates WebRTC via RTCPeerConnection; a separate MAUI app with typed config and HTTP models targets macOS.", "es": "El cliente web negocia WebRTC con RTCPeerConnection; una app MAUI separada con configuración y modelos HTTP tipados apunta a macOS." }
+  ],
+  "decisions": [
+    {
+      "title": { "en": "Local proxy instead of calling the vendor from the browser", "es": "Proxy local en vez de llamar al fabricante desde el navegador" },
+      "why": { "en": "A server-side layer can set the headers and request shapes the vendor API expects and handle the WebSocket upgrade that browsers cannot customize.", "es": "Una capa en el servidor puede fijar las cabeceras y formas de petición que espera la API del fabricante y manejar el upgrade WebSocket que los navegadores no pueden personalizar." }
+    },
+    {
+      "title": { "en": "Endpoints configurable in appsettings", "es": "Endpoints configurables en appsettings" },
+      "why": { "en": "The MAUI client keeps API paths and probe toggles in typed options so protocol experiments can change without recompiling code.", "es": "El cliente MAUI guarda rutas de API e interruptores de sondeo en opciones tipadas, de modo que los experimentos de protocolo cambian sin recompilar código." }
+    },
+    {
+      "title": { "en": "Two clients over one backend contract", "es": "Dos clientes sobre un mismo contrato de backend" },
+      "why": { "en": "A zero-build web viewer allowed fast iteration on WebRTC, while the MAUI app explores a native desktop experience.", "es": "Un visor web sin build permitió iterar rápido en WebRTC, mientras la app MAUI explora una experiencia nativa de escritorio." }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      { "id": "clients", "label": { "en": "Clients", "es": "Clientes" } },
+      { "id": "proxy", "label": { "en": "Local proxy", "es": "Proxy local" } },
+      { "id": "vendor", "label": { "en": "Vendor cloud", "es": "Nube del fabricante" } }
+    ],
+    "nodes": [
+      { "id": "web", "label": "Web viewer", "sublabel": { "en": "index.html with RTCPeerConnection", "es": "index.html con RTCPeerConnection" }, "kind": "client", "group": "clients" },
+      { "id": "maui", "label": ".NET MAUI app", "sublabel": { "en": "Mac Catalyst desktop client", "es": "Cliente de escritorio Mac Catalyst" }, "kind": "client", "group": "clients" },
+      { "id": "rest", "label": "Express REST API", "sublabel": { "en": "Login, status, control, ticket", "es": "Login, estado, control, ticket" }, "kind": "service", "group": "proxy" },
+      { "id": "wsproxy", "label": "WebSocket proxy", "sublabel": { "en": "Signaling relay over TLS", "es": "Retransmisión de señalización por TLS" }, "kind": "gateway", "group": "proxy" },
+      { "id": "vapi", "label": "Vendor HTTPS API", "sublabel": { "en": "Account, device, WebRTC ticket", "es": "Cuenta, dispositivo, ticket WebRTC" }, "kind": "external", "group": "vendor" },
+      { "id": "vsig", "label": "Vendor signaling WS", "sublabel": { "en": "WebRTC session setup", "es": "Establecimiento de sesión WebRTC" }, "kind": "external", "group": "vendor" },
+      { "id": "cam", "label": "Camera", "sublabel": { "en": "Streams media via WebRTC", "es": "Transmite medios vía WebRTC" }, "kind": "external", "group": "vendor" }
+    ],
+    "edges": [
+      { "id": "e1", "from": "web", "to": "rest", "label": { "en": "POST /api/login, /api/ticket", "es": "POST /api/login, /api/ticket" }, "async": false },
+      { "id": "e2", "from": "maui", "to": "vapi", "label": { "en": "typed HTTP client calls", "es": "llamadas con cliente HTTP tipado" }, "async": false },
+      { "id": "e3", "from": "rest", "to": "vapi", "label": { "en": "signed requests", "es": "peticiones firmadas" }, "async": false },
+      { "id": "e4", "from": "web", "to": "wsproxy", "label": { "en": "signaling messages", "es": "mensajes de señalización" }, "async": false },
+      { "id": "e5", "from": "wsproxy", "to": "vsig", "label": { "en": "relayed frames", "es": "frames retransmitidos" }, "async": false },
+      { "id": "e6", "from": "vsig", "to": "cam", "label": { "en": "offer / answer / ICE", "es": "offer / answer / ICE" }, "async": false },
+      { "id": "e7", "from": "cam", "to": "web", "label": { "en": "WebRTC media stream", "es": "flujo de medios WebRTC" }, "async": true }
+    ],
+    "flows": [
+      { "id": "f1", "name": { "en": "Start a live view", "es": "Iniciar vista en vivo" }, "description": { "en": "The viewer logs in and gets a WebRTC ticket through the REST layer, negotiates over the relayed signaling socket, then receives media from the camera.", "es": "El visor inicia sesión y obtiene un ticket WebRTC por la capa REST, negocia por el socket de señalización retransmitido y luego recibe los medios de la cámara." }, "edges": ["e1", "e3", "e4", "e5", "e6", "e7"] }
+    ]
+  }
+}

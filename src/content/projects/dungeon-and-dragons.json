@@ -1,0 +1,90 @@
+{
+  "slug": "dungeon-and-dragons",
+  "category": "personal",
+  "title": { "en": "The Gauntlet", "es": "The Gauntlet" },
+  "tagline": { "en": "Dark-fantasy text RPG where a deterministic engine rules and an LLM narrates", "es": "RPG de texto de fantasía oscura: un motor determinista manda y un LLM narra" },
+  "summary": {
+    "en": "A browser-based, bilingual dark-fantasy RPG with character creation, turn-based D20 combat, puzzles, inventory and a multi-chapter campaign. The game engine owns every rule and outcome, while an LLM only turns resolved events into narration.",
+    "es": "Un RPG de fantasía oscura bilingüe en el navegador, con creación de personaje, combate por turnos con D20, puzles, inventario y campaña de varios capítulos. El motor de juego controla cada regla y resultado, y un LLM solo convierte los eventos ya resueltos en narración."
+  },
+  "problem": {
+    "en": "LLM-driven games drift: models forget the campaign, invent outcomes and break rules. The goal was an AI Dungeon Master that is expressive but can never change authoritative game state.",
+    "es": "Los juegos dirigidos por LLM se desvían: los modelos olvidan la campaña, inventan resultados y rompen reglas. El objetivo era un Dungeon Master con IA expresivo pero incapaz de alterar el estado autoritativo del juego."
+  },
+  "role": { "en": "Solo: game design, engine, AI integration, frontend, tooling and deployment", "es": "En solitario: diseño del juego, motor, integración de IA, frontend, herramientas y despliegue" },
+  "status": "in-progress",
+  "year": "2026",
+  "links": { "live": null, "github": "https://github.com/alexeirojas87/DungeonAndDragons" },
+  "stack": [
+    { "name": "TypeScript", "category": "language" },
+    { "name": "Next.js 16", "category": "frontend" },
+    { "name": "React 19", "category": "frontend" },
+    { "name": "Tailwind CSS 4", "category": "frontend" },
+    { "name": "Node.js route handlers", "category": "backend" },
+    { "name": "WebSocket (ws)", "category": "messaging" },
+    { "name": "Zod", "category": "other" },
+    { "name": "NaN Builders LLM API", "category": "ai" },
+    { "name": "Docker (multi-stage, pnpm)", "category": "devops" },
+    { "name": "tsx validation and playthrough scripts", "category": "testing" }
+  ],
+  "highlights": [
+    { "en": "Strict separation between a pure game engine (combat, dice, intent, puzzles, campaign) and an LLM narration layer that never mutates state.", "es": "Separación estricta entre un motor de juego puro (combate, dados, intención, puzles, campaña) y una capa de narración LLM que nunca modifica el estado." },
+    { "en": "Chapters are standardized, validated data, with ten authored chapters and a story graph of choices and conditions instead of hardcoded flow.", "es": "Los capítulos son datos estandarizados y validables, con diez capítulos escritos y un grafo de historia de decisiones y condiciones en lugar de flujo fijo." },
+    { "en": "Headless playthrough harness drives the engine across every archetype and origin, solving and abandoning puzzles, and asserts the player is never stranded.", "es": "Un arnés de partidas sin interfaz recorre el motor con cada arquetipo y origen, resolviendo y abandonando puzles, y comprueba que el jugador nunca queda atascado." },
+    { "en": "Save system with legacy migration and campaign-progress folding, so persistence never depends on the model remembering the story.", "es": "Sistema de guardado con migración de versiones previas y consolidación del progreso de campaña, de modo que la persistencia no depende de que el modelo recuerde la historia." },
+    { "en": "Domain event bus feeds the narrator; narration length is a single budget shared by prompt and client so output is written within limits, not truncated.", "es": "Un bus de eventos de dominio alimenta al narrador; la longitud de la narración es un único presupuesto compartido por el prompt y el cliente, así la salida se escribe dentro del límite y no se recorta." },
+    { "en": "Optional WebSocket server for multiplayer rooms, plus Chapter generation planned via the LLM with schema validation.", "es": "Servidor WebSocket opcional para salas multijugador, y generación de capítulos con el LLM planificada con validación de esquema." }
+  ],
+  "decisions": [
+    {
+      "title": { "en": "The engine is authoritative, the LLM only narrates", "es": "El motor es autoritativo, el LLM solo narra" },
+      "why": { "en": "Dice, combat and story state are deterministic code. The model receives resolved events and returns prose, so outcomes are reproducible and testable and the AI cannot cheat or contradict the rules.", "es": "Dados, combate y estado de la historia son código determinista. El modelo recibe eventos resueltos y devuelve prosa, así los resultados son reproducibles y comprobables y la IA no puede hacer trampa ni contradecir las reglas." }
+    },
+    {
+      "title": { "en": "Chapters as data, not code", "es": "Capítulos como datos, no como código" },
+      "why": { "en": "Moving chapters into a standard validated format removes hardcoded ids from the engine and makes new chapters, including LLM-generated ones, safe to load and verifiable offline.", "es": "Pasar los capítulos a un formato estándar validado elimina ids fijos del motor y permite cargar capítulos nuevos, incluso generados por LLM, de forma segura y verificable sin conexión." }
+    },
+    {
+      "title": { "en": "LLM calls go through a server route", "es": "Las llamadas al LLM pasan por una ruta del servidor" },
+      "why": { "en": "The browser calls a Next.js API route which holds the API key and talks to the provider, keeping the secret server-side and the client simple.", "es": "El navegador llama a una ruta API de Next.js que guarda la clave y habla con el proveedor, manteniendo el secreto en el servidor y el cliente simple." }
+    },
+    {
+      "title": { "en": "Puzzles are always solvable offline", "es": "Los puzles siempre se resuelven sin conexión" },
+      "why": { "en": "Puzzles never call the LLM and share one shape across engine, validator and chapter contract, so progression can't stall on a bad generation.", "es": "Los puzles nunca llaman al LLM y comparten una sola forma entre motor, validador y contrato de capítulo, así la progresión no se bloquea por una mala generación." }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      { "id": "client", "label": { "en": "Browser", "es": "Navegador" } },
+      { "id": "server", "label": { "en": "Next.js server", "es": "Servidor Next.js" } },
+      { "id": "external", "label": { "en": "External", "es": "Externo" } }
+    ],
+    "nodes": [
+      { "id": "ui", "label": "React UI", "sublabel": { "en": "Terminal, combat, character, inventory views", "es": "Vistas de terminal, combate, personaje, inventario" }, "kind": "client", "group": "client" },
+      { "id": "engine", "label": "Game engine", "sublabel": { "en": "Dice, combat, intent, puzzles, campaign", "es": "Dados, combate, intención, puzles, campaña" }, "kind": "service", "group": "client" },
+      { "id": "chapters", "label": "Chapter and story data", "sublabel": { "en": "Story graph, monsters, NPCs, 10 chapters", "es": "Grafo de historia, monstruos, NPC, 10 capítulos" }, "kind": "storage", "group": "client" },
+      { "id": "events", "label": "Domain event bus", "sublabel": { "en": "Resolved facts for the narrator", "es": "Hechos resueltos para el narrador" }, "kind": "queue", "group": "client" },
+      { "id": "save", "label": "Save system", "sublabel": { "en": "Persistence with migration", "es": "Persistencia con migración" }, "kind": "storage", "group": "client" },
+      { "id": "dmclient", "label": "DM client", "sublabel": { "en": "Prompt builder and length budget", "es": "Constructor de prompt y presupuesto de longitud" }, "kind": "service", "group": "client" },
+      { "id": "dmroute", "label": "/api/dm route", "sublabel": { "en": "Server-side LLM proxy", "es": "Proxy LLM del lado servidor" }, "kind": "gateway", "group": "server" },
+      { "id": "asset", "label": "/api/asset route", "sublabel": { "en": "Serves game art and audio", "es": "Sirve arte y audio del juego" }, "kind": "service", "group": "server" },
+      { "id": "ws", "label": "WebSocket server", "sublabel": { "en": "Multiplayer rooms (optional)", "es": "Salas multijugador (opcional)" }, "kind": "service", "group": "server" },
+      { "id": "llm", "label": "NaN Builders LLM", "sublabel": { "en": "Narration model", "es": "Modelo de narración" }, "kind": "ai", "group": "external" }
+    ],
+    "edges": [
+      { "id": "e1", "from": "ui", "to": "engine", "label": { "en": "player action", "es": "acción del jugador" }, "async": false },
+      { "id": "e2", "from": "engine", "to": "chapters", "label": { "en": "reads nodes and rules", "es": "lee nodos y reglas" }, "async": false },
+      { "id": "e3", "from": "engine", "to": "events", "label": { "en": "emits resolved events", "es": "emite eventos resueltos" }, "async": false },
+      { "id": "e4", "from": "events", "to": "dmclient", "label": { "en": "authoritative facts", "es": "hechos autoritativos" }, "async": false },
+      { "id": "e5", "from": "dmclient", "to": "dmroute", "label": { "en": "POST narration request", "es": "POST de petición de narración" }, "async": false },
+      { "id": "e6", "from": "dmroute", "to": "llm", "label": { "en": "chat completion", "es": "chat completion" }, "async": false },
+      { "id": "e7", "from": "engine", "to": "save", "label": { "en": "save state", "es": "guarda el estado" }, "async": false },
+      { "id": "e8", "from": "ui", "to": "asset", "label": { "en": "loads assets", "es": "carga assets" }, "async": false },
+      { "id": "e9", "from": "ui", "to": "ws", "label": { "en": "join room", "es": "unirse a sala" }, "async": true }
+    ],
+    "flows": [
+      { "id": "f1", "name": { "en": "One turn of play", "es": "Un turno de juego" }, "description": { "en": "The engine resolves the player's action deterministically, emits events, and only then asks the LLM to narrate; the state is saved.", "es": "El motor resuelve la acción del jugador de forma determinista, emite eventos y solo entonces pide al LLM que narre; el estado se guarda." }, "edges": ["e1", "e2", "e3", "e4", "e5", "e6", "e7"] },
+      { "id": "f2", "name": { "en": "Multiplayer room", "es": "Sala multijugador" }, "description": { "en": "A client joins a room on the WebSocket server for shared state and chat.", "es": "Un cliente se une a una sala del servidor WebSocket para compartir estado y chat." }, "edges": ["e9"] }
+    ]
+  }
+}

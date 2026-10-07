@@ -1,0 +1,36 @@
+{
+  "name": "portfolio",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test --experimental-strip-types tests/",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "privacy": "node scripts/privacy-scan.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/react": "^7.0.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "astro": "^7.3.6",
+    "lucide-react": "^1.52.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.6.5"
+  },
+  "private": "true",
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "typescript": "^6.0.3"
+  }
+}
