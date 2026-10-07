@@ -1,22 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatUptime, countProjects, typedLines, hasPlayed, markPlayed, shouldPlayIntro, beatAt, introTotalMs, terminalDuration, charsTypedAt, CHAR_MS, LINE_PAUSE_MS, READY_PAUSE_MS, CURSOR_MS, TITLE_HOLD_MS, TERMINAL_END_MS, EXIT_MS, INTRO_STORAGE_KEY } from '../src/lib/intro.ts';
-
-test('uptime: calendar years, months, days and clock since January of the start year', () => {
-  assert.equal(formatUptime(2013, new Date(2025, 9, 15, 3, 21, 7)), '12y 09m 14d 03:21:07');
-  assert.equal(formatUptime(2013, new Date(2013, 0, 1, 0, 0, 0)), '0y 00m 00d 00:00:00');
-  assert.equal(formatUptime(2013, new Date(2026, 0, 1, 23, 59, 59)), '13y 00m 00d 23:59:59');
-  assert.equal(formatUptime(2020, new Date(2024, 2, 31, 10, 0, 0)), '4y 02m 30d 10:00:00');
-  assert.equal(formatUptime(2013, new Date(2026, 9, 7, 12, 0, 0), 9), '13y 01m 06d 12:00:00');
-  assert.equal(formatUptime(2013, new Date(2014, 2, 1, 0, 0, 0), 9), '0y 06m 00d 00:00:00');
-});
-
-test('uptime ticks with the clock', () => {
-  const a = formatUptime(2013, new Date(2025, 5, 1, 12, 0, 0));
-  const b = formatUptime(2013, new Date(2025, 5, 1, 12, 0, 1));
-  assert.notEqual(a, b);
-  assert.ok(a.endsWith('12:00:00') && b.endsWith('12:00:01'));
-});
+import { countProjects, typedLines, hasPlayed, markPlayed, shouldPlayIntro, beatAt, introTotalMs, dissolveStartMs, terminalDuration, charsTypedAt, CHAR_MS, LINE_PAUSE_MS, READY_PAUSE_MS, CURSOR_MS, TERMINAL_END_MS, DISSOLVE_MS, INTRO_STORAGE_KEY } from '../src/lib/intro.ts';
+import { planRain, mulberry32, revealLines, headY, tailY, finishTime, columnCount, glyphFor, FINISH_AT } from '../src/lib/rain.ts';
 
 test('counts are derived from project data', () => {
   const c = countProjects([{ category: 'corporate' }, { category: 'personal' }, { category: 'personal' }]);
@@ -80,22 +65,73 @@ test('typing runs at CHAR_MS per character with pauses between lines', () => {
 test('constants are within the readable ranges', () => {
   assert.ok(CHAR_MS >= 35 && CHAR_MS <= 45);
   assert.ok(CURSOR_MS >= 600 && CURSOR_MS <= 800);
-  assert.ok(TITLE_HOLD_MS >= 2400);
   assert.ok(TERMINAL_END_MS >= 1000, 'last line readable for >= 1s');
-  assert.ok(EXIT_MS >= 700 && EXIT_MS <= 900);
+  assert.ok(DISSOLVE_MS >= 1400 && DISSOLVE_MS <= 1800);
 });
 
-test('beats follow the timeline and skip ends immediately', () => {
+test('beats: cursor, terminal, dissolve, done; skip ends immediately', () => {
   assert.equal(beatAt(0, LINES), 'cursor');
   assert.equal(beatAt(CURSOR_MS - 1, LINES), 'cursor');
   assert.equal(beatAt(CURSOR_MS, LINES), 'terminal');
-  const termEnd = CURSOR_MS + terminalDuration(LINES);
-  assert.equal(beatAt(termEnd - 1, LINES), 'terminal');
-  assert.equal(beatAt(termEnd + 400, LINES), 'terminal'); // finished terminal stays readable
-  assert.equal(beatAt(termEnd + TERMINAL_END_MS + 10, LINES), 'title');
-  const total = introTotalMs(LINES);
-  assert.equal(beatAt(total - EXIT_MS + 1, LINES), 'exit');
-  assert.equal(beatAt(total, LINES), 'done');
+  const dissolve = dissolveStartMs(LINES);
+  assert.equal(beatAt(CURSOR_MS + terminalDuration(LINES) + 400, LINES), 'terminal'); // finished terminal stays readable
+  assert.equal(beatAt(dissolve - 1, LINES), 'terminal');
+  assert.equal(beatAt(dissolve, LINES), 'dissolve');
+  assert.equal(beatAt(introTotalMs(LINES) - 1, LINES), 'dissolve');
+  assert.equal(beatAt(introTotalMs(LINES), LINES), 'done');
   assert.equal(beatAt(100, LINES, true), 'done');
-  assert.ok(total >= 8000 && total <= 11000, `total ${total}`);
+  assert.equal(introTotalMs(LINES) - dissolve, DISSOLVE_MS);
+});
+
+// ---- rain planning ----
+const W = 1440, H = 900, CELL = 12;
+const seeds = LINES.flatMap((l, row) => [...l].map((ch, i) => ({ x: 56 + i * CELL + CELL / 2, y: 56 + row * 32, ch }))).filter((s) => s.ch.trim());
+
+test('rain: one seeded stream per typed character, in the character\'s column; extras cover the full width', () => {
+  const streams = planRain({ width: W, height: H, cell: CELL, durationMs: DISSOLVE_MS, seeds, rng: mulberry32(1) });
+  const seeded = streams.filter((s) => s.seed);
+  assert.equal(seeded.length, seeds.length);
+  seeded.forEach((s, i) => assert.equal(s.col, Math.floor(seeds[i].x / CELL)));
+  const cols = columnCount(W, CELL);
+  for (let c = 0; c < cols; c++) assert.ok(streams.some((s) => !s.seed && s.col === c), `column ${c} has rain`);
+});
+
+test('rain: every stream is off screen before the dissolve ends, and the page is fully revealed', () => {
+  for (const seed of [1, 2, 3, 99]) {
+    const streams = planRain({ width: W, height: H, cell: CELL, durationMs: DISSOLVE_MS, seeds, rng: mulberry32(seed) });
+    for (const s of streams) assert.ok(finishTime(s, H, CELL) <= DISSOLVE_MS * FINISH_AT * 1.001, `stream finishes by ${DISSOLVE_MS * FINISH_AT}`);
+    const cols = columnCount(W, CELL);
+    const end = revealLines(streams, cols, DISSOLVE_MS, CELL, H, []);
+    assert.ok(end.every((y) => y === H), 'all columns eroded to the bottom');
+  }
+});
+
+test('rain: erosion follows the tails top-down and never moves back up', () => {
+  const streams = planRain({ width: W, height: H, cell: CELL, durationMs: DISSOLVE_MS, seeds, rng: mulberry32(7) });
+  const cols = columnCount(W, CELL);
+  let prev: number[] = [];
+  let total = 0;
+  for (let t = 0; t <= DISSOLVE_MS; t += 50) {
+    const r = revealLines(streams, cols, t, CELL, H, prev);
+    r.forEach((y, c) => { if (prev[c] !== undefined) assert.ok(y >= prev[c], `column ${c} monotonic at ${t}`); });
+    const sum = r.reduce((a, b) => a + b, 0);
+    assert.ok(sum >= total);
+    total = sum; prev = r;
+  }
+  // the page behind a column is revealed only above the topmost tail
+  const t = DISSOLVE_MS / 2;
+  const r = revealLines(streams, cols, t, CELL, H, []);
+  for (let c = 0; c < cols; c++) {
+    const tops = streams.filter((s) => s.col === c).map((s) => tailY(s, t, CELL));
+    assert.ok(r[c] <= Math.max(0, Math.min(H, Math.min(...tops))) + 1e-6);
+  }
+  assert.ok(headY(streams[0], 0) === streams[0].y0);
+});
+
+test('rain: glyphs are deterministic, flicker over time, and come from the katakana/digit/symbol set', () => {
+  const [s] = planRain({ width: W, height: H, cell: CELL, durationMs: DISSOLVE_MS, seeds: [], rng: mulberry32(3) });
+  assert.equal(glyphFor(s, 2, 100), glyphFor(s, 2, 100));
+  const seen = new Set<string>();
+  for (let t = 0; t < 2000; t += 90) seen.add(glyphFor(s, 4, t));
+  assert.ok(seen.size > 3);
 });

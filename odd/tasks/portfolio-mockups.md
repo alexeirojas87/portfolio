@@ -43,6 +43,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T5g Wagering: Ticket writer & legacy persistence view removed; live-bet delay removed everywhere; validation service is validation-only (read-only edge to the live DB) and the live engine bet API inserts (new edge to the live DB, end of the live flow). Commit `1d1a34a`. Route: delegated writer.
 - [x] T7 (`aba9c70`; uptime starts Sep 2013 per CV) Boot-sequence intro on the home page (cursor, typed terminal lines from project data, title card with extruded name + sticker + ticking career uptime, FLIP-style exit into the hero canvas). Plays once per session, skippable, reduced-motion off, home only. Route: delegated writer.
 - [x] T7b Retime the intro for readability: named timing constants in `src/lib/intro.ts` (cursor 700ms, 35ms/char, line pauses, staged title entrance + 2.5s hold, 800ms ease-in-out exit), skip visible from the first frame. Route: delegated writer.
+- [x] T7c Intro becomes terminal beat only + Matrix-style canvas dissolve that erodes the navy overlay column by column to reveal the home page (title card, uptime and morph removed). Route: delegated writer.
 - [ ] T6 (later) Backend design.
 
 ## Acceptance criteria

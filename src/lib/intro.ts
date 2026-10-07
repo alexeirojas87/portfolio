@@ -2,18 +2,6 @@
 
 export const INTRO_STORAGE_KEY = 'intro-played';
 
-/** Calendar uptime since the 1st of `sinceMonth` (1-12) in `sinceYear`: "12y 09m 14d 03:21:07". Computed from `now`, never hard-coded. */
-export function formatUptime(sinceYear: number, now: Date, sinceMonth = 1): string {
-  let y = now.getFullYear() - sinceYear;
-  let m = now.getMonth() - (sinceMonth - 1); // months since the start month
-  let d = now.getDate() - 1; // days since the 1st
-  if (d < 0) { m -= 1; d += daysInMonth(now.getFullYear(), now.getMonth() - 1); }
-  if (m < 0) { y -= 1; m += 12; }
-  const p = (n: number) => String(n).padStart(2, '0');
-  return `${y}y ${p(m)}m ${p(d)}d ${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}`;
-}
-const daysInMonth = (year: number, month0: number) => new Date(year, month0 + 1, 0).getDate();
-
 export interface IntroCounts { total: number; client: number; personal: number }
 
 export function countProjects(projects: { category: 'personal' | 'corporate' }[]): IntroCounts {
@@ -48,19 +36,15 @@ export function shouldPlayIntro(o: { isHome: boolean; reducedMotion: boolean; st
   return o.isHome && !o.reducedMotion && !hasPlayed(o.storage);
 }
 
-export type Beat = 'cursor' | 'terminal' | 'title' | 'exit' | 'done';
+export type Beat = 'cursor' | 'terminal' | 'dissolve' | 'done';
 
-// Timings (ms). Tuned so every beat can be read; skip is always available.
+// Timings (ms). Terminal typing stays readable; the dissolve is the finale.
 export const CURSOR_MS = 700; // cursor alone: a few blinks
 export const CHAR_MS = 35; // typing speed per character
 export const LINE_PAUSE_MS = 250; // pause after each terminal line
 export const READY_PAUSE_MS = 400; // slightly longer pause before the last ("> ready") line
 export const TERMINAL_END_MS = 1100; // hold on the finished terminal so the last line is readable
-export const TITLE_ENTER_MS = 900; // staged entrance: eyebrow, name, sticker, uptime
-export const TITLE_HOLD_MS = 2500; // everything visible, uptime visibly ticking
-export const EXIT_MS = 800; // morph / wipe, ease-in-out
-/** Delay of each title element's entrance (CSS animation-delay). */
-export const TITLE_STAGGER_MS = { eyebrow: 0, name: 250, sticker: 500, uptime: 700, ready: 900 } as const;
+export const DISSOLVE_MS = 1700; // Matrix-style rain erodes the overlay and reveals the page
 
 /** Time to type all lines, including the pauses between them (none after the last line). */
 export function terminalDuration(lines: string[]): number {
@@ -88,17 +72,14 @@ export function charsTypedAt(lines: string[], elapsed: number): number {
 }
 
 export const terminalBeatMs = (lines: string[]) => terminalDuration(lines) + TERMINAL_END_MS;
-export const titleBeatMs = () => TITLE_ENTER_MS + TITLE_HOLD_MS;
-export const introTotalMs = (lines: string[]) => CURSOR_MS + terminalBeatMs(lines) + titleBeatMs() + EXIT_MS;
+export const dissolveStartMs = (lines: string[]) => CURSOR_MS + terminalBeatMs(lines);
+export const introTotalMs = (lines: string[]) => dissolveStartMs(lines) + DISSOLVE_MS;
 
 /** Beat for the elapsed time since the intro started (skip jumps straight to 'done'). */
 export function beatAt(elapsed: number, lines: string[], skipped = false): Beat {
   if (skipped) return 'done';
-  const term = CURSOR_MS + terminalBeatMs(lines);
-  const title = term + titleBeatMs();
   if (elapsed < CURSOR_MS) return 'cursor';
-  if (elapsed < term) return 'terminal';
-  if (elapsed < title) return 'title';
-  if (elapsed < title + EXIT_MS) return 'exit';
+  if (elapsed < dissolveStartMs(lines)) return 'terminal';
+  if (elapsed < introTotalMs(lines)) return 'dissolve';
   return 'done';
 }

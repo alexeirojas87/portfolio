@@ -1,7 +1,5 @@
 /** Single source for "since" wording; never hard-code years of experience. */
 export const CAREER_START_YEAR = 2013;
-/** Month (1-12) the career started; drives the intro uptime counter. */
-export const CAREER_START_MONTH = 9;
 
 import type { KindClass } from '../components/diagram/kinds.ts';
 
