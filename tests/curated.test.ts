@@ -204,3 +204,33 @@ test('titles: font steps down before truncating; long words are hyphenated only 
   const normal = fitTitle('Payment intake', 136, [14.5, 13], 0.483, 3);
   assert.equal(normal.size, 14.5);
 });
+
+// ---- branches and panel/flow state ----
+import { openPanelPlayback, closePanelPlayback } from '../src/components/diagram/flow.ts';
+
+test('wagering: Live bet placement shows a single live path to the live engine', () => {
+  const proj = JSON.parse(readFileSync(new URL('../src/content/projects/wagering-platform.json', import.meta.url), 'utf8'));
+  const a: Architecture = proj.architecture;
+  assert.equal(a.viewName?.en, 'Live bet placement');
+  const ids = a.nodes.map((n) => n.id);
+  assert.ok(!ids.includes('legacy') && !ids.includes('ledgerdb'), 'no pregame nodes in the live view');
+  assert.ok(a.flows.every((f) => f.id !== 'flow-pregame'));
+  assert.ok(a.edges.every((e) => ids.includes(e.from) && ids.includes(e.to)));
+  const live = a.nodes.find((n) => n.id === 'liveapi')!;
+  assert.equal(live.link, 'live-betting-engine');
+  assert.equal((live.label as { en: string }).en, 'Live engine · bet API');
+  assert.equal((live.label as { es: string }).es, 'API de apuestas del motor en vivo');
+  // the legacy ledger API stays available, renamed, in the views that use it
+  const other = proj.additionalViews.flatMap((v: { architecture: Architecture }) => v.architecture.nodes).find((n: { id: string }) => n.id === 'legacy');
+  assert.equal(other.label.en, 'Legacy ledger API');
+});
+
+test('panel/flow state: opening pauses and remembers, closing restores', () => {
+  const playing = openPanelPlayback({ playing: true, resume: null });
+  assert.deepEqual(playing, { playing: false, resume: true });
+  // opening another node while open keeps the original resume intent
+  assert.deepEqual(openPanelPlayback({ playing: false, resume: true }), { playing: false, resume: true });
+  assert.deepEqual(closePanelPlayback(playing), { playing: true, resume: null });
+  const paused = openPanelPlayback({ playing: false, resume: null });
+  assert.deepEqual(closePanelPlayback(paused), { playing: false, resume: null });
+});

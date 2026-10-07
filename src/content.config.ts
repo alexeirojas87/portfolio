@@ -18,6 +18,8 @@ const architecture = z.object({
       tech: z.string().nullish(),
       pos: z.object({ col: z.number(), row: z.number() }).nullish(),
       owned: z.boolean().nullish(),
+      link: z.string().nullish(),
+      linkLabel: text.nullish(),
       details: z
         .object({ what: text, responsibilities: z.array(text), why: text.nullish() })
         .nullish(),

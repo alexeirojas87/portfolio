@@ -7,7 +7,7 @@ import NodePanel from './NodePanel.tsx';
 import { computeCurated, fitNodeW, gridRows, type Orientation } from './curated.ts';
 import { CLASS_COLOR, CLASS_ORDER, KIND_CLASS } from './kinds.ts';
 import { computeLayout } from './layout.ts';
-import { buildSteps, nextStep, prevStep, progressAt, stepState } from './flow.ts';
+import { buildSteps, closePanelPlayback, nextStep, openPanelPlayback, prevStep, progressAt, stepState } from './flow.ts';
 import { isCurated, nodeLabel, type Architecture, type Locale, type Mode } from './types.ts';
 
 interface Props {
@@ -77,6 +77,7 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
   const [selected, setSelected] = useState<string | null>(null);
   const [emph, setEmph] = useState<string | null>(null);
   const [hoverEdge, setHoverEdge] = useState<string | null>(null);
+  const resumeRef = useRef<boolean | null>(null);
 
   // Orientation follows the diagram's own container: vertical (top to bottom) on phones.
   useEffect(() => {
@@ -111,8 +112,12 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
 
   const flow = architecture.flows[flowIdx];
   const steps = useMemo(() => (flow ? buildSteps(architecture, flow) : []), [architecture, flow]);
-  const progress = useMemo(() => progressAt(steps, step), [steps, step]);
-  const flowEdges = useMemo(() => new Set(steps.map((s) => s.edge.id)), [steps]);
+  const progressFlow = useMemo(() => progressAt(steps, step), [steps, step]);
+  const panelOpen = selected !== null;
+  // While a node panel is open the flow story is parked: no active step, no flow highlight.
+  const progress = panelOpen ? undefined : progressFlow;
+  const flowEdgesAll = useMemo(() => new Set(steps.map((s) => s.edge.id)), [steps]);
+  const flowEdges = panelOpen ? undefined : flowEdgesAll;
   const stepNo = useMemo(() => new Map(steps.map((s) => [s.edge.id, s.index + 1])), [steps]);
 
   useEffect(() => {
@@ -129,8 +134,18 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
     return () => window.clearTimeout(id);
   }, [playing, reduced, step, steps.length, flowIdx]);
 
+  const openNode = (id: string) => {
+    // Pause the flow while a node's own connections are shown; remember how to resume.
+    const next = openPanelPlayback({ playing, resume: resumeRef.current });
+    resumeRef.current = next.resume;
+    setPlaying(next.playing);
+    setSelected(id); setEmph(null);
+  };
   const closePanel = () => {
     const id = selected;
+    const next = closePanelPlayback({ playing, resume: resumeRef.current });
+    resumeRef.current = null;
+    setPlaying(next.playing && !reduced);
     setSelected(null); setEmph(null);
     requestAnimationFrame(() => rootRef.current?.querySelector<HTMLElement>(`[data-node-id="${id}"]`)?.focus());
   };
@@ -174,7 +189,9 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
             </div>
           </div>
 
-          {steps[step] && (
+          {panelOpen && selectedNode ? (
+            <p className="dg-caption is-node" role="status">{t('diagram.showing', { node: nodeLabel(selectedNode, locale) })}</p>
+          ) : steps[step] && (
             <p className="dg-caption" aria-hidden="true">
               <span className="n">{step + 1}</span>
               <b>{nodeLabel(steps[step].from, locale)}</b> → <b>{nodeLabel(steps[step].to, locale)}</b>
@@ -186,12 +203,12 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
             <div className="dg-inner" style={vertical ? { width: natural } : { minWidth: Math.round(natural * MIN_SCALE), maxWidth: Math.round(natural * 1.3) }}>
               {cLayout ? (
                 <CuratedSvg arch={architecture} layout={cLayout} locale={locale} uid={uid}
-                  boundaryLabel={t('diagram.boundary')} progress={progress} stepNo={stepNo}
-                  stepKey={`${flowIdx}:${step}`} playing={isPlaying} hoverNode={selected ?? hover} onHover={setHover} onSelect={setSelected} emphasisEdge={emph} hoverEdge={hoverEdge} onHoverEdge={setHoverEdge} fixedWidth={vertical} />
+                  boundaryLabel={t('diagram.boundary')} progress={progress} dimFlow={panelOpen} stepNo={stepNo}
+                  stepKey={`${flowIdx}:${step}`} playing={isPlaying} hoverNode={selected ?? hover} onHover={setHover} onSelect={openNode} emphasisEdge={emph} hoverEdge={hoverEdge} onHoverEdge={setHoverEdge} fixedWidth={vertical} />
               ) : (
                 <DiagramSvg arch={architecture} layout={layout!} locale={locale} mode="full" uid={uid}
                   progress={progress} flowEdges={flowEdges} stepKey={`${flowIdx}:${step}`}
-                  playing={isPlaying} hoverNode={selected ?? hover} onHover={setHover} onSelect={setSelected} emphasisEdge={emph} />
+                  playing={isPlaying} hoverNode={selected ?? hover} onHover={setHover} onSelect={openNode} emphasisEdge={emph} />
               )}
             </div>
           </div>
@@ -209,7 +226,7 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
           {reduced && <p className="dg-note">{t('diagram.reduced')}</p>}
         </div>
 
-        <div className="dg-steps-wrap">
+        <div className={`dg-steps-wrap ${panelOpen ? 'is-dim' : ''}`}>
           <h3 className="dg-steps-title">{t('diagram.steps')}</h3>
           <ol className="dg-steps">
             {steps.map((s) => {

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { useTranslations, type Locale as UiLocale } from '../../i18n/ui.ts';
+import { localePath, useTranslations, type Locale as UiLocale } from '../../i18n/ui.ts';
 import { connectionsFor, type Connection } from './connections.ts';
 import { CLASS_COLOR, KIND_CLASS } from './kinds.ts';
 import { isOwned, nodeLabel, type Architecture, type ArchNode, type Locale } from './types.ts';
@@ -39,10 +39,10 @@ export default function NodePanel({ arch, node, locale, emphasisEdge, onEmphasis
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   };
 
-  const list = (title: string, items: Connection[], arrow: string) => (
+  const list = (title: string, items: Connection[], arrow: string, empty: string) => (
     <div className="np-conn">
       <h4>{title}</h4>
-      {items.length === 0 ? <p className="np-muted">—</p> : (
+      {items.length === 0 ? <p className="np-muted">{empty}</p> : (
         <ul>
           {items.map((c) => (
             <li key={c.edgeId}>
@@ -81,6 +81,9 @@ export default function NodePanel({ arch, node, locale, emphasisEdge, onEmphasis
           <section>
             <h4>{t('details.what')}</h4>
             <p>{d ? d.what[locale] : node.sublabel[locale]}</p>
+            {node.link && (
+              <p className="np-link"><a href={localePath(locale as UiLocale, `/projects/${node.link}`)}>{node.linkLabel ? node.linkLabel[locale] : t('details.openProject')}</a></p>
+            )}
           </section>
           {d && d.responsibilities.length > 0 && (
             <section>
@@ -98,8 +101,8 @@ export default function NodePanel({ arch, node, locale, emphasisEdge, onEmphasis
             <h4>{t('details.connections')}</h4>
             {incoming.length + outgoing.length === 0 ? <p className="np-muted">{t('details.none')}</p> : (
               <>
-                {list(t('details.incoming'), incoming, '←')}
-                {list(t('details.outgoing'), outgoing, '→')}
+                {list(t('details.incoming'), incoming, '←', t('details.noIncoming'))}
+                {list(t('details.outgoing'), outgoing, '→', t('details.noOutgoing'))}
               </>
             )}
           </section>

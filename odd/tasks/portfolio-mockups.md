@@ -39,6 +39,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T5c Integrate code-verified content-v2 (11 projects + agentic details), schema/renderer accept it, layout tests over all projects. Route: delegated writer.
 - [x] T5d Polish: readable hero diagram, crypto on 3 rows, Spanish sublabel truncation. Route: delegated writer.
 - [x] T5e Polish: collision-free edge labels (dots for all steps, full pill only for active/hovered), minimum diagram scale ~0.85, mobile title wrapping, clearance from nodes, rename agentic platform title. Route: delegated writer.
+- [x] T5f Wagering "Live bet placement" view shows one live path only (branching idea dropped per owner); live engine bet API renamed and linked to /projects/live-betting-engine (`link`/`linkLabel`); node panel pauses the flow, dims flow badges, shows "Showing connections of <node>" and empty-outgoing text. Route: delegated writer.
 - [ ] T6 (later) Backend design.
 
 ## Acceptance criteria

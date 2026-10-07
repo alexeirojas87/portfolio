@@ -115,7 +115,7 @@
       "es": "Añadí idempotencia y umbrales de antigüedad (las apuestas obsoletas se rechazan en validación y persistencia), con identificadores de transacción estables propagados en logs estructurados y notificaciones."
     },
     {
-      "en": "Wrapped the legacy bet-insertion library behind an HTTP compatibility API so the new pipeline could ship incrementally while the legacy ledger remained the system of record.",
+      "en": "Wrapped the legacy bet-insertion library behind an HTTP legacy ledger API so the new pipeline could ship incrementally while the legacy ledger remained the system of record.",
       "es": "Encapsulé la biblioteca heredada de inserción de apuestas detrás de una API HTTP de compatibilidad, de modo que el nuevo pipeline pudo liberarse de forma incremental mientras el libro heredado seguía siendo la fuente de verdad."
     },
     {
@@ -187,8 +187,8 @@
   ],
   "architecture": {
     "viewName": {
-      "en": "Bet placement",
-      "es": "Colocación de apuestas"
+      "en": "Live bet placement",
+      "es": "Colocación de apuestas en vivo"
     },
     "groups": [
       {
@@ -297,8 +297,8 @@
               "es": "También acepta lotes de ticket writer (tópico aparte) y solicitudes de validación de relleno"
             },
             {
-              "en": "Answers status queries: pregame through the compatibility API, live through a bet-group lookup on the integration API",
-              "es": "Atiende consultas de estado: pregame mediante la API de compatibilidad, en vivo mediante la consulta por grupo de apuesta en la API de integración"
+              "en": "Answers status queries: pregame through the legacy ledger API, live through a bet-group lookup on the integration API",
+              "es": "Atiende consultas de estado: pregame mediante la API del libro heredado, en vivo mediante la consulta por grupo de apuesta en la API de integración"
             },
             {
               "en": "Evaluates static limits only; any history sent by the caller is discarded; violations return HTTP 200",
@@ -417,8 +417,8 @@
         },
         "details": {
           "what": {
-            "en": "A background consumer of the validation topic. Pregame batches: reject wagers older than the age threshold, validate each pick against fresh odds (market, side, price, line, accept-changes policy), then send valid ones to the compatibility API over HTTP and publish the returned states. Live batches: first pass resolves the tenant, enriches picks, evaluates live limits and computes a per-player delay; the batch is re-published until the latest delay elapses; second pass runs the transactional insert.",
-            "es": "Un consumidor en segundo plano del tópico de validación. Lotes pregame: rechaza apuestas más antiguas que el umbral, valida cada selección contra cuotas vigentes (mercado, lado, precio, línea, política de aceptar cambios), envía las válidas a la API de compatibilidad por HTTP y publica los estados devueltos. Lotes en vivo: la primera pasada resuelve el tenant, enriquece las selecciones, evalúa límites en vivo y calcula un retardo por jugador; el lote se republica hasta que vence el mayor retardo; la segunda pasada ejecuta la inserción transaccional."
+            "en": "A background consumer of the validation topic. Pregame batches: reject wagers older than the age threshold, validate each pick against fresh odds (market, side, price, line, accept-changes policy), then send valid ones to the legacy ledger API over HTTP and publish the returned states. Live batches: first pass resolves the tenant, enriches picks, evaluates live limits and computes a per-player delay; the batch is re-published until the latest delay elapses; second pass runs the transactional insert.",
+            "es": "Un consumidor en segundo plano del tópico de validación. Lotes pregame: rechaza apuestas más antiguas que el umbral, valida cada selección contra cuotas vigentes (mercado, lado, precio, línea, política de aceptar cambios), envía las válidas a la API del libro heredado por HTTP y publica los estados devueltos. Lotes en vivo: la primera pasada resuelve el tenant, enriquece las selecciones, evalúa límites en vivo y calcula un retardo por jugador; el lote se republica hasta que vence el mayor retardo; la segunda pasada ejecuta la inserción transaccional."
           },
           "responsibilities": [
             {
@@ -434,8 +434,8 @@
               "es": "Publica cada estado resultante en el tópico de notificaciones con clave por jugador"
             },
             {
-              "en": "Also consumes the ticket-writer topic and resolves game ids before calling the compatibility API",
-              "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API de compatibilidad"
+              "en": "Also consumes the ticket-writer topic and resolves game ids before calling the legacy ledger API",
+              "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API del libro heredado"
             },
             {
               "en": "Stops the process on an unrecoverable consumer error so the orchestrator restarts it",
@@ -488,105 +488,27 @@
         }
       },
       {
-        "id": "legacy",
-        "label": {
-          "en": "Legacy compatibility API",
-          "es": "API de compatibilidad con el sistema heredado"
-        },
-        "sublabel": {
-          "en": "HTTP wrapper over bet insertion",
-          "es": "Envoltorio HTTP de la inserción de apuestas"
-        },
-        "kind": "service",
-        "group": "persist",
-        "tech": "ASP.NET Core",
-        "owned": true,
-        "pos": {
-          "col": 4,
-          "row": 1
-        },
-        "details": {
-          "what": {
-            "en": "An ASP.NET Core minimal-API wrapper over the legacy insertion library. Endpoints: create wager, process ticket writer, fill-open validation and wager status. Wagers in a request are processed one at a time; each returns a state notification. A transaction tracker keyed by player and transaction id prevents duplicate inserts.",
-            "es": "Un envoltorio de minimal API de ASP.NET Core sobre la biblioteca heredada de inserción. Endpoints: crear apuesta, procesar ticket writer, validación de relleno y estado de apuesta. Las apuestas de una solicitud se procesan una a una y cada una devuelve una notificación de estado. Un rastreador de transacciones por jugador e identificador evita inserciones duplicadas."
-          },
-          "responsibilities": [
-            {
-              "en": "Applies per-wager-type rules (parlay, teaser, round robin, if-bet, reverse, open spot) before inserting",
-              "es": "Aplica reglas por tipo de apuesta (parlay, teaser, round robin, if-bet, reverse, plaza abierta) antes de insertar"
-            },
-            {
-              "en": "Retries transient SQL errors at 2, 4 and 8 seconds",
-              "es": "Reintenta errores transitorios de SQL a los 2, 4 y 8 segundos"
-            },
-            {
-              "en": "Reads reference data through an in-memory cache",
-              "es": "Lee datos de referencia mediante una caché en memoria"
-            }
-          ],
-          "why": {
-            "en": "Wrapping the proven insertion logic let the new pipeline ship without rewriting the ledger rules.",
-            "es": "Envolver la lógica de inserción probada permitió liberar el nuevo pipeline sin reescribir las reglas del libro."
-          }
-        }
-      },
-      {
-        "id": "ledgerdb",
-        "label": {
-          "en": "Bet ledger database",
-          "es": "Base del libro de apuestas"
-        },
-        "sublabel": {
-          "en": "System of record: wagers, balances",
-          "es": "Fuente de verdad: apuestas y saldos"
-        },
-        "kind": "db",
-        "group": "data",
-        "tech": "SQL Server",
-        "owned": true,
-        "pos": {
-          "col": 4,
-          "row": 2
-        },
-        "details": {
-          "what": {
-            "en": "The legacy ledger database: wager headers and details, player statistics and balances, and the transaction tracker. It remains the system of record for pregame wagers.",
-            "es": "La base del libro heredado: cabeceras y detalles de apuestas, estadísticas y saldos de jugadores y el rastreador de transacciones. Sigue siendo la fuente de verdad de las apuestas pregame."
-          },
-          "responsibilities": [
-            {
-              "en": "Receives inserts only through the compatibility API",
-              "es": "Recibe inserciones solo a través de la API de compatibilidad"
-            },
-            {
-              "en": "Stores balances updated together with each wager",
-              "es": "Guarda los saldos que se actualizan junto con cada apuesta"
-            }
-          ]
-        }
-      },
-      {
         "id": "liveapi",
         "label": {
-          "en": "Bet integration API",
-          "es": "API de integración de apuestas"
+          "en": "Live engine · bet API",
+          "es": "API de apuestas del motor en vivo"
         },
         "sublabel": {
-          "en": "Idempotent live wager insert",
-          "es": "Inserción idempotente de apuestas en vivo"
+          "en": "Belongs to the live betting engine",
+          "es": "Pertenece al motor de apuestas en vivo"
         },
         "kind": "service",
         "group": "persist",
         "tech": "ASP.NET Core",
         "owned": false,
         "pos": {
-          "col": 5,
-          "row": 0
+          "col": 4,
+          "row": 1
         },
         "details": {
           "what": {
-            "en": "A bet integration API owned by the live engine. The validation service posts the live wager to its insert endpoint with a bet-group id derived deterministically from the transaction id. The insert runs in a serializable transaction; replaying the same id returns the existing wager id (or an invalid-id error if the player differs).",
-            "es": "Una API de integración de apuestas propiedad del motor en vivo. El servicio de validación envía la apuesta en vivo a su endpoint de inserción con un identificador de grupo derivado de forma determinista del identificador de transacción. El insert corre en una transacción serializable; repetir el mismo identificador devuelve el id de apuesta existente (o un error de id inválido si el jugador difiere)."
+            "en": "Belongs to the live betting engine, a separate system with its own project. A bet integration API owned by the live engine. The validation service posts the live wager to its insert endpoint with a bet-group id derived deterministically from the transaction id. The insert runs in a serializable transaction; replaying the same id returns the existing wager id (or an invalid-id error if the player differs).",
+            "es": "Pertenece al motor de apuestas en vivo, un sistema aparte con su propio proyecto. Una API de integración de apuestas propiedad del motor en vivo. El servicio de validación envía la apuesta en vivo a su endpoint de inserción con un identificador de grupo derivado de forma determinista del identificador de transacción. El insert corre en una transacción serializable; repetir el mismo identificador devuelve el id de apuesta existente (o un error de id inválido si el jugador difiere)."
           },
           "responsibilities": [
             {
@@ -598,6 +520,11 @@
               "es": "También atiende la consulta de existencia por grupo de apuesta usada para el estado en vivo"
             }
           ]
+        },
+        "link": "live-betting-engine",
+        "linkLabel": {
+          "en": "See the live betting engine →",
+          "es": "Ver el motor de apuestas en vivo →"
         }
       }
     ],
@@ -673,26 +600,6 @@
         "async": true
       },
       {
-        "id": "e20",
-        "from": "core",
-        "to": "legacy",
-        "label": {
-          "en": "Insert pregame wagers (HTTP)",
-          "es": "Insertar apuestas pregame (HTTP)"
-        },
-        "async": false
-      },
-      {
-        "id": "e12",
-        "from": "legacy",
-        "to": "ledgerdb",
-        "label": {
-          "en": "Write wager slip and balance",
-          "es": "Escribir boleto y saldo"
-        },
-        "async": false
-      },
-      {
         "id": "e21",
         "from": "core",
         "to": "liveapi",
@@ -705,32 +612,14 @@
     ],
     "flows": [
       {
-        "id": "flow-pregame",
-        "name": {
-          "en": "Pregame wager",
-          "es": "Apuesta pregame"
-        },
-        "description": {
-          "en": "The wager is accepted, queued, validated against fresh odds and inserted into the ledger through the compatibility API.",
-          "es": "La apuesta se acepta, se encola, se valida contra cuotas vigentes y se inserta en el libro mediante la API de compatibilidad."
-        },
-        "edges": [
-          "e1",
-          "e2",
-          "e3",
-          "e20",
-          "e12"
-        ]
-      },
-      {
         "id": "flow-live",
         "name": {
           "en": "Live wager",
           "es": "Apuesta en vivo"
         },
         "description": {
-          "en": "Limits are evaluated, the batch loops until its delay elapses, then the wager is inserted transactionally.",
-          "es": "Se evalúan los límites, el lote da vueltas hasta que vence su retardo y luego la apuesta se inserta de forma transaccional."
+          "en": "The wager is accepted and queued. Limits are evaluated, the batch loops until its delay elapses, then the wager is stored in the live DB and forwarded to the live engine's bet API.",
+          "es": "La apuesta se acepta y se encola. Se evalúan los límites, el lote vuelve a la cola hasta cumplir su retardo y luego la apuesta se guarda en la BD en vivo y se reenvía a la API de apuestas del motor en vivo."
         },
         "edges": [
           "e1",
@@ -774,10 +663,6 @@
       {
         "en": "Per-player locks, idempotent inserts",
         "es": "Bloqueos por jugador, inserciones idempotentes"
-      },
-      {
-        "en": "Legacy ledger stays source of truth",
-        "es": "El libro heredado sigue como fuente de verdad"
       }
     ]
   },
@@ -872,8 +757,8 @@
                   "es": "También acepta lotes de ticket writer (tópico aparte) y solicitudes de validación de relleno"
                 },
                 {
-                  "en": "Answers status queries: pregame through the compatibility API, live through a bet-group lookup on the integration API",
-                  "es": "Atiende consultas de estado: pregame mediante la API de compatibilidad, en vivo mediante la consulta por grupo de apuesta en la API de integración"
+                  "en": "Answers status queries: pregame through the legacy ledger API, live through a bet-group lookup on the integration API",
+                  "es": "Atiende consultas de estado: pregame mediante la API del libro heredado, en vivo mediante la consulta por grupo de apuesta en la API de integración"
                 },
                 {
                   "en": "Evaluates static limits only; any history sent by the caller is discarded; violations return HTTP 200",
@@ -992,8 +877,8 @@
             },
             "details": {
               "what": {
-                "en": "A background consumer of the validation topic. Pregame batches: reject wagers older than the age threshold, validate each pick against fresh odds (market, side, price, line, accept-changes policy), then send valid ones to the compatibility API over HTTP and publish the returned states. Live batches: first pass resolves the tenant, enriches picks, evaluates live limits and computes a per-player delay; the batch is re-published until the latest delay elapses; second pass runs the transactional insert.",
-                "es": "Un consumidor en segundo plano del tópico de validación. Lotes pregame: rechaza apuestas más antiguas que el umbral, valida cada selección contra cuotas vigentes (mercado, lado, precio, línea, política de aceptar cambios), envía las válidas a la API de compatibilidad por HTTP y publica los estados devueltos. Lotes en vivo: la primera pasada resuelve el tenant, enriquece las selecciones, evalúa límites en vivo y calcula un retardo por jugador; el lote se republica hasta que vence el mayor retardo; la segunda pasada ejecuta la inserción transaccional."
+                "en": "A background consumer of the validation topic. Pregame batches: reject wagers older than the age threshold, validate each pick against fresh odds (market, side, price, line, accept-changes policy), then send valid ones to the legacy ledger API over HTTP and publish the returned states. Live batches: first pass resolves the tenant, enriches picks, evaluates live limits and computes a per-player delay; the batch is re-published until the latest delay elapses; second pass runs the transactional insert.",
+                "es": "Un consumidor en segundo plano del tópico de validación. Lotes pregame: rechaza apuestas más antiguas que el umbral, valida cada selección contra cuotas vigentes (mercado, lado, precio, línea, política de aceptar cambios), envía las válidas a la API del libro heredado por HTTP y publica los estados devueltos. Lotes en vivo: la primera pasada resuelve el tenant, enriquece las selecciones, evalúa límites en vivo y calcula un retardo por jugador; el lote se republica hasta que vence el mayor retardo; la segunda pasada ejecuta la inserción transaccional."
               },
               "responsibilities": [
                 {
@@ -1009,8 +894,8 @@
                   "es": "Publica cada estado resultante en el tópico de notificaciones con clave por jugador"
                 },
                 {
-                  "en": "Also consumes the ticket-writer topic and resolves game ids before calling the compatibility API",
-                  "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API de compatibilidad"
+                  "en": "Also consumes the ticket-writer topic and resolves game ids before calling the legacy ledger API",
+                  "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API del libro heredado"
                 },
                 {
                   "en": "Stops the process on an unrecoverable consumer error so the orchestrator restarts it",
@@ -1065,12 +950,12 @@
           {
             "id": "liveapi",
             "label": {
-              "en": "Bet integration API",
-              "es": "API de integración de apuestas"
+              "en": "Live engine · bet API",
+              "es": "API de apuestas del motor en vivo"
             },
             "sublabel": {
-              "en": "Idempotent live wager insert",
-              "es": "Inserción idempotente de apuestas en vivo"
+              "en": "Belongs to the live betting engine",
+              "es": "Pertenece al motor de apuestas en vivo"
             },
             "kind": "service",
             "group": "persist",
@@ -1082,8 +967,8 @@
             },
             "details": {
               "what": {
-                "en": "A bet integration API owned by the live engine. The validation service posts the live wager to its insert endpoint with a bet-group id derived deterministically from the transaction id. The insert runs in a serializable transaction; replaying the same id returns the existing wager id (or an invalid-id error if the player differs).",
-                "es": "Una API de integración de apuestas propiedad del motor en vivo. El servicio de validación envía la apuesta en vivo a su endpoint de inserción con un identificador de grupo derivado de forma determinista del identificador de transacción. El insert corre en una transacción serializable; repetir el mismo identificador devuelve el id de apuesta existente (o un error de id inválido si el jugador difiere)."
+                "en": "Belongs to the live betting engine, a separate system with its own project. A bet integration API owned by the live engine. The validation service posts the live wager to its insert endpoint with a bet-group id derived deterministically from the transaction id. The insert runs in a serializable transaction; replaying the same id returns the existing wager id (or an invalid-id error if the player differs).",
+                "es": "Pertenece al motor de apuestas en vivo, un sistema aparte con su propio proyecto. Una API de integración de apuestas propiedad del motor en vivo. El servicio de validación envía la apuesta en vivo a su endpoint de inserción con un identificador de grupo derivado de forma determinista del identificador de transacción. El insert corre en una transacción serializable; repetir el mismo identificador devuelve el id de apuesta existente (o un error de id inválido si el jugador difiere)."
               },
               "responsibilities": [
                 {
@@ -1095,6 +980,11 @@
                   "es": "También atiende la consulta de existencia por grupo de apuesta usada para el estado en vivo"
                 }
               ]
+            },
+            "link": "live-betting-engine",
+            "linkLabel": {
+              "en": "See the live betting engine →",
+              "es": "Ver el motor de apuestas en vivo →"
             }
           },
           {
@@ -1431,8 +1321,8 @@
                   "es": "También acepta lotes de ticket writer (tópico aparte) y solicitudes de validación de relleno"
                 },
                 {
-                  "en": "Answers status queries: pregame through the compatibility API, live through a bet-group lookup on the integration API",
-                  "es": "Atiende consultas de estado: pregame mediante la API de compatibilidad, en vivo mediante la consulta por grupo de apuesta en la API de integración"
+                  "en": "Answers status queries: pregame through the legacy ledger API, live through a bet-group lookup on the integration API",
+                  "es": "Atiende consultas de estado: pregame mediante la API del libro heredado, en vivo mediante la consulta por grupo de apuesta en la API de integración"
                 },
                 {
                   "en": "Evaluates static limits only; any history sent by the caller is discarded; violations return HTTP 200",
@@ -1500,8 +1390,8 @@
             },
             "details": {
               "what": {
-                "en": "A background consumer of the validation topic. Pregame batches: reject wagers older than the age threshold, validate each pick against fresh odds (market, side, price, line, accept-changes policy), then send valid ones to the compatibility API over HTTP and publish the returned states. Live batches: first pass resolves the tenant, enriches picks, evaluates live limits and computes a per-player delay; the batch is re-published until the latest delay elapses; second pass runs the transactional insert.",
-                "es": "Un consumidor en segundo plano del tópico de validación. Lotes pregame: rechaza apuestas más antiguas que el umbral, valida cada selección contra cuotas vigentes (mercado, lado, precio, línea, política de aceptar cambios), envía las válidas a la API de compatibilidad por HTTP y publica los estados devueltos. Lotes en vivo: la primera pasada resuelve el tenant, enriquece las selecciones, evalúa límites en vivo y calcula un retardo por jugador; el lote se republica hasta que vence el mayor retardo; la segunda pasada ejecuta la inserción transaccional."
+                "en": "A background consumer of the validation topic. Pregame batches: reject wagers older than the age threshold, validate each pick against fresh odds (market, side, price, line, accept-changes policy), then send valid ones to the legacy ledger API over HTTP and publish the returned states. Live batches: first pass resolves the tenant, enriches picks, evaluates live limits and computes a per-player delay; the batch is re-published until the latest delay elapses; second pass runs the transactional insert.",
+                "es": "Un consumidor en segundo plano del tópico de validación. Lotes pregame: rechaza apuestas más antiguas que el umbral, valida cada selección contra cuotas vigentes (mercado, lado, precio, línea, política de aceptar cambios), envía las válidas a la API del libro heredado por HTTP y publica los estados devueltos. Lotes en vivo: la primera pasada resuelve el tenant, enriquece las selecciones, evalúa límites en vivo y calcula un retardo por jugador; el lote se republica hasta que vence el mayor retardo; la segunda pasada ejecuta la inserción transaccional."
               },
               "responsibilities": [
                 {
@@ -1517,8 +1407,8 @@
                   "es": "Publica cada estado resultante en el tópico de notificaciones con clave por jugador"
                 },
                 {
-                  "en": "Also consumes the ticket-writer topic and resolves game ids before calling the compatibility API",
-                  "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API de compatibilidad"
+                  "en": "Also consumes the ticket-writer topic and resolves game ids before calling the legacy ledger API",
+                  "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API del libro heredado"
                 },
                 {
                   "en": "Stops the process on an unrecoverable consumer error so the orchestrator restarts it",
@@ -1534,12 +1424,12 @@
           {
             "id": "legacy",
             "label": {
-              "en": "Legacy compatibility API",
-              "es": "API de compatibilidad con el sistema heredado"
+              "en": "Legacy ledger API",
+              "es": "API del libro heredado"
             },
             "sublabel": {
-              "en": "HTTP wrapper over bet insertion",
-              "es": "Envoltorio HTTP de la inserción de apuestas"
+              "en": "Pregame path: HTTP insert into the ledger",
+              "es": "Ruta pregame: inserción HTTP en el libro"
             },
             "kind": "service",
             "group": "persist",
@@ -1664,8 +1554,8 @@
             },
             "details": {
               "what": {
-                "en": "A legacy persistence topic. The persistence worker still consumes it, but in the current validation service nothing publishes to it: validated pregame wagers go straight to the compatibility API over HTTP.",
-                "es": "Un tópico de persistencia heredado. El worker de persistencia todavía lo consume, pero en el servicio de validación actual nadie publica en él: las apuestas pregame validadas van directamente a la API de compatibilidad por HTTP."
+                "en": "A legacy persistence topic. The persistence worker still consumes it, but in the current validation service nothing publishes to it: validated pregame wagers go straight to the legacy ledger API over HTTP.",
+                "es": "Un tópico de persistencia heredado. El worker de persistencia todavía lo consume, pero en el servicio de validación actual nadie publica en él: las apuestas pregame validadas van directamente a la API del libro heredado por HTTP."
               },
               "responsibilities": [
                 {
@@ -1686,8 +1576,8 @@
               "es": "Worker de persistencia de apuestas"
             },
             "sublabel": {
-              "en": "Re-checks age, calls compatibility API",
-              "es": "Revisa antigüedad y llama a la API de compatibilidad"
+              "en": "Re-checks age, calls legacy ledger API",
+              "es": "Revisa antigüedad y llama a la API del libro heredado"
             },
             "kind": "worker",
             "group": "persist",
@@ -1699,8 +1589,8 @@
             },
             "details": {
               "what": {
-                "en": "A background worker with two consumers: the persistence topic and the ticket-writer topic. It re-checks wager age against the live or pregame threshold, sends pregame wagers to the compatibility API over HTTP (2 exponential retries and a circuit breaker) and publishes the resulting states. Live wagers are not inserted here; they are marked as process errors.",
-                "es": "Un worker en segundo plano con dos consumidores: el tópico de persistencia y el de ticket writer. Revisa de nuevo la antigüedad contra el umbral en vivo o pregame, envía las apuestas pregame a la API de compatibilidad por HTTP (2 reintentos exponenciales y circuit breaker) y publica los estados resultantes. Las apuestas en vivo no se insertan aquí: se marcan como error de proceso."
+                "en": "A background worker with two consumers: the persistence topic and the ticket-writer topic. It re-checks wager age against the live or pregame threshold, sends pregame wagers to the legacy ledger API over HTTP (2 exponential retries and a circuit breaker) and publishes the resulting states. Live wagers are not inserted here; they are marked as process errors.",
+                "es": "Un worker en segundo plano con dos consumidores: el tópico de persistencia y el de ticket writer. Revisa de nuevo la antigüedad contra el umbral en vivo o pregame, envía las apuestas pregame a la API del libro heredado por HTTP (2 reintentos exponenciales y circuit breaker) y publica los estados resultantes. Las apuestas en vivo no se insertan aquí: se marcan como error de proceso."
               },
               "responsibilities": [
                 {
@@ -1739,8 +1629,8 @@
               },
               "responsibilities": [
                 {
-                  "en": "Receives inserts only through the compatibility API",
-                  "es": "Recibe inserciones solo a través de la API de compatibilidad"
+                  "en": "Receives inserts only through the legacy ledger API",
+                  "es": "Recibe inserciones solo a través de la API del libro heredado"
                 },
                 {
                   "en": "Stores balances updated together with each wager",
@@ -1816,8 +1706,8 @@
             "from": "proc",
             "to": "legacy",
             "label": {
-              "en": "Insert via compatibility API (HTTP)",
-              "es": "Insertar mediante la API de compatibilidad (HTTP)"
+              "en": "Insert via legacy ledger API (HTTP)",
+              "es": "Insertar mediante la API del libro heredado (HTTP)"
             },
             "async": false
           },
@@ -1860,8 +1750,8 @@
               "es": "Lote de ticket writer"
             },
             "description": {
-              "en": "Operator batches are published, game ids resolved and the wagers inserted through the compatibility API.",
-              "es": "Los lotes de operadores se publican, se resuelven los identificadores de juego y las apuestas se insertan mediante la API de compatibilidad."
+              "en": "Operator batches are published, game ids resolved and the wagers inserted through the legacy ledger API.",
+              "es": "Los lotes de operadores se publican, se resuelven los identificadores de juego y las apuestas se insertan mediante la API del libro heredado."
             },
             "edges": [
               "e22",
@@ -1879,8 +1769,8 @@
               "es": "Ruta de persistencia heredada"
             },
             "description": {
-              "en": "The persistence worker consumes validated wagers and inserts them through the compatibility API.",
-              "es": "El worker de persistencia consume apuestas validadas y las inserta mediante la API de compatibilidad."
+              "en": "The persistence worker consumes validated wagers and inserts them through the legacy ledger API.",
+              "es": "El worker de persistencia consume apuestas validadas y las inserta mediante la API del libro heredado."
             },
             "edges": [
               "e10",
@@ -2081,8 +1971,8 @@
             },
             "details": {
               "what": {
-                "en": "A background consumer of the validation topic. Pregame batches: reject wagers older than the age threshold, validate each pick against fresh odds (market, side, price, line, accept-changes policy), then send valid ones to the compatibility API over HTTP and publish the returned states. Live batches: first pass resolves the tenant, enriches picks, evaluates live limits and computes a per-player delay; the batch is re-published until the latest delay elapses; second pass runs the transactional insert.",
-                "es": "Un consumidor en segundo plano del tópico de validación. Lotes pregame: rechaza apuestas más antiguas que el umbral, valida cada selección contra cuotas vigentes (mercado, lado, precio, línea, política de aceptar cambios), envía las válidas a la API de compatibilidad por HTTP y publica los estados devueltos. Lotes en vivo: la primera pasada resuelve el tenant, enriquece las selecciones, evalúa límites en vivo y calcula un retardo por jugador; el lote se republica hasta que vence el mayor retardo; la segunda pasada ejecuta la inserción transaccional."
+                "en": "A background consumer of the validation topic. Pregame batches: reject wagers older than the age threshold, validate each pick against fresh odds (market, side, price, line, accept-changes policy), then send valid ones to the legacy ledger API over HTTP and publish the returned states. Live batches: first pass resolves the tenant, enriches picks, evaluates live limits and computes a per-player delay; the batch is re-published until the latest delay elapses; second pass runs the transactional insert.",
+                "es": "Un consumidor en segundo plano del tópico de validación. Lotes pregame: rechaza apuestas más antiguas que el umbral, valida cada selección contra cuotas vigentes (mercado, lado, precio, línea, política de aceptar cambios), envía las válidas a la API del libro heredado por HTTP y publica los estados devueltos. Lotes en vivo: la primera pasada resuelve el tenant, enriquece las selecciones, evalúa límites en vivo y calcula un retardo por jugador; el lote se republica hasta que vence el mayor retardo; la segunda pasada ejecuta la inserción transaccional."
               },
               "responsibilities": [
                 {
@@ -2098,8 +1988,8 @@
                   "es": "Publica cada estado resultante en el tópico de notificaciones con clave por jugador"
                 },
                 {
-                  "en": "Also consumes the ticket-writer topic and resolves game ids before calling the compatibility API",
-                  "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API de compatibilidad"
+                  "en": "Also consumes the ticket-writer topic and resolves game ids before calling the legacy ledger API",
+                  "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API del libro heredado"
                 },
                 {
                   "en": "Stops the process on an unrecoverable consumer error so the orchestrator restarts it",
@@ -2119,8 +2009,8 @@
               "es": "Worker de persistencia de apuestas"
             },
             "sublabel": {
-              "en": "Re-checks age, calls compatibility API",
-              "es": "Revisa antigüedad y llama a la API de compatibilidad"
+              "en": "Re-checks age, calls legacy ledger API",
+              "es": "Revisa antigüedad y llama a la API del libro heredado"
             },
             "kind": "worker",
             "group": "persist",
@@ -2132,8 +2022,8 @@
             },
             "details": {
               "what": {
-                "en": "A background worker with two consumers: the persistence topic and the ticket-writer topic. It re-checks wager age against the live or pregame threshold, sends pregame wagers to the compatibility API over HTTP (2 exponential retries and a circuit breaker) and publishes the resulting states. Live wagers are not inserted here; they are marked as process errors.",
-                "es": "Un worker en segundo plano con dos consumidores: el tópico de persistencia y el de ticket writer. Revisa de nuevo la antigüedad contra el umbral en vivo o pregame, envía las apuestas pregame a la API de compatibilidad por HTTP (2 reintentos exponenciales y circuit breaker) y publica los estados resultantes. Las apuestas en vivo no se insertan aquí: se marcan como error de proceso."
+                "en": "A background worker with two consumers: the persistence topic and the ticket-writer topic. It re-checks wager age against the live or pregame threshold, sends pregame wagers to the legacy ledger API over HTTP (2 exponential retries and a circuit breaker) and publishes the resulting states. Live wagers are not inserted here; they are marked as process errors.",
+                "es": "Un worker en segundo plano con dos consumidores: el tópico de persistencia y el de ticket writer. Revisa de nuevo la antigüedad contra el umbral en vivo o pregame, envía las apuestas pregame a la API del libro heredado por HTTP (2 reintentos exponenciales y circuit breaker) y publica los estados resultantes. Las apuestas en vivo no se insertan aquí: se marcan como error de proceso."
               },
               "responsibilities": [
                 {
@@ -2150,12 +2040,12 @@
           {
             "id": "legacy",
             "label": {
-              "en": "Legacy compatibility API",
-              "es": "API de compatibilidad con el sistema heredado"
+              "en": "Legacy ledger API",
+              "es": "API del libro heredado"
             },
             "sublabel": {
-              "en": "HTTP wrapper over bet insertion",
-              "es": "Envoltorio HTTP de la inserción de apuestas"
+              "en": "Pregame path: HTTP insert into the ledger",
+              "es": "Ruta pregame: inserción HTTP en el libro"
             },
             "kind": "service",
             "group": "persist",
@@ -2210,8 +2100,8 @@
             },
             "details": {
               "what": {
-                "en": "An in-memory cache inside the compatibility API holding system preferences and catalogs under prefixed keys with a 5-minute absolute expiration. The validation service additionally keeps a 20-second memory cache of live-limit profiles.",
-                "es": "Una caché en memoria dentro de la API de compatibilidad que guarda preferencias del sistema y catálogos bajo claves con prefijo y expiración absoluta de 5 minutos. El servicio de validación mantiene además una caché en memoria de 20 s para los perfiles de límites en vivo."
+                "en": "An in-memory cache inside the legacy ledger API holding system preferences and catalogs under prefixed keys with a 5-minute absolute expiration. The validation service additionally keeps a 20-second memory cache of live-limit profiles.",
+                "es": "Una caché en memoria dentro de la API del libro heredado que guarda preferencias del sistema y catálogos bajo claves con prefijo y expiración absoluta de 5 minutos. El servicio de validación mantiene además una caché en memoria de 20 s para los perfiles de límites en vivo."
               },
               "responsibilities": [
                 {
@@ -2327,8 +2217,8 @@
             "from": "proc",
             "to": "legacy",
             "label": {
-              "en": "Insert via compatibility API (HTTP)",
-              "es": "Insertar mediante la API de compatibilidad (HTTP)"
+              "en": "Insert via legacy ledger API (HTTP)",
+              "es": "Insertar mediante la API del libro heredado (HTTP)"
             },
             "async": false
           },

@@ -371,3 +371,11 @@ body {
 @media (prefers-reduced-motion: reduce) { .np { animation: none; } }
 
 .np-head h3, .dg-step .path, .dg-step .what, .card h3, .np-conn .who, .np-conn .what { hyphens: auto; overflow-wrap: anywhere; }
+
+/* ---------- Branches, decisions, panel state ---------- */
+.dg-badges.is-dim { opacity: .35; transition: opacity .2s; }
+.dg-steps-wrap.is-dim .dg-steps, .dg-steps-wrap.is-dim .dg-hint { opacity: .45; transition: opacity .2s; }
+.dg-caption.is-node { color: #cfe0ff; }
+.np-link a { color: var(--cobalt); font-weight: 600; text-decoration: none; }
+.np-link a:hover { text-decoration: underline; }
+.np-link { margin-top: 10px !important; }

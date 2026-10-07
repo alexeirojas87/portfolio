@@ -53,3 +53,14 @@ export function progressAt(steps: FlowStep[], active: number): Progress {
   for (const id of activeNodes) doneNodes.delete(id);
   return { activeEdge: steps[active]?.edge.id ?? null, doneEdges, activeNodes, doneNodes };
 }
+
+// Opening a node panel pauses the flow and remembers whether it was playing; closing restores it,
+// so the panel's story (a node's own connections) never mixes with the flow's story.
+export interface PlaybackState { playing: boolean; resume: boolean | null }
+
+export function openPanelPlayback(s: PlaybackState): PlaybackState {
+  return { playing: false, resume: s.resume ?? s.playing };
+}
+export function closePanelPlayback(s: PlaybackState): PlaybackState {
+  return { playing: s.resume ?? s.playing, resume: null };
+}

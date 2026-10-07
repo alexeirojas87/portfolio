@@ -27,6 +27,9 @@ export interface ArchNode {
   owned?: boolean | null;
   /** Content for the click-through details panel. */
   details?: NodeDetails | null;
+  /** Project slug to link to from the details panel, with its label. */
+  link?: string | null;
+  linkLabel?: LText | null;
   sublabel: LText;
   kind: NodeKind;
   group: string;

@@ -26,6 +26,8 @@ export interface CuratedSvgProps {
   onSelect?: (id: string) => void;
   emphasisEdge?: string | null;
   hoverEdge?: string | null;
+  /** A node panel is open: the flow is paused and its badges and highlights are dimmed. */
+  dimFlow?: boolean;
   onHoverEdge?: (id: string | null) => void;
   /** Rendered pixel width (vertical orientation is never scaled). */
   fixedWidth?: boolean;
@@ -39,7 +41,7 @@ export default function CuratedSvg(p: CuratedSvgProps) {
   const nodeById = new Map(arch.nodes.map((n) => [n.id, n]));
   const edgeById = new Map(arch.edges.map((e) => [e.id, e]));
   const active = p.progress?.activeEdge ?? null;
-  const hasFlow = !compact && !!p.stepNo && p.stepNo.size > 0;
+  const hasFlow = !compact && !!p.stepNo && p.stepNo.size > 0 && !p.dimFlow;
   const connected = new Set<string>();
   if (p.hoverNode) {
     for (const e of arch.edges)
@@ -181,7 +183,7 @@ export default function CuratedSvg(p: CuratedSvgProps) {
       </g>
 
       {!compact && (
-        <g className="dg-badges" pointerEvents="none">
+        <g className={`dg-badges ${p.dimFlow ? 'is-dim' : ''}`} pointerEvents="none">
           {[...badges.values()].map((b) => {
             const no = p.stepNo?.get(b.id);
             const isActive = b.id === active;
