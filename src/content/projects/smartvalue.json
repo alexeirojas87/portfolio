@@ -1,8 +1,14 @@
 {
   "slug": "smartvalue",
   "category": "personal",
-  "title": { "en": "SmartValue Monitor", "es": "SmartValue Monitor" },
-  "tagline": { "en": "Solar and battery dashboard built on a reverse-engineered inverter cloud API", "es": "Panel solar y de batería sobre la API en la nube de un inversor, obtenida por ingeniería inversa" },
+  "title": {
+    "en": "SmartValue Monitor",
+    "es": "SmartValue Monitor"
+  },
+  "tagline": {
+    "en": "Solar and battery dashboard built on a reverse-engineered inverter cloud API",
+    "es": "Panel solar y de batería sobre la API en la nube de un inversor, obtenida por ingeniería inversa"
+  },
   "summary": {
     "en": "A web dashboard for a home solar/battery system that uses SmartValue inverters. It signs in to the vendor's ValueClouds service, shows live power data and simulates battery state of charge against a weather-based solar forecast to tell the owner how much extra load is safe to run.",
     "es": "Un panel web para un sistema solar con batería de uso doméstico que usa inversores SmartValue. Inicia sesión en el servicio ValueClouds del fabricante, muestra datos de potencia en vivo y simula el estado de carga de la batería con un pronóstico solar basado en el clima para indicar cuánta carga extra es seguro usar."
@@ -11,81 +17,781 @@
     "en": "The vendor's mobile app is the only way to see the system, and the Wi-Fi dongle does not expose telemetry locally. Owners lack a shareable web view and any forecast of whether the battery will last the night.",
     "es": "La app móvil del fabricante es la única forma de ver el sistema y el dongle Wi-Fi no expone telemetría localmente. Los dueños no tienen una vista web compartible ni un pronóstico de si la batería durará la noche."
   },
-  "role": { "en": "Solo: protocol analysis, backend API, frontend, persistence design, deployment", "es": "En solitario: análisis de protocolo, API backend, frontend, diseño de persistencia, despliegue" },
+  "role": {
+    "en": "Solo: protocol analysis, backend API, frontend, persistence design, deployment",
+    "es": "En solitario: análisis de protocolo, API backend, frontend, diseño de persistencia, despliegue"
+  },
   "status": "live",
   "year": "2026",
-  "links": { "live": "https://smartvalue-monitor.pages.dev/", "github": "https://github.com/alexeirojas87/smartvalue-monitor" },
+  "links": {
+    "live": "https://smartvalue-monitor.pages.dev/",
+    "github": "https://github.com/alexeirojas87/smartvalue-monitor"
+  },
   "stack": [
-    { "name": "TypeScript", "category": "language" },
-    { "name": "Python", "category": "language" },
-    { "name": "React 19", "category": "frontend" },
-    { "name": "vinext (Next.js on Vite)", "category": "frontend" },
-    { "name": "Tailwind CSS", "category": "frontend" },
-    { "name": "Cloudflare Pages + Workers", "category": "cloud" },
-    { "name": "Supabase (PostgreSQL, RLS)", "category": "data" },
-    { "name": "Drizzle ORM", "category": "data" },
-    { "name": "Docker Compose", "category": "devops" },
-    { "name": "Node test runner", "category": "testing" }
+    {
+      "name": "TypeScript",
+      "category": "language"
+    },
+    {
+      "name": "Python",
+      "category": "language"
+    },
+    {
+      "name": "React 19",
+      "category": "frontend"
+    },
+    {
+      "name": "vinext (Next.js on Vite)",
+      "category": "frontend"
+    },
+    {
+      "name": "Tailwind CSS",
+      "category": "frontend"
+    },
+    {
+      "name": "Cloudflare Pages + Workers",
+      "category": "cloud"
+    },
+    {
+      "name": "Supabase (PostgreSQL, RLS)",
+      "category": "data"
+    },
+    {
+      "name": "Drizzle ORM",
+      "category": "data"
+    },
+    {
+      "name": "Docker Compose",
+      "category": "devops"
+    },
+    {
+      "name": "Node test runner",
+      "category": "testing"
+    }
   ],
   "highlights": [
-    { "en": "Reverse-engineered the vendor APK and documented how the dongle talks to the cloud (TCP datalogger to m2m host, REST API for the app), then built a client for it.", "es": "Ingeniería inversa de la APK del fabricante y documentación de cómo el dongle habla con la nube (datalogger TCP hacia el host m2m, API REST para la app), y construcción de un cliente." },
-    { "en": "Hour-by-hour battery simulation with charge/discharge efficiency, reserve limits and scenarios, exposed as a forecast API that computes safe extra load.", "es": "Simulación hora por hora de la batería con eficiencias de carga/descarga, reservas y escenarios, expuesta como API de pronóstico que calcula la carga extra segura." },
-    { "en": "Zero-knowledge-style multi-user persistence: accounts are stored only as HMAC-SHA-256 fingerprints and passwords are never persisted.", "es": "Persistencia multiusuario sin guardar secretos: las cuentas se almacenan solo como huellas HMAC-SHA-256 y las contraseñas nunca se persisten." },
-    { "en": "Supabase tables use RLS with no anon/authenticated policies; only the backend holds the service-role key, and settings are saved through a transactional RPC.", "es": "Las tablas de Supabase usan RLS sin políticas para anon/authenticated; solo el backend tiene la service-role key y los ajustes se guardan mediante una RPC transaccional." },
-    { "en": "Idempotent reading ingestion keyed by a deterministic SHA-256 ingestion key, with automated tests for the persistence layer.", "es": "Ingesta de lecturas idempotente con una clave SHA-256 determinista y pruebas automatizadas de la capa de persistencia." },
-    { "en": "Deployable two ways from one codebase: Docker container for private use or a Cloudflare Pages worker in public mode.", "es": "Desplegable de dos formas desde un mismo código: contenedor Docker para uso privado o worker de Cloudflare Pages en modo público." }
+    {
+      "en": "Reverse-engineered the vendor APK and documented how the dongle talks to the cloud (TCP datalogger to m2m host, REST API for the app), then built a client for it.",
+      "es": "Ingeniería inversa de la APK del fabricante y documentación de cómo el dongle habla con la nube (datalogger TCP hacia el host m2m, API REST para la app), y construcción de un cliente."
+    },
+    {
+      "en": "Hour-by-hour battery simulation with charge/discharge efficiency, reserve limits and scenarios, exposed as a forecast API that computes safe extra load.",
+      "es": "Simulación hora por hora de la batería con eficiencias de carga/descarga, reservas y escenarios, expuesta como API de pronóstico que calcula la carga extra segura."
+    },
+    {
+      "en": "Zero-knowledge-style multi-user persistence: accounts are stored only as HMAC-SHA-256 fingerprints and passwords are never persisted.",
+      "es": "Persistencia multiusuario sin guardar secretos: las cuentas se almacenan solo como huellas HMAC-SHA-256 y las contraseñas nunca se persisten."
+    },
+    {
+      "en": "Supabase tables use RLS with no anon/authenticated policies; only the backend holds the service-role key, and settings are saved through a transactional RPC.",
+      "es": "Las tablas de Supabase usan RLS sin políticas para anon/authenticated; solo el backend tiene la service-role key y los ajustes se guardan mediante una RPC transaccional."
+    },
+    {
+      "en": "Idempotent reading ingestion keyed by a deterministic SHA-256 ingestion key, with automated tests for the persistence layer.",
+      "es": "Ingesta de lecturas idempotente con una clave SHA-256 determinista y pruebas automatizadas de la capa de persistencia."
+    },
+    {
+      "en": "Deployable two ways from one codebase: Docker container for private use or a Cloudflare Pages worker in public mode.",
+      "es": "Desplegable de dos formas desde un mismo código: contenedor Docker para uso privado o worker de Cloudflare Pages en modo público."
+    }
   ],
   "decisions": [
     {
-      "title": { "en": "Use the vendor's cloud API instead of local telemetry", "es": "Usar la API en la nube del fabricante en vez de telemetría local" },
-      "why": { "en": "Analysis showed the dongle only pushes data outbound to the vendor cloud, so the simplest reliable source is the same REST API the app uses; a TCP decoder was kept as a vendor-independent alternative.", "es": "El análisis mostró que el dongle solo envía datos hacia la nube del fabricante, por lo que la fuente más simple y fiable es la misma API REST de la app; se conservó un decodificador TCP como alternativa independiente." }
+      "title": {
+        "en": "Use the vendor's cloud API instead of local telemetry",
+        "es": "Usar la API en la nube del fabricante en vez de telemetría local"
+      },
+      "why": {
+        "en": "Analysis showed the dongle only pushes data outbound to the vendor cloud, so the simplest reliable source is the same REST API the app uses; a TCP decoder was kept as a vendor-independent alternative.",
+        "es": "El análisis mostró que el dongle solo envía datos hacia la nube del fabricante, por lo que la fuente más simple y fiable es la misma API REST de la app; se conservó un decodificador TCP como alternativa independiente."
+      }
     },
     {
-      "title": { "en": "Public mode ignores server-side credentials", "es": "El modo público ignora credenciales del servidor" },
-      "why": { "en": "With SMARTVALUE_PUBLIC_MODE the backend refuses preconfigured credentials so a shared deployment can never expose the owner's account; each visitor signs in with their own.", "es": "Con SMARTVALUE_PUBLIC_MODE el backend rechaza credenciales preconfiguradas, de modo que un despliegue compartido nunca expone la cuenta del dueño; cada visitante entra con la suya." }
+      "title": {
+        "en": "Public mode ignores server-side credentials",
+        "es": "El modo público ignora credenciales del servidor"
+      },
+      "why": {
+        "en": "With SMARTVALUE_PUBLIC_MODE the backend refuses preconfigured credentials so a shared deployment can never expose the owner's account; each visitor signs in with their own.",
+        "es": "Con SMARTVALUE_PUBLIC_MODE el backend rechaza credenciales preconfiguradas, de modo que un despliegue compartido nunca expone la cuenta del dueño; cada visitante entra con la suya."
+      }
     },
     {
-      "title": { "en": "Pseudonymous identity via HMAC fingerprint", "es": "Identidad seudónima mediante huella HMAC" },
-      "why": { "en": "Persisting history per user needs a stable key without storing the account in clear. A secret-keyed HMAC of the normalized account gives that, at the cost of making secret rotation a controlled migration.", "es": "Guardar histórico por usuario requiere una clave estable sin almacenar la cuenta en claro. Un HMAC con secreto sobre la cuenta normalizada lo logra, a costa de que rotar el secreto sea una migración controlada." }
+      "title": {
+        "en": "Pseudonymous identity via HMAC fingerprint",
+        "es": "Identidad seudónima mediante huella HMAC"
+      },
+      "why": {
+        "en": "Persisting history per user needs a stable key without storing the account in clear. A secret-keyed HMAC of the normalized account gives that, at the cost of making secret rotation a controlled migration.",
+        "es": "Guardar histórico por usuario requiere una clave estable sin almacenar la cuenta en claro. Un HMAC con secreto sobre la cuenta normalizada lo logra, a costa de que rotar el secreto sea una migración controlada."
+      }
     },
     {
-      "title": { "en": "Persistence is optional and backend-only", "es": "La persistencia es opcional y solo desde el backend" },
-      "why": { "en": "Without Supabase variables the monitor still works with temporary settings; the browser never talks to the database, which keeps the service-role key out of client code.", "es": "Sin variables de Supabase el monitor sigue funcionando con ajustes temporales; el navegador nunca habla con la base, lo que mantiene la service-role key fuera del código cliente." }
+      "title": {
+        "en": "Persistence is optional and backend-only",
+        "es": "La persistencia es opcional y solo desde el backend"
+      },
+      "why": {
+        "en": "Without Supabase variables the monitor still works with temporary settings; the browser never talks to the database, which keeps the service-role key out of client code.",
+        "es": "Sin variables de Supabase el monitor sigue funcionando con ajustes temporales; el navegador nunca habla con la base, lo que mantiene la service-role key fuera del código cliente."
+      }
     }
   ],
   "architecture": {
     "groups": [
-      { "id": "client", "label": { "en": "Client", "es": "Cliente" } },
-      { "id": "edge", "label": { "en": "Edge / app server", "es": "Edge / servidor de la app" } },
-      { "id": "data", "label": { "en": "Data", "es": "Datos" } },
-      { "id": "vendor", "label": { "en": "Vendor and device", "es": "Fabricante y dispositivo" } }
+      {
+        "id": "client",
+        "label": {
+          "en": "Client",
+          "es": "Cliente"
+        }
+      },
+      {
+        "id": "edge",
+        "label": {
+          "en": "Edge / app server",
+          "es": "Edge / servidor de la app"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Data",
+          "es": "Datos"
+        }
+      },
+      {
+        "id": "vendor",
+        "label": {
+          "en": "Vendor and device",
+          "es": "Fabricante y dispositivo"
+        }
+      }
     ],
     "nodes": [
-      { "id": "browser", "label": "React dashboard", "sublabel": { "en": "Live power, SOC, settings, forecast", "es": "Potencia en vivo, SOC, ajustes, pronóstico" }, "kind": "client", "group": "client" },
-      { "id": "worker", "label": "Cloudflare Pages Worker", "sublabel": { "en": "vinext app router entry, public mode", "es": "Entrada app router de vinext, modo público" }, "kind": "gateway", "group": "edge" },
-      { "id": "docker", "label": "Docker container", "sublabel": { "en": "Same app for private self-hosting", "es": "La misma app para autoalojamiento privado" }, "kind": "service", "group": "edge" },
-      { "id": "api", "label": "/api/smartvalue", "sublabel": { "en": "Auth, device data, history", "es": "Autenticación, datos del equipo, histórico" }, "kind": "service", "group": "edge" },
-      { "id": "forecast", "label": "/api/solar-forecast", "sublabel": { "en": "Battery SOC simulation", "es": "Simulación de SOC de batería" }, "kind": "service", "group": "edge" },
-      { "id": "settings", "label": "/api/settings", "sublabel": { "en": "User and system settings", "es": "Ajustes de usuario y sistema" }, "kind": "service", "group": "edge" },
-      { "id": "supabase", "label": "Supabase PostgreSQL", "sublabel": { "en": "RLS tables, readings, settings RPC", "es": "Tablas con RLS, lecturas, RPC de ajustes" }, "kind": "db", "group": "data" },
-      { "id": "vclouds", "label": "ValueClouds API", "sublabel": { "en": "Vendor cloud REST service", "es": "Servicio REST en la nube del fabricante" }, "kind": "external", "group": "vendor" },
-      { "id": "dongle", "label": "Wi-Fi datalogger + inverter", "sublabel": { "en": "Pushes telemetry to the vendor cloud", "es": "Envía telemetría a la nube del fabricante" }, "kind": "external", "group": "vendor" }
+      {
+        "id": "browser",
+        "label": {
+          "en": "Solar dashboard",
+          "es": "Panel solar"
+        },
+        "sublabel": {
+          "en": "Live power, SOC, settings, forecast",
+          "es": "Potencia, SOC, ajustes y pronóstico"
+        },
+        "kind": "client",
+        "group": "client",
+        "tech": "React · Next.js",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The single-page dashboard the owner uses to watch the solar system live, edit settings and run what-if forecasts.",
+            "es": "El panel donde el propietario ve el sistema solar en vivo, edita ajustes y ejecuta pronósticos hipotéticos."
+          },
+          "responsibilities": [
+            {
+              "en": "Logs in through /api/smartvalue, then polls device data",
+              "es": "Inicia sesión por /api/smartvalue y luego consulta datos del equipo"
+            },
+            {
+              "en": "Loads and saves settings through /api/settings",
+              "es": "Carga y guarda ajustes por /api/settings"
+            },
+            {
+              "en": "Posts hourly inputs to /api/solar-forecast",
+              "es": "Envía entradas horarias a /api/solar-forecast"
+            },
+            {
+              "en": "Keeps location and planner settings in localStorage as a fallback",
+              "es": "Guarda ubicación y ajustes del planificador en localStorage como respaldo"
+            }
+          ]
+        }
+      },
+      {
+        "id": "docker",
+        "label": {
+          "en": "Private self-hosting",
+          "es": "Autoalojamiento privado"
+        },
+        "sublabel": {
+          "en": "Same app on port 3000",
+          "es": "La misma app en el puerto 3000"
+        },
+        "kind": "service",
+        "group": "edge",
+        "tech": "Docker",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "Multi-stage Dockerfile (Node 22) run by compose as smartvalue-web on port 3000 with an env file, restart policy and an HTTP healthcheck every 30 s. Runs the same app, including the same API routes.",
+            "es": "Dockerfile multi-etapa (Node 22) ejecutado por compose como smartvalue-web en el puerto 3000 con archivo env, política de reinicio y healthcheck HTTP cada 30 s. Ejecuta la misma app, incluidas las mismas rutas de API."
+          },
+          "responsibilities": [
+            {
+              "en": "Runs the Next.js app on port 3000",
+              "es": "Ejecuta la app Next.js en el puerto 3000"
+            },
+            {
+              "en": "Configured with compose and an env file",
+              "es": "Configurado con compose y un archivo env"
+            },
+            {
+              "en": "Exposes the same API routes",
+              "es": "Expone las mismas rutas de API"
+            }
+          ]
+        }
+      },
+      {
+        "id": "worker",
+        "label": {
+          "en": "Public edge entry",
+          "es": "Entrada pública en el edge"
+        },
+        "sublabel": {
+          "en": "App-router entry, public mode",
+          "es": "Entrada del app router, modo público"
+        },
+        "kind": "gateway",
+        "group": "edge",
+        "tech": "Cloudflare Pages Worker",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Cloudflare Pages _worker.js: serves static assets first for GET/HEAD and, if there is no asset (404), hands the request to the vinext-built app server, which runs the three API route handlers.",
+            "es": "_worker.js de Cloudflare Pages: sirve primero los assets estáticos para GET/HEAD y, si no hay asset (404), pasa la petición al servidor de la app compilado con vinext, que ejecuta los tres handlers de API."
+          },
+          "responsibilities": [
+            {
+              "en": "Single entry point of the public deployment",
+              "es": "Único punto de entrada del despliegue público"
+            },
+            {
+              "en": "Bundled with esbuild into pages-dist/_worker.js (build:pages)",
+              "es": "Empaquetado con esbuild en pages-dist/_worker.js (build:pages)"
+            },
+            {
+              "en": "SMARTVALUE_PUBLIC_MODE=true disables server-side vendor credentials",
+              "es": "SMARTVALUE_PUBLIC_MODE=true desactiva las credenciales del fabricante en el servidor"
+            }
+          ],
+          "why": {
+            "en": "One codebase serves both a public edge deployment and a private container.",
+            "es": "Un mismo código sirve un despliegue público en el edge y un contenedor privado."
+          }
+        }
+      },
+      {
+        "id": "settings",
+        "label": {
+          "en": "Settings API",
+          "es": "API de ajustes"
+        },
+        "sublabel": {
+          "en": "User and system settings",
+          "es": "Ajustes de usuario y del sistema"
+        },
+        "kind": "service",
+        "group": "edge",
+        "tech": "Next.js route",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "/api/settings GET, PUT and DELETE: reads and saves the active system's settings, and DELETE clears the session cookie. Requires the signed session cookie; returns 401 without it.",
+            "es": "/api/settings GET, PUT y DELETE: lee y guarda los ajustes del sistema activo, y DELETE borra la cookie de sesión. Exige la cookie de sesión firmada; devuelve 401 sin ella."
+          },
+          "responsibilities": [
+            {
+              "en": "Verifies the HMAC-signed session cookie (30-day TTL)",
+              "es": "Verifica la cookie de sesión firmada con HMAC (TTL de 30 días)"
+            },
+            {
+              "en": "Validates the payload (reserve between 5% and 90%)",
+              "es": "Valida el payload (reserva entre 5% y 90%)"
+            },
+            {
+              "en": "Saves user and system settings together through the smartvalue_upsert_settings RPC",
+              "es": "Guarda ajustes de usuario y de sistema juntos con la RPC smartvalue_upsert_settings"
+            },
+            {
+              "en": "Unavailable when Supabase or the identity secret is not configured",
+              "es": "No disponible si Supabase o el secreto de identidad no están configurados"
+            }
+          ]
+        }
+      },
+      {
+        "id": "forecast",
+        "label": {
+          "en": "Solar forecast",
+          "es": "Pronóstico solar"
+        },
+        "sublabel": {
+          "en": "Battery SOC simulation",
+          "es": "Simulación del SOC de batería"
+        },
+        "kind": "service",
+        "group": "edge",
+        "tech": "Next.js route · Open-Meteo",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "POST /api/solar-forecast validates the inputs, fetches hourly and daily irradiance from Open-Meteo for today and tomorrow, and simulates the battery hour by hour to report how much extra load fits above the reserve.",
+            "es": "POST /api/solar-forecast valida las entradas, obtiene irradiancia horaria y diaria de Open-Meteo para hoy y mañana, y simula la batería hora a hora para indicar cuánta carga extra cabe sobre la reserva."
+          },
+          "responsibilities": [
+            {
+              "en": "Validates and clamps inputs: lat/lon range, panels 100 W to 100 kW, battery 1 to 500 kWh, reserve 5% to 90%, up to 12 scenario events",
+              "es": "Valida y acota las entradas: rango de lat/lon, paneles de 100 W a 100 kW, batería de 1 a 500 kWh, reserva de 5% a 90%, hasta 12 eventos de escenario"
+            },
+            {
+              "en": "Uses a 24-hour load profile and a 0.78 performance ratio",
+              "es": "Usa un perfil de carga de 24 horas y un performance ratio de 0,78"
+            },
+            {
+              "en": "Stateless: no database access, no session needed",
+              "es": "Sin estado: no accede a la base ni requiere sesión"
+            }
+          ]
+        }
+      },
+      {
+        "id": "api",
+        "label": {
+          "en": "Device data API",
+          "es": "API de datos del equipo"
+        },
+        "sublabel": {
+          "en": "Auth, device data, history",
+          "es": "Autenticación, datos del equipo e histórico"
+        },
+        "kind": "service",
+        "group": "edge",
+        "tech": "Next.js route",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "POST /api/smartvalue logs into the vendor cloud and works in two phases: first it lists devices (up to 20 attempts, 5 s timeout each) and sets the session cookie; then, given the device identity, it reads live data and the day's history, and persists a snapshot when sessions and Supabase are configured.",
+            "es": "POST /api/smartvalue inicia sesión en la nube del fabricante y trabaja en dos fases: primero lista dispositivos (hasta 20 intentos, 5 s de timeout cada uno) y fija la cookie de sesión; luego, con la identidad del dispositivo, lee datos en vivo y el historial del día, y guarda una instantánea si hay sesiones y Supabase configurados."
+          },
+          "responsibilities": [
+            {
+              "en": "Signs each vendor request (SHA-1 login, HMAC signature) and retries with timeouts",
+              "es": "Firma cada petición al fabricante (login SHA-1, firma HMAC) y reintenta con timeouts"
+            },
+            {
+              "en": "Corrects the vendor clock offset before storing readings",
+              "es": "Corrige el desfase del reloj del fabricante antes de guardar lecturas"
+            },
+            {
+              "en": "Account is stored only as an HMAC-SHA-256 fingerprint; password is used for the request and discarded",
+              "es": "La cuenta se guarda solo como huella HMAC-SHA-256; la contraseña se usa en la petición y se descarta"
+            },
+            {
+              "en": "A persistence failure is logged and does not fail the response",
+              "es": "Un fallo de persistencia se registra y no hace fallar la respuesta"
+            }
+          ],
+          "why": {
+            "en": "Idempotent upserts on (system_id, ingestion_key) make repeated polling safe.",
+            "es": "Los upserts idempotentes sobre (system_id, ingestion_key) hacen seguro el sondeo repetido."
+          }
+        }
+      },
+      {
+        "id": "supabase",
+        "label": {
+          "en": "Readings and settings store",
+          "es": "Almacén de lecturas y ajustes"
+        },
+        "sublabel": {
+          "en": "RLS tables, readings, settings RPC",
+          "es": "Tablas con RLS, lecturas y RPC de ajustes"
+        },
+        "kind": "db",
+        "group": "data",
+        "tech": "Supabase PostgreSQL",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "PostgreSQL holding users, systems, readings and settings. Only the backend with a service-role key can reach it.",
+            "es": "PostgreSQL con usuarios, sistemas, lecturas y ajustes. Solo el backend con la clave service-role puede acceder."
+          },
+          "responsibilities": [
+            {
+              "en": "Tables smartvalue_users, systems, user_settings, system_settings and readings",
+              "es": "Tablas smartvalue_users, systems, user_settings, system_settings y readings"
+            },
+            {
+              "en": "RLS enabled with no anon or authenticated policies; only the backend service-role key reaches it",
+              "es": "RLS habilitado sin políticas para anon ni authenticated; solo la service-role key del backend llega"
+            },
+            {
+              "en": "Settings written in one transaction by the RPC; readings upserted on (system_id, ingestion_key)",
+              "es": "Ajustes escritos en una transacción por la RPC; lecturas con upsert sobre (system_id, ingestion_key)"
+            }
+          ],
+          "why": {
+            "en": "The database never sees credentials, limiting damage if it leaks.",
+            "es": "La base nunca ve credenciales, lo que limita el daño si se filtra."
+          }
+        }
+      },
+      {
+        "id": "vclouds",
+        "label": {
+          "en": "Vendor cloud",
+          "es": "Nube del fabricante"
+        },
+        "sublabel": {
+          "en": "Telemetry and device query",
+          "es": "Telemetría y consulta de equipos"
+        },
+        "kind": "external",
+        "group": "vendor",
+        "tech": "REST API",
+        "owned": false,
+        "pos": {
+          "col": 3,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The inverter vendor's cloud. Its REST API, reverse-engineered from the mobile app, is the only way to read the device; the backend calls it for login, device list, live data and history.",
+            "es": "La nube del fabricante del inversor. Su API REST, obtenida por ingeniería inversa de la app móvil, es la única forma de leer el equipo; el backend la llama para login, lista de dispositivos, datos en vivo e historial."
+          },
+          "responsibilities": [
+            {
+              "en": "Receives telemetry from the dongle",
+              "es": "Recibe telemetría del dongle"
+            },
+            {
+              "en": "Answers login and device queries",
+              "es": "Responde login y consultas de equipos"
+            }
+          ]
+        }
+      },
+      {
+        "id": "dongle",
+        "label": {
+          "en": "Inverter datalogger",
+          "es": "Datalogger del inversor"
+        },
+        "sublabel": {
+          "en": "Pushes telemetry over TCP",
+          "es": "Envía telemetría por TCP"
+        },
+        "kind": "external",
+        "group": "vendor",
+        "tech": "Wi-Fi dongle",
+        "owned": false,
+        "pos": {
+          "col": 4,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The Wi-Fi dongle attached to the inverter, which pushes readings to the vendor cloud over a TCP connection.",
+            "es": "El dongle Wi-Fi conectado al inversor, que empuja lecturas a la nube del fabricante por una conexión TCP."
+          },
+          "responsibilities": [
+            {
+              "en": "Pushes telemetry on its own schedule",
+              "es": "Envía telemetría según su propio calendario"
+            },
+            {
+              "en": "Protocol was documented from APK analysis",
+              "es": "El protocolo se documentó con análisis del APK"
+            }
+          ]
+        }
+      },
+      {
+        "id": "weather",
+        "label": {
+          "en": "Weather forecast",
+          "es": "Pronóstico meteorológico"
+        },
+        "sublabel": {
+          "en": "Hourly and daily irradiance",
+          "es": "Irradiancia horaria y diaria"
+        },
+        "kind": "external",
+        "group": "vendor",
+        "tech": "Open-Meteo",
+        "owned": false,
+        "pos": {
+          "col": 3,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "Public Open-Meteo API queried by the forecast route for shortwave and direct radiation, temperature and daily irradiation sums at the user's coordinates.",
+            "es": "API pública de Open-Meteo consultada por la ruta de pronóstico para radiación de onda corta y directa, temperatura y sumas diarias de irradiación en las coordenadas del usuario."
+          },
+          "responsibilities": [
+            {
+              "en": "No API key; read-only HTTPS GET",
+              "es": "Sin API key; GET HTTPS de solo lectura"
+            },
+            {
+              "en": "A failure returns an error to the dashboard",
+              "es": "Un fallo devuelve un error al panel"
+            }
+          ]
+        }
+      }
     ],
     "edges": [
-      { "id": "e1", "from": "browser", "to": "worker", "label": { "en": "HTTPS requests", "es": "Peticiones HTTPS" }, "async": false },
-      { "id": "e2", "from": "browser", "to": "docker", "label": { "en": "or local :3000", "es": "o local :3000" }, "async": false },
-      { "id": "e3", "from": "worker", "to": "api", "label": { "en": "routes API call", "es": "enruta la llamada" }, "async": false },
-      { "id": "e4", "from": "api", "to": "vclouds", "label": { "en": "login and device query", "es": "login y consulta del equipo" }, "async": false },
-      { "id": "e5", "from": "dongle", "to": "vclouds", "label": { "en": "TCP telemetry push", "es": "envío de telemetría TCP" }, "async": true },
-      { "id": "e6", "from": "api", "to": "supabase", "label": { "en": "idempotent reading upsert", "es": "upsert idempotente de lecturas" }, "async": false },
-      { "id": "e7", "from": "browser", "to": "forecast", "label": { "en": "hourly inputs, SOC, reserve", "es": "entradas horarias, SOC, reserva" }, "async": false },
-      { "id": "e8", "from": "browser", "to": "settings", "label": { "en": "save zone, battery, panels", "es": "guarda zona, batería, paneles" }, "async": false },
-      { "id": "e9", "from": "settings", "to": "supabase", "label": { "en": "transactional RPC", "es": "RPC transaccional" }, "async": false }
+      {
+        "id": "e1",
+        "from": "browser",
+        "to": "worker",
+        "label": {
+          "en": "HTTPS requests",
+          "es": "Peticiones HTTPS"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "browser",
+        "to": "docker",
+        "label": {
+          "en": "or local :3000",
+          "es": "o local :3000"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "worker",
+        "to": "api",
+        "label": {
+          "en": "routes /api/smartvalue",
+          "es": "enruta /api/smartvalue"
+        },
+        "async": false
+      },
+      {
+        "id": "e10",
+        "from": "worker",
+        "to": "forecast",
+        "label": {
+          "en": "routes /api/solar-forecast",
+          "es": "enruta /api/solar-forecast"
+        },
+        "async": false
+      },
+      {
+        "id": "e11",
+        "from": "worker",
+        "to": "settings",
+        "label": {
+          "en": "routes /api/settings",
+          "es": "enruta /api/settings"
+        },
+        "async": false
+      },
+      {
+        "id": "e12",
+        "from": "docker",
+        "to": "api",
+        "label": {
+          "en": "same route handlers",
+          "es": "mismos handlers"
+        },
+        "async": false
+      },
+      {
+        "id": "e13",
+        "from": "docker",
+        "to": "forecast",
+        "label": {
+          "en": "same route handlers",
+          "es": "mismos handlers"
+        },
+        "async": false
+      },
+      {
+        "id": "e14",
+        "from": "docker",
+        "to": "settings",
+        "label": {
+          "en": "same route handlers",
+          "es": "mismos handlers"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "api",
+        "to": "vclouds",
+        "label": {
+          "en": "signed login and device queries",
+          "es": "login y consultas firmadas"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "dongle",
+        "to": "vclouds",
+        "label": {
+          "en": "TCP telemetry push",
+          "es": "envío de telemetría por TCP"
+        },
+        "async": true
+      },
+      {
+        "id": "e6",
+        "from": "api",
+        "to": "supabase",
+        "label": {
+          "en": "profile and idempotent reading upsert",
+          "es": "perfil y upsert idempotente de lecturas"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "forecast",
+        "to": "weather",
+        "label": {
+          "en": "GET hourly and daily irradiance",
+          "es": "GET irradiancia horaria y diaria"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "settings",
+        "to": "supabase",
+        "label": {
+          "en": "settings RPC (transactional) and reads",
+          "es": "RPC de ajustes (transaccional) y lecturas"
+        },
+        "async": false
+      }
     ],
     "flows": [
-      { "id": "f1", "name": { "en": "Live dashboard refresh", "es": "Actualización del panel en vivo" }, "description": { "en": "The dashboard calls the backend, which authenticates against the vendor cloud, fetches current device data (fed by the dongle) and stores an idempotent reading when persistence is on.", "es": "El panel llama al backend, que se autentica en la nube del fabricante, obtiene los datos actuales del equipo (alimentados por el dongle) y guarda una lectura idempotente si la persistencia está activa." }, "edges": ["e1", "e3", "e4", "e6"] },
-      { "id": "f2", "name": { "en": "Solar forecast and safe load", "es": "Pronóstico solar y carga segura" }, "description": { "en": "The browser posts hourly production and load inputs; the forecast route simulates battery SOC and returns how much extra load fits above the reserve.", "es": "El navegador envía producción y consumo por hora; la ruta de pronóstico simula el SOC de la batería y devuelve cuánta carga extra cabe por encima de la reserva." }, "edges": ["e1", "e7"] },
-      { "id": "f3", "name": { "en": "Saving settings", "es": "Guardar ajustes" }, "description": { "en": "User and system settings are written together in one backend-only RPC transaction.", "es": "Los ajustes de usuario y sistema se escriben juntos en una única transacción RPC solo desde el backend." }, "edges": ["e1", "e8", "e9"] }
+      {
+        "id": "f1",
+        "name": {
+          "en": "Live dashboard refresh",
+          "es": "Actualización del panel en vivo"
+        },
+        "description": {
+          "en": "The dashboard calls /api/smartvalue; the backend authenticates against the vendor cloud, reads live device data (fed by the dongle) and stores an idempotent reading when persistence is on.",
+          "es": "El panel llama a /api/smartvalue; el backend se autentica en la nube del fabricante, lee los datos en vivo del equipo (alimentados por el dongle) y guarda una lectura idempotente si la persistencia está activa."
+        },
+        "edges": [
+          "e1",
+          "e3",
+          "e4",
+          "e6"
+        ]
+      },
+      {
+        "id": "f2",
+        "name": {
+          "en": "Solar forecast and safe load",
+          "es": "Pronóstico solar y carga segura"
+        },
+        "description": {
+          "en": "The browser posts hourly production and load inputs; the forecast route fetches irradiance from Open-Meteo, simulates battery SOC and returns how much extra load fits above the reserve.",
+          "es": "El navegador envía entradas de producción y carga; la ruta de pronóstico obtiene irradiancia de Open-Meteo, simula el SOC de la batería y devuelve cuánta carga extra cabe sobre la reserva."
+        },
+        "edges": [
+          "e1",
+          "e10",
+          "e7"
+        ]
+      },
+      {
+        "id": "f3",
+        "name": {
+          "en": "Saving settings",
+          "es": "Guardar ajustes"
+        },
+        "description": {
+          "en": "Settings are saved with the session cookie and stored by a transactional RPC.",
+          "es": "Los ajustes se guardan con la cookie de sesión y se almacenan mediante una RPC transaccional."
+        },
+        "edges": [
+          "e1",
+          "e11",
+          "e9"
+        ]
+      },
+      {
+        "id": "f4",
+        "name": {
+          "en": "Private self-hosted use",
+          "es": "Uso privado autoalojado"
+        },
+        "description": {
+          "en": "The same routes run in the Docker container and call the vendor cloud directly from the owner's network.",
+          "es": "Las mismas rutas corren en el contenedor Docker y llaman a la nube del fabricante directamente desde la red del dueño."
+        },
+        "edges": [
+          "e2",
+          "e12",
+          "e4"
+        ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "One codebase, two deployments",
+        "es": "Un código, dos despliegues"
+      },
+      {
+        "en": "Reverse-engineered vendor API",
+        "es": "API del fabricante por ingeniería inversa"
+      },
+      {
+        "en": "Hourly battery simulation",
+        "es": "Simulación horaria de batería"
+      },
+      {
+        "en": "No passwords stored",
+        "es": "Sin contraseñas almacenadas"
+      },
+      {
+        "en": "Supabase with RLS",
+        "es": "Supabase con RLS"
+      }
     ]
   }
 }

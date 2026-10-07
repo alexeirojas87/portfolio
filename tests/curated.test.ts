@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { computeCurated, boundaryRect, crossesRect, gridRows, fitNodeW } from '../src/components/diagram/curated.ts';
 import { compress, roundedPath } from '../src/components/diagram/route.ts';
 import { isOwned, isCurated, type Architecture } from '../src/components/diagram/types.ts';
@@ -33,7 +33,7 @@ test('vertical layout is the transpose: flow reads top to bottom, rows become co
   assert.ok(n(v, 'db').x > n(v, 'executor').x); // row 2 sits right of row 1
   assert.ok(v.height > v.width * 0.5 && v.width < h.width);
   assert.equal(Math.round((v.width - 48) / 176) >= 1, true);
-  assert.equal(gridRows(a), 4);
+  assert.equal(gridRows(a), 3);
 });
 
 test('boundary encloses owned nodes only and excludes clients/externals', () => {
@@ -113,4 +113,50 @@ test('vertical layout of a <=3 row view fits a 390px phone without scrolling', (
   const avail = 390 - 32 - 8; // page gutters + frame padding
   const l = computeCurated(a, 'en', { orientation: 'vertical', nodeW: fitNodeW(gridRows(a), avail) });
   assert.ok(l.width <= avail, `${l.width} <= ${avail}`);
+});
+
+// ---- every project, every view ----
+const dir = new URL('../src/content/projects/', import.meta.url);
+const allViews: { name: string; arch: Architecture }[] = readdirSync(dir)
+  .filter((f) => f.endsWith('.json'))
+  .flatMap((f) => {
+    const p = JSON.parse(readFileSync(new URL(f, dir), 'utf8'));
+    return [
+      { name: `${f}#main`, arch: p.architecture as Architecture },
+      ...(p.additionalViews ?? []).map((v: { id: string; architecture: Architecture }) => ({ name: `${f}#${v.id}`, arch: v.architecture })),
+    ];
+  });
+
+test('all projects: every view is curated, <=10 nodes, <=3 rows, unique ids, valid edges and flows', () => {
+  assert.ok(allViews.length >= 12);
+  for (const { name, arch } of allViews) {
+    assert.ok(isCurated(arch), `${name} curated`);
+    assert.ok(arch.nodes.length <= 10, `${name} nodes ${arch.nodes.length}`);
+    assert.ok(gridRows(arch) <= 3, `${name} rows ${gridRows(arch)}`);
+    const ids = arch.nodes.map((n) => n.id);
+    assert.equal(new Set(ids).size, ids.length, `${name} unique node ids`);
+    const edgeIds = new Set(arch.edges.map((e) => e.id));
+    for (const e of arch.edges) assert.ok(ids.includes(e.from) && ids.includes(e.to), `${name} edge ${e.id}`);
+    for (const f of arch.flows) for (const id of f.edges) assert.ok(edgeIds.has(id), `${name} flow ${f.id} -> ${id}`);
+    const cells = arch.nodes.map((n) => `${n.pos!.col},${n.pos!.row}`);
+    assert.equal(new Set(cells).size, cells.length, `${name} no two nodes share a cell`);
+  }
+});
+
+test('all projects: no route crosses a node, boundary excludes outside nodes, and 390px fits without scrolling', () => {
+  const avail = 390 - 32 - 8;
+  for (const { name, arch } of allViews) {
+    for (const o of ['horizontal', 'vertical'] as const) {
+      const l = computeCurated(arch, 'en', { orientation: o, nodeW: o === 'vertical' ? fitNodeW(gridRows(arch), avail) : undefined });
+      for (const e of l.edges) assert.ok(!crossesRect(e.points, l.nodes), `${name} ${o} ${e.id} crosses a node`);
+      if (l.boundary) {
+        const b = l.boundary;
+        for (const n of l.nodes) {
+          const overlaps = n.x < b.x + b.w && n.x + n.w > b.x && n.y < b.y + b.h && n.y + n.h > b.y;
+          if (!n.owned) assert.ok(!overlaps, `${name} ${o} ${n.id} overlaps the boundary`);
+        }
+      }
+      if (o === 'vertical') assert.ok(l.width <= avail, `${name} vertical width ${l.width} > ${avail}`);
+    }
+  }
 });

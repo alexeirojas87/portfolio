@@ -173,133 +173,409 @@
     "nodes": [
       {
         "id": "view",
-        "label": "Treemap & Cleanup UI",
+        "label": {
+          "en": "Treemap and cleanup UI",
+          "es": "UI de treemap y limpieza"
+        },
         "sublabel": {
           "en": "Treemap, category bar, cleanup sheets",
           "es": "Treemap, barra de categorías, hojas de limpieza"
         },
         "kind": "client",
-        "group": "app"
+        "group": "app",
+        "tech": "SwiftUI",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The SwiftUI interface: a treemap of disk usage, a category bar and the sheets that guide a cleanup.",
+            "es": "La interfaz SwiftUI: un treemap del uso de disco, una barra de categorías y las hojas que guían una limpieza."
+          },
+          "responsibilities": [
+            {
+              "en": "Draws the squarified treemap and category bar",
+              "es": "Dibuja el treemap cuadrificado y la barra de categorías"
+            },
+            {
+              "en": "Presents cleanup plans for confirmation",
+              "es": "Presenta los planes de limpieza para confirmación"
+            },
+            {
+              "en": "Contains no measurement logic; it only observes the app model",
+              "es": "No contiene lógica de medición; solo observa el modelo de la app"
+            }
+          ]
+        }
       },
       {
         "id": "model",
-        "label": "App model",
+        "label": {
+          "en": "App model",
+          "es": "Modelo de la app"
+        },
         "sublabel": {
           "en": "Observable presentation state",
           "es": "Estado de presentación observable"
         },
         "kind": "service",
-        "group": "app"
-      },
-      {
-        "id": "vol",
-        "label": "VolumeProbe",
-        "sublabel": {
-          "en": "Capacity accounting per volume",
-          "es": "Contabilidad de capacidad por volumen"
+        "group": "app",
+        "tech": "Swift 6 (Observable)",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
         },
-        "kind": "service",
-        "group": "kit"
+        "details": {
+          "what": {
+            "en": "The presentation layer's single source of state. It coordinates the engines and exposes results to the views.",
+            "es": "La única fuente de estado de la capa de presentación. Coordina los motores y expone resultados a las vistas."
+          },
+          "responsibilities": [
+            {
+              "en": "Loads capacity, probes access and starts scans",
+              "es": "Carga la capacidad, sondea el acceso e inicia escaneos"
+            },
+            {
+              "en": "Matches catalog targets and hands confirmed plans to cleanup",
+              "es": "Hace coincidir objetivos del catálogo y entrega planes confirmados a la limpieza"
+            },
+            {
+              "en": "Holds state as observable properties for SwiftUI",
+              "es": "Mantiene el estado como propiedades observables para SwiftUI"
+            }
+          ]
+        }
       },
       {
         "id": "scanner",
-        "label": "ScannerEngine",
+        "label": {
+          "en": "Scanner engine",
+          "es": "Motor de escaneo"
+        },
         "sublabel": {
           "en": "Bounded, streaming, cancellable scan",
           "es": "Escaneo acotado, en streaming y cancelable"
         },
         "kind": "worker",
-        "group": "kit"
-      },
-      {
-        "id": "catengine",
-        "label": "CatalogEngine",
-        "sublabel": {
-          "en": "Load, match, size, safety",
-          "es": "Carga, coincidencia, tamaño, seguridad"
+        "group": "kit",
+        "tech": "getattrlistbulk",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 1
         },
-        "kind": "service",
-        "group": "kit"
-      },
-      {
-        "id": "cleanup",
-        "label": "CleanupEngine",
-        "sublabel": {
-          "en": "Dry-run, remove, verify delta, undo",
-          "es": "Dry-run, eliminar, verificar delta, deshacer"
-        },
-        "kind": "service",
-        "group": "kit"
-      },
-      {
-        "id": "fda",
-        "label": "FullDiskAccess",
-        "sublabel": {
-          "en": "Tri-state permission probe",
-          "es": "Sonda de permiso de tres estados"
-        },
-        "kind": "service",
-        "group": "kit"
-      },
-      {
-        "id": "catalog",
-        "label": "Cleanup catalog",
-        "sublabel": {
-          "en": "Versioned JSON: targets, risk tiers, evidence",
-          "es": "JSON versionado: objetivos, riesgo, evidencia"
-        },
-        "kind": "storage",
-        "group": "res"
-      },
-      {
-        "id": "oplog",
-        "label": "Operation log",
-        "sublabel": {
-          "en": "Paths, sizes, timestamps",
-          "es": "Rutas, tamaños, marcas de tiempo"
-        },
-        "kind": "storage",
-        "group": "res"
-      },
-      {
-        "id": "helper",
-        "label": "Privileged helper",
-        "sublabel": {
-          "en": "SMAppService XPC, known paths only",
-          "es": "SMAppService XPC, solo rutas conocidas"
-        },
-        "kind": "service",
-        "group": "os"
-      },
-      {
-        "id": "trash",
-        "label": "Trash (NSWorkspace)",
-        "sublabel": {
-          "en": "Recoverable removal",
-          "es": "Eliminación recuperable"
-        },
-        "kind": "external",
-        "group": "os"
+        "details": {
+          "what": {
+            "en": "Walks the file system and measures physical allocation. It streams results so the treemap can grow while the scan runs.",
+            "es": "Recorre el sistema de archivos y mide la asignación física. Emite resultados en streaming para que el treemap crezca mientras corre el escaneo."
+          },
+          "responsibilities": [
+            {
+              "en": "Reads allocated blocks (st_blocks x 512, never st_size) with getattrlistbulk",
+              "es": "Lee los bloques asignados (st_blocks x 512, nunca st_size) con getattrlistbulk"
+            },
+            {
+              "en": "Counts hardlinks once by (device, inode); APFS clone over-reporting is disclosed in the UI",
+              "es": "Cuenta los hardlinks una vez por (dispositivo, inode); el sobreconteo por clones APFS se declara en la UI"
+            },
+            {
+              "en": "TaskGroup capped at 4-8 workers, cancellable",
+              "es": "TaskGroup limitado a 4-8 workers, cancelable"
+            },
+            {
+              "en": "Streams partial results to the model and caches by (path, mtime)",
+              "es": "Envía resultados parciales al modelo y cachea por (ruta, mtime)"
+            },
+            {
+              "en": "Sizes paths matched by the catalog",
+              "es": "Mide las rutas que coinciden con el catálogo"
+            }
+          ],
+          "why": {
+            "en": "Measuring allocated blocks reflects real disk usage, not logical file size.",
+            "es": "Medir bloques asignados refleja el uso real del disco y no el tamaño lógico del archivo."
+          }
+        }
       },
       {
         "id": "sys",
-        "label": "statfs / getattrlistbulk",
-        "sublabel": {
+        "label": {
           "en": "Darwin system calls",
           "es": "Llamadas de sistema Darwin"
         },
+        "sublabel": {
+          "en": "Raw capacity and allocation",
+          "es": "Capacidad y asignación en bruto"
+        },
         "kind": "external",
-        "group": "os"
+        "group": "os",
+        "tech": "statfs / getattrlistbulk",
+        "owned": false,
+        "pos": {
+          "col": 4,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The macOS kernel interfaces that report volume capacity and file allocation.",
+            "es": "Las interfaces del kernel de macOS que reportan la capacidad del volumen y la asignación de archivos."
+          },
+          "responsibilities": [
+            {
+              "en": "statfs reports volume free and total space",
+              "es": "statfs reporta espacio libre y total del volumen"
+            },
+            {
+              "en": "getattrlistbulk reports allocation in bulk",
+              "es": "getattrlistbulk reporta asignación por lotes"
+            },
+            {
+              "en": "Used as the ground truth for all measurements",
+              "es": "Se usa como verdad de referencia de toda medición"
+            }
+          ]
+        }
       },
       {
         "id": "tcc",
-        "label": "Full Disk Access (TCC)",
+        "label": {
+          "en": "Full Disk Access (TCC)",
+          "es": "Acceso total al disco (TCC)"
+        },
         "sublabel": {
           "en": "Privacy permission",
           "es": "Permiso de privacidad"
         },
         "kind": "external",
-        "group": "os"
+        "group": "os",
+        "tech": "macOS privacy",
+        "owned": false,
+        "pos": {
+          "col": 4,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "The macOS privacy framework that decides whether the app may read protected locations.",
+            "es": "El framework de privacidad de macOS que decide si la app puede leer ubicaciones protegidas."
+          },
+          "responsibilities": [
+            {
+              "en": "Grants or denies access to protected folders",
+              "es": "Concede o deniega acceso a carpetas protegidas"
+            },
+            {
+              "en": "Controlled by the user in System Settings",
+              "es": "Lo controla el usuario en Ajustes del Sistema"
+            },
+            {
+              "en": "Probed, never bypassed",
+              "es": "Se sondea, nunca se evade"
+            }
+          ]
+        }
+      },
+      {
+        "id": "fda",
+        "label": {
+          "en": "Permission probe",
+          "es": "Sonda de permisos"
+        },
+        "sublabel": {
+          "en": "Tri-state access check",
+          "es": "Verificación de acceso de tres estados"
+        },
+        "kind": "service",
+        "group": "kit",
+        "tech": "Swift",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "Checks whether Full Disk Access is available by attempting a protected read.",
+            "es": "Comprueba si el acceso total al disco está disponible intentando una lectura protegida."
+          },
+          "responsibilities": [
+            {
+              "en": "Returns granted, denied or unknown",
+              "es": "Devuelve concedido, denegado o desconocido"
+            },
+            {
+              "en": "Attempts a read on a protected path",
+              "es": "Intenta una lectura sobre una ruta protegida"
+            },
+            {
+              "en": "Lets the UI degrade honestly instead of guessing",
+              "es": "Permite que la UI se degrade con honestidad en lugar de adivinar"
+            }
+          ]
+        }
+      },
+      {
+        "id": "catengine",
+        "label": {
+          "en": "Catalog engine",
+          "es": "Motor de catálogo"
+        },
+        "sublabel": {
+          "en": "Load, match, size, safety",
+          "es": "Carga, coincidencia, tamaño, seguridad"
+        },
+        "kind": "service",
+        "group": "kit",
+        "tech": "Swift",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "Loads the cleanup catalog, finds which targets exist on this Mac and attaches sizes and safety information.",
+            "es": "Carga el catálogo de limpieza, encuentra qué objetivos existen en este Mac y adjunta tamaños e información de seguridad."
+          },
+          "responsibilities": [
+            {
+              "en": "Loads the versioned JSON catalog",
+              "es": "Carga el catálogo JSON versionado"
+            },
+            {
+              "en": "Expands ~ and globs to find which targets exist on this Mac",
+              "es": "Expande ~ y globs para encontrar qué objetivos existen en este Mac"
+            },
+            {
+              "en": "Has the scanner size the matched paths",
+              "es": "Hace que el scanner mida las rutas coincidentes"
+            },
+            {
+              "en": "Exposes risk tier, regeneration cost and evidence per target",
+              "es": "Expone nivel de riesgo, costo de regeneración y evidencia por objetivo"
+            }
+          ]
+        }
+      },
+      {
+        "id": "catalog",
+        "label": {
+          "en": "Cleanup catalog",
+          "es": "Catálogo de limpieza"
+        },
+        "sublabel": {
+          "en": "Targets, risk tiers, evidence",
+          "es": "Objetivos, riesgo, evidencia"
+        },
+        "kind": "storage",
+        "group": "res",
+        "tech": "Versioned JSON",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "A versioned JSON file that lists cleanup targets with risk tier, regeneration cost and evidence for every claim.",
+            "es": "Un archivo JSON versionado que lista los objetivos de limpieza con nivel de riesgo, costo de regeneración y evidencia de cada afirmación."
+          },
+          "responsibilities": [
+            {
+              "en": "Risk tiers: safe, low, judgment, never",
+              "es": "Niveles de riesgo: safe, low, judgment, never"
+            },
+            {
+              "en": "Evidence for each claim",
+              "es": "Evidencia de cada afirmación"
+            },
+            {
+              "en": "Correctable without shipping a new binary",
+              "es": "Corregible sin publicar un nuevo binario"
+            }
+          ],
+          "why": {
+            "en": "Data, not code, defines what can be cleaned, so safety knowledge can be fixed quickly.",
+            "es": "Los datos y no el código definen qué se puede limpiar, así que el conocimiento de seguridad se corrige rápido."
+          }
+        }
+      },
+      {
+        "id": "vol",
+        "label": {
+          "en": "Volume probe",
+          "es": "Sonda de volumen"
+        },
+        "sublabel": {
+          "en": "Capacity accounting per volume",
+          "es": "Contabilidad de capacidad por volumen"
+        },
+        "kind": "service",
+        "group": "kit",
+        "tech": "statfs",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "Computes capacity figures for each volume, including purgeable space.",
+            "es": "Calcula las cifras de capacidad de cada volumen, incluido el espacio purgable."
+          },
+          "responsibilities": [
+            {
+              "en": "Reads free and total space per volume",
+              "es": "Lee espacio libre y total por volumen"
+            },
+            {
+              "en": "Surfaces the distinct free-space figures macOS reports",
+              "es": "Muestra las distintas cifras de espacio libre que reporta macOS"
+            },
+            {
+              "en": "Re-measured after cleanup to report the real delta",
+              "es": "Se vuelve a medir tras la limpieza para reportar el delta real"
+            }
+          ]
+        }
+      },
+      {
+        "id": "fsevents",
+        "label": {
+          "en": "FSEvents",
+          "es": "FSEvents"
+        },
+        "sublabel": {
+          "en": "File-change notifications",
+          "es": "Notificaciones de cambios de archivos"
+        },
+        "kind": "external",
+        "group": "os",
+        "tech": "FSEvents",
+        "owned": false,
+        "pos": {
+          "col": -1,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "The macOS file-system change stream. The scanner uses it to invalidate cached results instead of rescanning the whole disk.",
+            "es": "El flujo de cambios del sistema de archivos de macOS. El scanner lo usa para invalidar resultados en caché en lugar de reescanear todo el disco."
+          },
+          "responsibilities": [
+            {
+              "en": "Reports which directories changed",
+              "es": "Informa qué directorios cambiaron"
+            },
+            {
+              "en": "Lets cached (path, mtime) totals stay valid until a change arrives",
+              "es": "Permite que los totales en caché por (ruta, mtime) sigan válidos hasta que llega un cambio"
+            }
+          ]
+        }
       }
     ],
     "edges": [
@@ -325,46 +601,6 @@
       },
       {
         "id": "e3",
-        "from": "model",
-        "to": "fda",
-        "label": {
-          "en": "probe access",
-          "es": "sondea acceso"
-        },
-        "async": false
-      },
-      {
-        "id": "e4",
-        "from": "model",
-        "to": "scanner",
-        "label": {
-          "en": "start scan",
-          "es": "inicia escaneo"
-        },
-        "async": false
-      },
-      {
-        "id": "e5",
-        "from": "model",
-        "to": "catengine",
-        "label": {
-          "en": "match catalog",
-          "es": "coincide catálogo"
-        },
-        "async": false
-      },
-      {
-        "id": "e6",
-        "from": "model",
-        "to": "cleanup",
-        "label": {
-          "en": "confirmed plan",
-          "es": "plan confirmado"
-        },
-        "async": false
-      },
-      {
-        "id": "e7",
         "from": "vol",
         "to": "sys",
         "label": {
@@ -374,17 +610,17 @@
         "async": false
       },
       {
-        "id": "e8",
-        "from": "scanner",
-        "to": "sys",
+        "id": "e4",
+        "from": "model",
+        "to": "fda",
         "label": {
-          "en": "read allocated blocks",
-          "es": "lee bloques asignados"
+          "en": "probe access",
+          "es": "sondea el acceso"
         },
         "async": false
       },
       {
-        "id": "e9",
+        "id": "e5",
         "from": "fda",
         "to": "tcc",
         "label": {
@@ -394,7 +630,37 @@
         "async": false
       },
       {
-        "id": "e10",
+        "id": "e6",
+        "from": "model",
+        "to": "scanner",
+        "label": {
+          "en": "start scan",
+          "es": "inicia el escaneo"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "scanner",
+        "to": "sys",
+        "label": {
+          "en": "read allocated blocks",
+          "es": "lee bloques asignados"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "model",
+        "to": "catengine",
+        "label": {
+          "en": "match catalog",
+          "es": "coincide con el catálogo"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
         "from": "catengine",
         "to": "catalog",
         "label": {
@@ -404,7 +670,7 @@
         "async": false
       },
       {
-        "id": "e11",
+        "id": "e10",
         "from": "catengine",
         "to": "scanner",
         "label": {
@@ -414,44 +680,14 @@
         "async": false
       },
       {
-        "id": "e12",
-        "from": "cleanup",
-        "to": "trash",
+        "id": "e11",
+        "from": "fsevents",
+        "to": "scanner",
         "label": {
-          "en": "move to Trash",
-          "es": "mueve a la Papelera"
+          "en": "change events invalidate cache",
+          "es": "los eventos de cambio invalidan la caché"
         },
-        "async": false
-      },
-      {
-        "id": "e13",
-        "from": "cleanup",
-        "to": "helper",
-        "label": {
-          "en": "root-owned paths",
-          "es": "rutas de root"
-        },
-        "async": false
-      },
-      {
-        "id": "e14",
-        "from": "cleanup",
-        "to": "oplog",
-        "label": {
-          "en": "record action",
-          "es": "registra acción"
-        },
-        "async": false
-      },
-      {
-        "id": "e15",
-        "from": "cleanup",
-        "to": "vol",
-        "label": {
-          "en": "re-stat for real delta",
-          "es": "nuevo stat para delta real"
-        },
-        "async": false
+        "async": true
       }
     ],
     "flows": [
@@ -459,56 +695,517 @@
         "id": "f1",
         "name": {
           "en": "Show disk capacity",
-          "es": "Mostrar capacidad del disco"
+          "es": "Mostrar la capacidad del disco"
         },
         "description": {
-          "en": "The view asks the model for capacity; the kit calls statfs and returns the distinct free-space figures, and the model checks Full Disk Access to show a banner when needed.",
-          "es": "La vista pide la capacidad al modelo; el kit llama a statfs y devuelve las cifras de espacio libre, y el modelo revisa Full Disk Access para mostrar un banner si hace falta."
+          "en": "The app model asks the volume probe for capacity, which reads statfs, and probes Full Disk Access.",
+          "es": "El modelo de la app pide la capacidad a la sonda de volumen, que lee statfs, y sondea el acceso total al disco."
         },
         "edges": [
           "e1",
           "e2",
-          "e7",
           "e3",
-          "e9"
+          "e4",
+          "e5"
         ]
       },
       {
         "id": "f2",
         "name": {
           "en": "Scan into a treemap",
-          "es": "Escanear a un treemap"
+          "es": "Escanear hacia un treemap"
         },
         "description": {
-          "en": "The scanner walks the volume with getattrlistbulk, streaming physical sizes to the model, which renders the squarified treemap and category bar.",
-          "es": "El escáner recorre el volumen con getattrlistbulk y envía tamaños físicos en streaming al modelo, que dibuja el treemap escuadrado y la barra de categorías."
+          "en": "The scanner streams allocated-block measurements from the system and the view renders them as a treemap.",
+          "es": "El escáner emite mediciones de bloques asignados desde el sistema y la vista las dibuja como treemap."
         },
         "edges": [
           "e1",
-          "e4",
-          "e8"
+          "e6",
+          "e7"
         ]
       },
       {
         "id": "f3",
         "name": {
-          "en": "Curated cleanup",
-          "es": "Limpieza curada"
+          "en": "Find curated cleanup targets",
+          "es": "Encontrar objetivos de limpieza curados"
         },
         "description": {
-          "en": "Catalog targets are matched and sized, shown with risk and consequences, then removed to the Trash (or via the helper), logged, and verified by re-measuring the volume.",
-          "es": "Los objetivos del catálogo se emparejan y miden, se muestran con riesgo y consecuencias, y luego se mueven a la Papelera (o vía helper), se registran y se verifican midiendo de nuevo el volumen."
+          "en": "The catalog engine loads targets, matches them on disk and asks the scanner to size them.",
+          "es": "El motor de catálogo carga los objetivos, los hace coincidir en disco y pide al escáner medirlos."
         },
         "edges": [
-          "e5",
+          "e8",
+          "e9",
           "e10",
-          "e11",
-          "e6",
-          "e12",
-          "e13",
-          "e14",
-          "e15"
+          "e7"
         ]
+      },
+      {
+        "id": "f4",
+        "name": {
+          "en": "Keep results fresh",
+          "es": "Mantener resultados al día"
+        },
+        "description": {
+          "en": "File-system change events reach the scanner, which invalidates only the affected cached directories.",
+          "es": "Los eventos de cambio del sistema llegan al scanner, que invalida solo los directorios afectados en caché."
+        },
+        "edges": [
+          "e11"
+        ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Native SwiftUI + Swift 6",
+        "es": "SwiftUI nativo + Swift 6"
+      },
+      {
+        "en": "Measures real allocation, not file size",
+        "es": "Mide la asignación real, no el tamaño de archivo"
+      },
+      {
+        "en": "Evidence-based cleanup catalog",
+        "es": "Catálogo de limpieza basado en evidencia"
+      },
+      {
+        "en": "Trash-first, undoable cleanup",
+        "es": "Limpieza con Papelera primero y deshacer"
+      }
+    ],
+    "viewName": {
+      "en": "Scan and capacity",
+      "es": "Escaneo y capacidad"
+    },
+    "additionalViews": [
+      {
+        "id": "cleanup",
+        "name": {
+          "en": "Cleanup",
+          "es": "Limpieza"
+        },
+        "description": {
+          "en": "How confirmed cleanup plans are executed safely and verified.",
+          "es": "Cómo se ejecutan y verifican de forma segura los planes de limpieza confirmados."
+        },
+        "architecture": {
+          "groups": [
+            {
+              "id": "app",
+              "label": {
+                "en": "SwiftUI app",
+                "es": "App SwiftUI"
+              }
+            },
+            {
+              "id": "kit",
+              "label": {
+                "en": "StorageLensKit package",
+                "es": "Paquete StorageLensKit"
+              }
+            },
+            {
+              "id": "res",
+              "label": {
+                "en": "Resources",
+                "es": "Recursos"
+              }
+            },
+            {
+              "id": "os",
+              "label": {
+                "en": "macOS",
+                "es": "macOS"
+              }
+            }
+          ],
+          "nodes": [
+            {
+              "id": "view",
+              "label": {
+                "en": "Treemap and cleanup UI",
+                "es": "UI de treemap y limpieza"
+              },
+              "sublabel": {
+                "en": "Treemap, category bar, cleanup sheets",
+                "es": "Treemap, barra de categorías, hojas de limpieza"
+              },
+              "kind": "client",
+              "group": "app",
+              "tech": "SwiftUI",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The SwiftUI interface: a treemap of disk usage, a category bar and the sheets that guide a cleanup.",
+                  "es": "La interfaz SwiftUI: un treemap del uso de disco, una barra de categorías y las hojas que guían una limpieza."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Draws the squarified treemap and category bar",
+                    "es": "Dibuja el treemap cuadrificado y la barra de categorías"
+                  },
+                  {
+                    "en": "Presents cleanup plans for confirmation",
+                    "es": "Presenta los planes de limpieza para confirmación"
+                  },
+                  {
+                    "en": "Contains no measurement logic; it only observes the app model",
+                    "es": "No contiene lógica de medición; solo observa el modelo de la app"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "model",
+              "label": {
+                "en": "App model",
+                "es": "Modelo de la app"
+              },
+              "sublabel": {
+                "en": "Observable presentation state",
+                "es": "Estado de presentación observable"
+              },
+              "kind": "service",
+              "group": "app",
+              "tech": "Swift 6 (Observable)",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The presentation layer's single source of state. It coordinates the engines and exposes results to the views.",
+                  "es": "La única fuente de estado de la capa de presentación. Coordina los motores y expone resultados a las vistas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Loads capacity, probes access and starts scans",
+                    "es": "Carga la capacidad, sondea el acceso e inicia escaneos"
+                  },
+                  {
+                    "en": "Matches catalog targets and hands confirmed plans to cleanup",
+                    "es": "Hace coincidir objetivos del catálogo y entrega planes confirmados a la limpieza"
+                  },
+                  {
+                    "en": "Holds state as observable properties for SwiftUI",
+                    "es": "Mantiene el estado como propiedades observables para SwiftUI"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "cleanup",
+              "label": {
+                "en": "Cleanup engine",
+                "es": "Motor de limpieza"
+              },
+              "sublabel": {
+                "en": "Dry-run, remove, verify delta, undo",
+                "es": "Dry-run, eliminar, verificar delta, deshacer"
+              },
+              "kind": "service",
+              "group": "kit",
+              "tech": "Swift",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Carries out confirmed cleanup plans conservatively and proves what was actually freed.",
+                  "es": "Ejecuta planes de limpieza confirmados de forma conservadora y comprueba cuánto se liberó realmente."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Builds a dry-run plan before touching anything",
+                    "es": "Construye un plan dry-run antes de tocar nada"
+                  },
+                  {
+                    "en": "Moves items to the Trash by default",
+                    "es": "Mueve elementos a la Papelera por defecto"
+                  },
+                  {
+                    "en": "Uses the privileged helper only for root-owned known paths",
+                    "es": "Usa el helper privilegiado solo para rutas conocidas de root"
+                  },
+                  {
+                    "en": "Records each action and supports undo",
+                    "es": "Registra cada acción y permite deshacer"
+                  },
+                  {
+                    "en": "Re-measures the volume to report the real delta",
+                    "es": "Vuelve a medir el volumen para reportar el delta real"
+                  }
+                ],
+                "why": {
+                  "en": "Trash-first and dry-run keep every deletion recoverable and explainable.",
+                  "es": "Papelera primero y dry-run mantienen cada eliminación recuperable y explicable."
+                }
+              }
+            },
+            {
+              "id": "trash",
+              "label": {
+                "en": "Trash",
+                "es": "Papelera"
+              },
+              "sublabel": {
+                "en": "Recoverable removal",
+                "es": "Eliminación recuperable"
+              },
+              "kind": "external",
+              "group": "os",
+              "tech": "NSWorkspace",
+              "owned": false,
+              "pos": {
+                "col": 3,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "The system Trash, used as the default destination so removals can be undone.",
+                  "es": "La Papelera del sistema, usada como destino por defecto para que las eliminaciones se puedan deshacer."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Receives items moved by the cleanup engine",
+                    "es": "Recibe elementos movidos por el motor de limpieza"
+                  },
+                  {
+                    "en": "Allows the user to restore them",
+                    "es": "Permite al usuario restaurarlos"
+                  },
+                  {
+                    "en": "Accessed through NSWorkspace",
+                    "es": "Se accede mediante NSWorkspace"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "helper",
+              "label": {
+                "en": "Privileged helper",
+                "es": "Helper privilegiado"
+              },
+              "sublabel": {
+                "en": "Known paths only, root-owned",
+                "es": "Solo rutas conocidas, propiedad de root"
+              },
+              "kind": "service",
+              "group": "os",
+              "tech": "SMAppService + XPC",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "A small root helper, installed with SMAppService and reached over XPC, that acts only on a fixed set of known paths.",
+                  "es": "Un pequeño helper root, instalado con SMAppService y accesible por XPC, que actúa solo sobre un conjunto fijo de rutas conocidas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Handles root-owned cleanup targets",
+                    "es": "Gestiona objetivos de limpieza propiedad de root"
+                  },
+                  {
+                    "en": "Accepts only known paths",
+                    "es": "Acepta solo rutas conocidas"
+                  },
+                  {
+                    "en": "Reached over XPC",
+                    "es": "Se accede por XPC"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "oplog",
+              "label": {
+                "en": "Operation log",
+                "es": "Registro de operaciones"
+              },
+              "sublabel": {
+                "en": "Paths, sizes, timestamps",
+                "es": "Rutas, tamaños, marcas de tiempo"
+              },
+              "kind": "storage",
+              "group": "res",
+              "tech": "Local file",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "A log of every cleanup action, used for audit and undo.",
+                  "es": "Un registro de cada acción de limpieza, usado para auditoría y para deshacer."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Records paths, sizes and timestamps",
+                    "es": "Registra rutas, tamaños y marcas de tiempo"
+                  },
+                  {
+                    "en": "Supports undo",
+                    "es": "Permite deshacer"
+                  },
+                  {
+                    "en": "Gives users an audit trail",
+                    "es": "Da al usuario un rastro de auditoría"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "vol",
+              "label": {
+                "en": "Volume probe",
+                "es": "Sonda de volumen"
+              },
+              "sublabel": {
+                "en": "Capacity accounting per volume",
+                "es": "Contabilidad de capacidad por volumen"
+              },
+              "kind": "service",
+              "group": "kit",
+              "tech": "statfs",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Computes capacity figures for each volume, including purgeable space.",
+                  "es": "Calcula las cifras de capacidad de cada volumen, incluido el espacio purgable."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Reads free and total space per volume",
+                    "es": "Lee espacio libre y total por volumen"
+                  },
+                  {
+                    "en": "Surfaces the distinct free-space figures macOS reports",
+                    "es": "Muestra las distintas cifras de espacio libre que reporta macOS"
+                  },
+                  {
+                    "en": "Re-measured after cleanup to report the real delta",
+                    "es": "Se vuelve a medir tras la limpieza para reportar el delta real"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e1",
+              "from": "view",
+              "to": "model",
+              "label": {
+                "en": "confirms plan",
+                "es": "confirma el plan"
+              },
+              "async": false
+            },
+            {
+              "id": "e2",
+              "from": "model",
+              "to": "cleanup",
+              "label": {
+                "en": "confirmed plan",
+                "es": "plan confirmado"
+              },
+              "async": false
+            },
+            {
+              "id": "e3",
+              "from": "cleanup",
+              "to": "trash",
+              "label": {
+                "en": "move to Trash",
+                "es": "mueve a la Papelera"
+              },
+              "async": false
+            },
+            {
+              "id": "e4",
+              "from": "cleanup",
+              "to": "helper",
+              "label": {
+                "en": "root-owned paths",
+                "es": "rutas de root"
+              },
+              "async": false
+            },
+            {
+              "id": "e5",
+              "from": "cleanup",
+              "to": "oplog",
+              "label": {
+                "en": "record action",
+                "es": "registra la acción"
+              },
+              "async": false
+            },
+            {
+              "id": "e6",
+              "from": "cleanup",
+              "to": "vol",
+              "label": {
+                "en": "re-measure free space",
+                "es": "re-mide el espacio libre"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f1",
+              "name": {
+                "en": "Safe cleanup",
+                "es": "Limpieza segura"
+              },
+              "description": {
+                "en": "After the user confirms a dry-run plan, the engine removes items (Trash first, helper for root paths), logs them and re-measures the volume for the real reclaimed space.",
+                "es": "Tras confirmar el plan dry-run, el motor elimina elementos (Papelera primero, helper para rutas de root), los registra y vuelve a medir el volumen para obtener el espacio liberado real."
+              },
+              "edges": [
+                "e1",
+                "e2",
+                "e3",
+                "e4",
+                "e5",
+                "e6"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "Dry-run before deletion",
+              "es": "Dry-run antes de eliminar"
+            },
+            {
+              "en": "Every action logged and undoable",
+              "es": "Cada acción registrada y reversible"
+            },
+            {
+              "en": "Real reclaimed space re-measured",
+              "es": "Espacio liberado real vuelto a medir"
+            }
+          ]
+        }
       }
     ]
   }

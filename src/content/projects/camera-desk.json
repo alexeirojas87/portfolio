@@ -1,8 +1,14 @@
 {
   "slug": "camera-desk",
   "category": "personal",
-  "title": { "en": "CameraDesk", "es": "CameraDesk" },
-  "tagline": { "en": "Desktop viewer for a consumer camera cloud, via a signaling and WebRTC proxy", "es": "Visor de escritorio para la nube de una cámara de consumo, con proxy de señalización y WebRTC" },
+  "title": {
+    "en": "CameraDesk",
+    "es": "CameraDesk"
+  },
+  "tagline": {
+    "en": "Desktop viewer for a consumer camera cloud, via a signaling and WebRTC proxy",
+    "es": "Visor de escritorio para la nube de una cámara de consumo, con proxy de señalización y WebRTC"
+  },
   "summary": {
     "en": "A personal experiment to watch a home camera from a desktop app. A Node/Express backend logs in to the camera vendor's cloud, obtains WebRTC tickets and relays the signaling WebSocket, while a browser page and a .NET MAUI Mac Catalyst app act as clients.",
     "es": "Un experimento personal para ver una cámara doméstica desde una app de escritorio. Un backend Node/Express inicia sesión en la nube del fabricante, obtiene tickets WebRTC y retransmite el WebSocket de señalización, mientras una página web y una app .NET MAUI para Mac Catalyst actúan como clientes."
@@ -11,65 +17,819 @@
     "en": "The camera vendor only ships mobile apps. The goal was a desktop viewer with device status and controls, which required understanding the undocumented login, verification and WebRTC ticket flow.",
     "es": "El fabricante de la cámara solo ofrece apps móviles. El objetivo era un visor de escritorio con estado y controles del dispositivo, lo que exigió entender el flujo no documentado de login, verificación y ticket WebRTC."
   },
-  "role": { "en": "Solo: protocol analysis, Node proxy, web viewer, MAUI client", "es": "En solitario: análisis de protocolo, proxy Node, visor web, cliente MAUI" },
+  "role": {
+    "en": "Solo: protocol analysis, Node proxy, web viewer, MAUI client",
+    "es": "En solitario: análisis de protocolo, proxy Node, visor web, cliente MAUI"
+  },
   "status": "prototype",
   "year": "2026",
-  "links": { "live": null, "github": null },
+  "links": {
+    "live": null,
+    "github": null
+  },
   "stack": [
-    { "name": "JavaScript (Node.js)", "category": "language" },
-    { "name": "C# / .NET 10", "category": "language" },
-    { "name": ".NET MAUI (Mac Catalyst)", "category": "frontend" },
-    { "name": "Express 5", "category": "backend" },
-    { "name": "ws (WebSocket)", "category": "messaging" },
-    { "name": "WebRTC", "category": "frontend" },
-    { "name": "mitmproxy traffic analysis", "category": "other" }
+    {
+      "name": "JavaScript (Node.js)",
+      "category": "language"
+    },
+    {
+      "name": "C# / .NET 10",
+      "category": "language"
+    },
+    {
+      "name": ".NET MAUI (Mac Catalyst)",
+      "category": "frontend"
+    },
+    {
+      "name": "Express 5",
+      "category": "backend"
+    },
+    {
+      "name": "ws (WebSocket)",
+      "category": "messaging"
+    },
+    {
+      "name": "WebRTC",
+      "category": "frontend"
+    },
+    {
+      "name": "mitmproxy traffic analysis",
+      "category": "other"
+    }
   ],
   "highlights": [
-    { "en": "Reconstructed the vendor's login, OTP verification and WebRTC ticket flow from captured traffic and app analysis.", "es": "Reconstrucción del flujo de login, verificación OTP y ticket WebRTC del fabricante a partir de tráfico capturado y análisis de la app." },
-    { "en": "Express REST layer exposing session, login, device status, attributes, control, dormancy and AI settings endpoints.", "es": "Capa REST con Express que expone endpoints de sesión, login, estado del dispositivo, atributos, control, hibernación y ajustes de IA." },
-    { "en": "Custom WebSocket proxy that hand-builds the upgrade handshake and frames to relay signaling to the vendor over TLS.", "es": "Proxy WebSocket propio que construye a mano el handshake de upgrade y los frames para retransmitir la señalización al fabricante por TLS." },
-    { "en": "Browser client negotiates WebRTC via RTCPeerConnection; a separate MAUI app with typed config and HTTP models targets macOS.", "es": "El cliente web negocia WebRTC con RTCPeerConnection; una app MAUI separada con configuración y modelos HTTP tipados apunta a macOS." }
+    {
+      "en": "Reconstructed the vendor's login, OTP verification and WebRTC ticket flow from captured traffic and app analysis.",
+      "es": "Reconstrucción del flujo de login, verificación OTP y ticket WebRTC del fabricante a partir de tráfico capturado y análisis de la app."
+    },
+    {
+      "en": "Express REST layer exposing session, login, device status, attributes, control, dormancy and AI settings endpoints.",
+      "es": "Capa REST con Express que expone endpoints de sesión, login, estado del dispositivo, atributos, control, hibernación y ajustes de IA."
+    },
+    {
+      "en": "Custom WebSocket proxy that hand-builds the upgrade handshake and frames to relay signaling to the vendor over TLS.",
+      "es": "Proxy WebSocket propio que construye a mano el handshake de upgrade y los frames para retransmitir la señalización al fabricante por TLS."
+    },
+    {
+      "en": "Browser client negotiates WebRTC via RTCPeerConnection; a separate MAUI app with typed config and HTTP models targets macOS.",
+      "es": "El cliente web negocia WebRTC con RTCPeerConnection; una app MAUI separada con configuración y modelos HTTP tipados apunta a macOS."
+    }
   ],
   "decisions": [
     {
-      "title": { "en": "Local proxy instead of calling the vendor from the browser", "es": "Proxy local en vez de llamar al fabricante desde el navegador" },
-      "why": { "en": "A server-side layer can set the headers and request shapes the vendor API expects and handle the WebSocket upgrade that browsers cannot customize.", "es": "Una capa en el servidor puede fijar las cabeceras y formas de petición que espera la API del fabricante y manejar el upgrade WebSocket que los navegadores no pueden personalizar." }
+      "title": {
+        "en": "Local proxy instead of calling the vendor from the browser",
+        "es": "Proxy local en vez de llamar al fabricante desde el navegador"
+      },
+      "why": {
+        "en": "A server-side layer can set the headers and request shapes the vendor API expects and handle the WebSocket upgrade that browsers cannot customize.",
+        "es": "Una capa en el servidor puede fijar las cabeceras y formas de petición que espera la API del fabricante y manejar el upgrade WebSocket que los navegadores no pueden personalizar."
+      }
     },
     {
-      "title": { "en": "Endpoints configurable in appsettings", "es": "Endpoints configurables en appsettings" },
-      "why": { "en": "The MAUI client keeps API paths and probe toggles in typed options so protocol experiments can change without recompiling code.", "es": "El cliente MAUI guarda rutas de API e interruptores de sondeo en opciones tipadas, de modo que los experimentos de protocolo cambian sin recompilar código." }
+      "title": {
+        "en": "Endpoints configurable in appsettings",
+        "es": "Endpoints configurables en appsettings"
+      },
+      "why": {
+        "en": "The MAUI client keeps API paths and probe toggles in typed options so protocol experiments can change without recompiling code.",
+        "es": "El cliente MAUI guarda rutas de API e interruptores de sondeo en opciones tipadas, de modo que los experimentos de protocolo cambian sin recompilar código."
+      }
     },
     {
-      "title": { "en": "Two clients over one backend contract", "es": "Dos clientes sobre un mismo contrato de backend" },
-      "why": { "en": "A zero-build web viewer allowed fast iteration on WebRTC, while the MAUI app explores a native desktop experience.", "es": "Un visor web sin build permitió iterar rápido en WebRTC, mientras la app MAUI explora una experiencia nativa de escritorio." }
+      "title": {
+        "en": "Two clients over one backend contract",
+        "es": "Dos clientes sobre un mismo contrato de backend"
+      },
+      "why": {
+        "en": "A zero-build web viewer allowed fast iteration on WebRTC, while the MAUI app explores a native desktop experience.",
+        "es": "Un visor web sin build permitió iterar rápido en WebRTC, mientras la app MAUI explora una experiencia nativa de escritorio."
+      }
     }
   ],
   "architecture": {
     "groups": [
-      { "id": "clients", "label": { "en": "Clients", "es": "Clientes" } },
-      { "id": "proxy", "label": { "en": "Local proxy", "es": "Proxy local" } },
-      { "id": "vendor", "label": { "en": "Vendor cloud", "es": "Nube del fabricante" } }
+      {
+        "id": "clients",
+        "label": {
+          "en": "Clients",
+          "es": "Clientes"
+        }
+      },
+      {
+        "id": "proxy",
+        "label": {
+          "en": "Local server",
+          "es": "Servidor local"
+        }
+      },
+      {
+        "id": "vendor",
+        "label": {
+          "en": "Vendor cloud",
+          "es": "Nube del fabricante"
+        }
+      }
     ],
     "nodes": [
-      { "id": "web", "label": "Web viewer", "sublabel": { "en": "index.html with RTCPeerConnection", "es": "index.html con RTCPeerConnection" }, "kind": "client", "group": "clients" },
-      { "id": "maui", "label": ".NET MAUI app", "sublabel": { "en": "Mac Catalyst desktop client", "es": "Cliente de escritorio Mac Catalyst" }, "kind": "client", "group": "clients" },
-      { "id": "rest", "label": "Express REST API", "sublabel": { "en": "Login, status, control, ticket", "es": "Login, estado, control, ticket" }, "kind": "service", "group": "proxy" },
-      { "id": "wsproxy", "label": "WebSocket proxy", "sublabel": { "en": "Signaling relay over TLS", "es": "Retransmisión de señalización por TLS" }, "kind": "gateway", "group": "proxy" },
-      { "id": "vapi", "label": "Vendor HTTPS API", "sublabel": { "en": "Account, device, WebRTC ticket", "es": "Cuenta, dispositivo, ticket WebRTC" }, "kind": "external", "group": "vendor" },
-      { "id": "vsig", "label": "Vendor signaling WS", "sublabel": { "en": "WebRTC session setup", "es": "Establecimiento de sesión WebRTC" }, "kind": "external", "group": "vendor" },
-      { "id": "cam", "label": "Camera", "sublabel": { "en": "Streams media via WebRTC", "es": "Transmite medios vía WebRTC" }, "kind": "external", "group": "vendor" }
+      {
+        "id": "web",
+        "label": {
+          "en": "Web viewer",
+          "es": "Visor web"
+        },
+        "sublabel": {
+          "en": "Browser live view with RTCPeerConnection",
+          "es": "Vista en vivo con RTCPeerConnection"
+        },
+        "kind": "client",
+        "group": "clients",
+        "tech": "HTML · WebRTC",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "public/index.html, a static page served by the Express server. It runs the login and OTP steps, wakes the camera, requests a ticket, then negotiates WebRTC over the local signaling WebSocket and renders the stream.",
+            "es": "public/index.html, una página estática servida por el servidor Express. Ejecuta el login y el OTP, despierta la cámara, pide un ticket y negocia WebRTC por el WebSocket de señalización local y muestra el video."
+          },
+          "responsibilities": [
+            {
+              "en": "Calls /api/login, /api/login/verify, /api/wakeup, /api/ticket and /api/logout",
+              "es": "Llama a /api/login, /api/login/verify, /api/wakeup, /api/ticket y /api/logout"
+            },
+            {
+              "en": "Reads battery, signal and storage through /api/device/status and sends light and settings commands through /api/device/control",
+              "es": "Lee batería, señal y almacenamiento con /api/device/status y envía comandos de luz y ajustes con /api/device/control"
+            },
+            {
+              "en": "Opens ws://localhost:3001/ws, creates the RTCPeerConnection from the ticket's ICE servers and handles offer, answer and ICE",
+              "es": "Abre ws://localhost:3001/ws, crea la RTCPeerConnection con los servidores ICE del ticket y gestiona offer, answer e ICE"
+            },
+            {
+              "en": "Samples getStats() on the peer connection",
+              "es": "Muestra getStats() de la conexión peer"
+            }
+          ]
+        }
+      },
+      {
+        "id": "rest",
+        "label": {
+          "en": "Control API",
+          "es": "API de control"
+        },
+        "sublabel": {
+          "en": "Login, status, control, ticket",
+          "es": "Login, estado, control y ticket"
+        },
+        "kind": "service",
+        "group": "proxy",
+        "tech": "Express 5",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "Express 5 routes in server.js (port 3000) that wrap the vendor HTTPS API: login and OTP, logout, wake-up, WebRTC ticket, device status, attributes, control, dormancy plans and AI capability. Each call is built in the app's request format with a fresh traceparent header and forwarded with https.request.",
+            "es": "Rutas de Express 5 en server.js (puerto 3000) que envuelven la API HTTPS del fabricante: login y OTP, logout, wake-up, ticket WebRTC, estado del dispositivo, atributos, control, planes de reposo y capacidades de IA. Cada llamada se arma con el formato de la app y un traceparent nuevo, y se reenvía con https.request."
+          },
+          "responsibilities": [
+            {
+              "en": "Holds no session itself: the client passes the vendor token and tracker token in each request body",
+              "es": "No guarda sesión: el cliente envía el token del fabricante y el token de seguimiento en cada petición"
+            },
+            {
+              "en": "Wake-up before the ticket request so the camera is reachable",
+              "es": "Wake-up antes de pedir el ticket para que la cámara esté alcanzable"
+            },
+            {
+              "en": "Device identity and credentials come from environment variables",
+              "es": "La identidad del dispositivo y las credenciales vienen de variables de entorno"
+            }
+          ]
+        }
+      },
+      {
+        "id": "wsproxy",
+        "label": {
+          "en": "Signaling relay",
+          "es": "Relé de señalización"
+        },
+        "sublabel": {
+          "en": "Relays signaling frames",
+          "es": "Retransmite tramas de señalización"
+        },
+        "kind": "gateway",
+        "group": "proxy",
+        "tech": "Node · TLS WebSocket",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "A WebSocketServer on port 3001 (/ws). For each browser connection it reads the ticket parameters, opens a raw TLS socket to the vendor signaling host (connecting by the ticket's IP with SNI set to the hostname), performs the WebSocket upgrade by hand, sends AUTH and JOIN_LIVE automatically and relays frames both ways.",
+            "es": "Un WebSocketServer en el puerto 3001 (/ws). Por cada conexión del navegador lee los parámetros del ticket, abre un socket TLS crudo al host de señalización del fabricante (conecta por la IP del ticket con SNI del hostname), hace el upgrade WebSocket a mano, envía AUTH y JOIN_LIVE automáticamente y retransmite frames en ambos sentidos."
+          },
+          "responsibilities": [
+            {
+              "en": "Hand-builds the masked client frames and parses unmasked server frames, including fragmentation",
+              "es": "Construye a mano los frames enmascarados del cliente y parsea los frames sin máscara del servidor, incluida la fragmentación"
+            },
+            {
+              "en": "Answers the server's PING with PONG",
+              "es": "Responde con PONG al PING del servidor"
+            },
+            {
+              "en": "Closing either side closes the other",
+              "es": "Cerrar un lado cierra el otro"
+            }
+          ],
+          "why": {
+            "en": "The ws library failed against this server; only a raw TLS handshake worked.",
+            "es": "La librería ws fallaba contra este servidor; solo funcionaba el handshake TLS crudo."
+          }
+        }
+      },
+      {
+        "id": "vapi",
+        "label": {
+          "en": "Vendor cloud API",
+          "es": "API en la nube del fabricante"
+        },
+        "sublabel": {
+          "en": "Account, device, WebRTC ticket",
+          "es": "Cuenta, equipo y ticket WebRTC"
+        },
+        "kind": "external",
+        "group": "vendor",
+        "tech": "HTTPS",
+        "owned": false,
+        "pos": {
+          "col": 2,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "The camera vendor's HTTPS API (account, device, ticket endpoints). Its protocol was reconstructed from captured app traffic and is called by both the Express server and the desktop app.",
+            "es": "La API HTTPS del fabricante de la cámara (endpoints de cuenta, dispositivo y ticket). Su protocolo se reconstruyó a partir de tráfico capturado de la app y la llaman tanto el servidor Express como la app de escritorio."
+          },
+          "responsibilities": [
+            {
+              "en": "Login with OTP verification",
+              "es": "Login con verificación OTP"
+            },
+            {
+              "en": "Device wake-up, status and settings",
+              "es": "Wake-up, estado y ajustes del dispositivo"
+            },
+            {
+              "en": "Issues the WebRTC ticket: signaling server, ICE servers",
+              "es": "Emite el ticket WebRTC: servidor de señalización y servidores ICE"
+            }
+          ]
+        }
+      },
+      {
+        "id": "vsig",
+        "label": {
+          "en": "Vendor signaling",
+          "es": "Señalización del fabricante"
+        },
+        "sublabel": {
+          "en": "WebRTC session setup",
+          "es": "Establecimiento de la sesión WebRTC"
+        },
+        "kind": "external",
+        "group": "vendor",
+        "tech": "WebSocket",
+        "owned": false,
+        "pos": {
+          "col": 2,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The vendor's signaling server that brokers the WebRTC offer, answer and ICE candidates between viewer and camera.",
+            "es": "El servidor de señalización del fabricante que intermedia offer, answer y candidatos ICE entre el visor y la cámara."
+          },
+          "responsibilities": [
+            {
+              "en": "Requires the ticket; the client sends AUTH then JOIN_LIVE",
+              "es": "Requiere el ticket; el cliente envía AUTH y luego JOIN_LIVE"
+            },
+            {
+              "en": "Relays SDP offer/answer and ICE candidates between viewer and camera",
+              "es": "Retransmite offer/answer SDP y candidatos ICE entre visor y cámara"
+            }
+          ]
+        }
+      },
+      {
+        "id": "cam",
+        "label": {
+          "en": "Camera",
+          "es": "Cámara"
+        },
+        "sublabel": {
+          "en": "Streams live media",
+          "es": "Transmite medios en vivo"
+        },
+        "kind": "external",
+        "group": "vendor",
+        "tech": "WebRTC",
+        "owned": false,
+        "pos": {
+          "col": 3,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The physical camera. It answers the SDP offer and streams media to the viewer over WebRTC, directly or through the ICE servers from the ticket.",
+            "es": "La cámara física. Responde la oferta SDP y envía el medio al visor por WebRTC, directo o a través de los servidores ICE del ticket."
+          },
+          "responsibilities": [
+            {
+              "en": "Must be awake: the app calls wake-up first",
+              "es": "Debe estar despierta: la app llama primero a wake-up"
+            },
+            {
+              "en": "Streams audio and video",
+              "es": "Envía audio y video"
+            }
+          ]
+        }
+      }
     ],
     "edges": [
-      { "id": "e1", "from": "web", "to": "rest", "label": { "en": "POST /api/login, /api/ticket", "es": "POST /api/login, /api/ticket" }, "async": false },
-      { "id": "e2", "from": "maui", "to": "vapi", "label": { "en": "typed HTTP client calls", "es": "llamadas con cliente HTTP tipado" }, "async": false },
-      { "id": "e3", "from": "rest", "to": "vapi", "label": { "en": "signed requests", "es": "peticiones firmadas" }, "async": false },
-      { "id": "e4", "from": "web", "to": "wsproxy", "label": { "en": "signaling messages", "es": "mensajes de señalización" }, "async": false },
-      { "id": "e5", "from": "wsproxy", "to": "vsig", "label": { "en": "relayed frames", "es": "frames retransmitidos" }, "async": false },
-      { "id": "e6", "from": "vsig", "to": "cam", "label": { "en": "offer / answer / ICE", "es": "offer / answer / ICE" }, "async": false },
-      { "id": "e7", "from": "cam", "to": "web", "label": { "en": "WebRTC media stream", "es": "flujo de medios WebRTC" }, "async": true }
+      {
+        "id": "e1",
+        "from": "web",
+        "to": "rest",
+        "label": {
+          "en": "login, OTP, wake-up, ticket, status, control",
+          "es": "login, OTP, wake-up, ticket, estado, control"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "rest",
+        "to": "vapi",
+        "label": {
+          "en": "forwarded HTTPS requests",
+          "es": "peticiones HTTPS reenviadas"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "web",
+        "to": "wsproxy",
+        "label": {
+          "en": "signaling messages (ws://localhost:3001/ws)",
+          "es": "mensajes de señalización (ws://localhost:3001/ws)"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "wsproxy",
+        "to": "vsig",
+        "label": {
+          "en": "raw TLS: AUTH, JOIN_LIVE, relayed frames",
+          "es": "TLS crudo: AUTH, JOIN_LIVE, frames retransmitidos"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "vsig",
+        "to": "cam",
+        "label": {
+          "en": "offer / answer / ICE",
+          "es": "offer / answer / ICE"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "cam",
+        "to": "web",
+        "label": {
+          "en": "WebRTC media stream",
+          "es": "flujo de medios WebRTC"
+        },
+        "async": true
+      }
     ],
     "flows": [
-      { "id": "f1", "name": { "en": "Start a live view", "es": "Iniciar vista en vivo" }, "description": { "en": "The viewer logs in and gets a WebRTC ticket through the REST layer, negotiates over the relayed signaling socket, then receives media from the camera.", "es": "El visor inicia sesión y obtiene un ticket WebRTC por la capa REST, negocia por el socket de señalización retransmitido y luego recibe los medios de la cámara." }, "edges": ["e1", "e3", "e4", "e5", "e6", "e7"] }
+      {
+        "id": "f1",
+        "name": {
+          "en": "Start a live view in the browser",
+          "es": "Iniciar una vista en vivo en el navegador"
+        },
+        "description": {
+          "en": "The page logs in and wakes the camera through the Express layer, gets a ticket from the vendor API, negotiates over the relayed signaling socket, then receives media from the camera.",
+          "es": "La página inicia sesión y despierta la cámara por la capa Express, obtiene un ticket de la API del fabricante, negocia por el socket de señalización retransmitido y luego recibe el medio de la cámara."
+        },
+        "edges": [
+          "e1",
+          "e3",
+          "e4",
+          "e5",
+          "e6",
+          "e7"
+        ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Reconstructed vendor protocol",
+        "es": "Protocolo del fabricante reconstruido"
+      },
+      {
+        "en": "Hand-built TLS WebSocket relay",
+        "es": "Relay WebSocket TLS construido a mano"
+      },
+      {
+        "en": "WebRTC live video",
+        "es": "Video en vivo con WebRTC"
+      },
+      {
+        "en": "Web and desktop clients",
+        "es": "Clientes web y de escritorio"
+      }
+    ],
+    "additionalViews": [
+      {
+        "id": "desktop",
+        "name": {
+          "en": "Desktop app",
+          "es": "App de escritorio"
+        },
+        "description": {
+          "en": "The MAUI app talks to the vendor directly: HTTP client, its own signaling client and an embedded WebRTC page.",
+          "es": "La app MAUI habla directamente con el fabricante: cliente HTTP, cliente de señalización propio y una página WebRTC embebida."
+        },
+        "architecture": {
+          "nodes": [
+            {
+              "id": "maui",
+              "label": {
+                "en": "Desktop app",
+                "es": "App de escritorio"
+              },
+              "sublabel": {
+                "en": "Mac Catalyst client",
+                "es": "Cliente para Mac Catalyst"
+              },
+              "kind": "client",
+              "group": "clients",
+              "tech": ".NET MAUI",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "A .NET MAUI app (Mac Catalyst target, with Android, iOS and Windows platform folders) that does not use the Node server: the typed API client calls the vendor API, SignalingClient talks to the vendor signaling server over a ClientWebSocket, and MainPage drives an embedded WebView.",
+                  "es": "Una app .NET MAUI (destino Mac Catalyst, con carpetas de plataforma para Android, iOS y Windows) que no usa el servidor Node: the typed API client llama a la API del fabricante, SignalingClient habla con el servidor de señalización mediante un ClientWebSocket y MainPage controla un WebView embebido."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Login with an OTP flow and fallback probes, configured through appsettings.json options",
+                    "es": "Login con flujo OTP y sondas de respaldo, configurado con las opciones de appsettings.json"
+                  },
+                  {
+                    "en": "Retries the ticket request through compatibility fallbacks; clears the cached session and logs in again if the token is rejected",
+                    "es": "Reintenta la petición del ticket con alternativas de compatibilidad; borra la sesión en caché y vuelve a iniciar sesión si se rechaza el token"
+                  },
+                  {
+                    "en": "Sends AUTH and JOIN_LIVE, then forwards signaling messages to and from the WebView",
+                    "es": "Envía AUTH y JOIN_LIVE, y reenvía los mensajes de señalización desde y hacia el WebView"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "wv",
+              "label": {
+                "en": "Embedded viewer",
+                "es": "Visor embebido"
+              },
+              "sublabel": {
+                "en": "WebView running webrtc.html",
+                "es": "WebView que ejecuta webrtc.html"
+              },
+              "kind": "client",
+              "group": "clients",
+              "tech": "WebView · WebRTC",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Resources/Raw/webrtc.html loaded in the MAUI WebView. It creates the RTCPeerConnection from the ticket's ICE servers, produces the offer and applies the answer. It cannot open sockets itself, so it hands signaling to C# through signal://send?data=... navigations that the app intercepts.",
+                  "es": "Resources/Raw/webrtc.html cargado en el WebView de MAUI. Crea la RTCPeerConnection con los servidores ICE del ticket, genera la oferta y aplica la respuesta. No abre sockets por sí mismo, así que entrega la señalización a C# mediante navegaciones signal://send?data=... que la app intercepta."
+                },
+                "responsibilities": [
+                  {
+                    "en": "C# pushes the ticket and incoming signaling messages with EvaluateJavaScriptAsync (window.onSignalMessage)",
+                    "es": "C# le envía el ticket y los mensajes de señalización entrantes con EvaluateJavaScriptAsync (window.onSignalMessage)"
+                  },
+                  {
+                    "en": "Logs back through signal://log",
+                    "es": "Registra de vuelta mediante signal://log"
+                  },
+                  {
+                    "en": "Renders the incoming media",
+                    "es": "Muestra el medio entrante"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "session",
+              "label": {
+                "en": "Session cache",
+                "es": "Caché de sesión"
+              },
+              "sublabel": {
+                "en": "auth-session.json in app data",
+                "es": "auth-session.json en los datos de la app"
+              },
+              "kind": "storage",
+              "group": "clients",
+              "tech": "JSON file",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "A JSON file in the app's data directory holding the last vendor authorization and tracker token so the next connection can skip the login.",
+                  "es": "Un archivo JSON en el directorio de datos de la app con la última autorización y token de seguimiento del fabricante para que la próxima conexión omita el login."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Loaded before login and saved after a successful ticket request",
+                    "es": "Se carga antes del login y se guarda tras pedir el ticket con éxito"
+                  },
+                  {
+                    "en": "Cleared when the backend rejects the cached token",
+                    "es": "Se borra cuando el backend rechaza el token en caché"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "vapi",
+              "label": {
+                "en": "Vendor cloud API",
+                "es": "API en la nube del fabricante"
+              },
+              "sublabel": {
+                "en": "Account, device, WebRTC ticket",
+                "es": "Cuenta, equipo y ticket WebRTC"
+              },
+              "kind": "external",
+              "group": "vendor",
+              "tech": "HTTPS",
+              "owned": false,
+              "pos": {
+                "col": 1,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "The camera vendor's HTTPS API (account, device, ticket endpoints). Its protocol was reconstructed from captured app traffic and is called by both the Express server and the desktop app.",
+                  "es": "La API HTTPS del fabricante de la cámara (endpoints de cuenta, dispositivo y ticket). Su protocolo se reconstruyó a partir de tráfico capturado de la app y la llaman tanto el servidor Express como la app de escritorio."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Login with OTP verification",
+                    "es": "Login con verificación OTP"
+                  },
+                  {
+                    "en": "Device wake-up, status and settings",
+                    "es": "Wake-up, estado y ajustes del dispositivo"
+                  },
+                  {
+                    "en": "Issues the WebRTC ticket: signaling server, ICE servers",
+                    "es": "Emite el ticket WebRTC: servidor de señalización y servidores ICE"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "vsig",
+              "label": {
+                "en": "Vendor signaling",
+                "es": "Señalización del fabricante"
+              },
+              "sublabel": {
+                "en": "WebRTC session setup",
+                "es": "Establecimiento de la sesión WebRTC"
+              },
+              "kind": "external",
+              "group": "vendor",
+              "tech": "WebSocket",
+              "owned": false,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The vendor's signaling server that brokers the WebRTC offer, answer and ICE candidates between viewer and camera.",
+                  "es": "El servidor de señalización del fabricante que intermedia offer, answer y candidatos ICE entre el visor y la cámara."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Requires the ticket; the client sends AUTH then JOIN_LIVE",
+                    "es": "Requiere el ticket; el cliente envía AUTH y luego JOIN_LIVE"
+                  },
+                  {
+                    "en": "Relays SDP offer/answer and ICE candidates between viewer and camera",
+                    "es": "Retransmite offer/answer SDP y candidatos ICE entre visor y cámara"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "cam",
+              "label": {
+                "en": "Camera",
+                "es": "Cámara"
+              },
+              "sublabel": {
+                "en": "Streams live media",
+                "es": "Transmite medios en vivo"
+              },
+              "kind": "external",
+              "group": "vendor",
+              "tech": "WebRTC",
+              "owned": false,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The physical camera. It answers the SDP offer and streams media to the viewer over WebRTC, directly or through the ICE servers from the ticket.",
+                  "es": "La cámara física. Responde la oferta SDP y envía el medio al visor por WebRTC, directo o a través de los servidores ICE del ticket."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Must be awake: the app calls wake-up first",
+                    "es": "Debe estar despierta: la app llama primero a wake-up"
+                  },
+                  {
+                    "en": "Streams audio and video",
+                    "es": "Envía audio y video"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e2",
+              "from": "maui",
+              "to": "vapi",
+              "label": {
+                "en": "login, OTP, ticket (typed HttpClient)",
+                "es": "login, OTP, ticket (HttpClient tipado)"
+              },
+              "async": false
+            },
+            {
+              "id": "e9",
+              "from": "maui",
+              "to": "session",
+              "label": {
+                "en": "load and save auth-session.json",
+                "es": "carga y guarda auth-session.json"
+              },
+              "async": false
+            },
+            {
+              "id": "e8",
+              "from": "maui",
+              "to": "vsig",
+              "label": {
+                "en": "AUTH, JOIN_LIVE, SDP and ICE (ClientWebSocket)",
+                "es": "AUTH, JOIN_LIVE, SDP e ICE (ClientWebSocket)"
+              },
+              "async": false
+            },
+            {
+              "id": "e10",
+              "from": "maui",
+              "to": "wv",
+              "label": {
+                "en": "ticket and signaling via EvaluateJavaScript",
+                "es": "ticket y señalización por EvaluateJavaScript"
+              },
+              "async": false
+            },
+            {
+              "id": "e11",
+              "from": "wv",
+              "to": "maui",
+              "label": {
+                "en": "signal://send navigation (offer, ICE)",
+                "es": "navegación signal://send (offer, ICE)"
+              },
+              "async": false
+            },
+            {
+              "id": "e6",
+              "from": "vsig",
+              "to": "cam",
+              "label": {
+                "en": "offer / answer / ICE",
+                "es": "offer / answer / ICE"
+              },
+              "async": false
+            },
+            {
+              "id": "e12",
+              "from": "cam",
+              "to": "wv",
+              "label": {
+                "en": "WebRTC media stream",
+                "es": "flujo de medios WebRTC"
+              },
+              "async": true
+            }
+          ],
+          "flows": [
+            {
+              "id": "f2",
+              "name": {
+                "en": "Start a live view in the desktop app",
+                "es": "Iniciar una vista en vivo en la app de escritorio"
+              },
+              "description": {
+                "en": "The app logs in (or reuses the cached session), requests the ticket, opens signaling itself, and the embedded WebView produces the offer through C# and receives the camera's media.",
+                "es": "La app inicia sesión (o reutiliza la sesión en caché), pide el ticket, abre la señalización por sí misma, y el WebView embebido genera la oferta a través de C# y recibe el medio de la cámara."
+              },
+              "edges": [
+                "e9",
+                "e2",
+                "e8",
+                "e10",
+                "e11",
+                "e6",
+                "e12"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "No Node server involved",
+              "es": "Sin servidor Node"
+            },
+            {
+              "en": "Signaling in C#, WebRTC in a WebView",
+              "es": "Señalización en C#, WebRTC en un WebView"
+            },
+            {
+              "en": "Cached session with automatic retry",
+              "es": "Sesión en caché con reintento automático"
+            }
+          ],
+          "groups": [
+            {
+              "id": "clients",
+              "label": {
+                "en": "Clients",
+                "es": "Clientes"
+              }
+            },
+            {
+              "id": "vendor",
+              "label": {
+                "en": "Vendor cloud",
+                "es": "Nube del fabricante"
+              }
+            }
+          ]
+        }
+      }
     ]
   }
 }

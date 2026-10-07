@@ -223,21 +223,17 @@
         },
         "details": {
           "what": {
-            "en": "The external work-tracking and repository system: work items, branches, pull requests and pipelines.",
-            "es": "El sistema externo de seguimiento de trabajo y repositorios: work items, ramas, pull requests y pipelines."
+            "en": "The external work-tracking and repository system. It signals the orchestrator through webhook endpoints (a work item marked ready, a pull request merged). The orchestrator and agents never call it directly: reads, updates, branches, pull requests and CI status polling all go through scoped MCP tools.",
+            "es": "El sistema externo de seguimiento de trabajo y repositorios. Avisa al orquestador mediante endpoints de webhook (un elemento marcado como listo, un pull request fusionado). El orquestador y los agentes nunca lo llaman directamente: lecturas, actualizaciones, ramas, pull requests y consulta del estado de CI pasan por herramientas MCP acotadas."
           },
           "responsibilities": [
             {
-              "en": "Signals when a work item is ready, through a webhook.",
-              "es": "Avisa cuando un work item está listo, mediante un webhook."
+              "en": "Work-item updates use revision checks for optimistic concurrency",
+              "es": "Las actualizaciones de elementos de trabajo usan revisiones para concurrencia optimista"
             },
             {
-              "en": "Hosts the branches and pull requests the agents work on.",
-              "es": "Aloja las ramas y los pull requests sobre los que trabajan los agentes."
-            },
-            {
-              "en": "Reports CI status and pull-request feedback to the orchestrator.",
-              "es": "Informa al orquestador del estado de CI y los comentarios del pull request."
+              "en": "Pull-request feedback and status checks flow back as events and polls",
+              "es": "El feedback y los estados de checks del pull request vuelven como eventos y consultas"
             }
           ]
         }
@@ -262,23 +258,19 @@
         "owned": true,
         "details": {
           "what": {
-            "en": "The team chat channel for commands, approval cards and clarifications.",
-            "es": "El canal de chat del equipo para comandos, tarjetas de aprobación y aclaraciones."
+            "en": "A team-chat bot exposed as a message endpoint using the bot framework. A dispatcher turns messages and adaptive-card actions into the same commands the portal sends. Notifications (clarifications, plan approval, outcomes, parked-run alerts) are rendered as cards, and an error notifier posts failures to an operations webhook.",
+            "es": "Un bot de chat de equipo expuesto como endpoint de mensajes con el framework de bots. Un despachador convierte mensajes y acciones de tarjetas adaptativas en los mismos comandos que envía el portal. Las notificaciones (aclaraciones, aprobación del plan, resultados, alertas de ejecuciones en pausa) se muestran como tarjetas, y un notificador de errores publica los fallos en un webhook de operaciones."
           },
           "responsibilities": [
             {
-              "en": "Accepts commands and card actions and forwards them to the orchestrator.",
-              "es": "Recibe comandos y acciones de tarjetas y los envía al orquestador."
+              "en": "Approve and request-changes actions carry a payload identifying the run and phase",
+              "es": "Las acciones de aprobar y pedir cambios llevan una carga que identifica la ejecución y la fase"
             },
             {
-              "en": "Presents approval and clarification requests to people.",
-              "es": "Presenta solicitudes de aprobación y aclaración a las personas."
+              "en": "Outbound messages to the chat tool also go through scoped, allowlisted MCP tools",
+              "es": "Los mensajes salientes hacia la herramienta de chat también pasan por herramientas MCP acotadas y con lista de destinos permitidos"
             }
-          ],
-          "why": {
-            "en": "Approvals and clarifications are available both in the portal and as chat cards.",
-            "es": "Las aprobaciones y aclaraciones están disponibles tanto en el portal como en tarjetas de chat."
-          }
+          ]
         }
       },
       {
@@ -301,21 +293,25 @@
         "owned": true,
         "details": {
           "what": {
-            "en": "A real-time portal showing the lifecycle, live agent activity, gates and run history.",
-            "es": "Un portal en tiempo real que muestra el ciclo de vida, la actividad de los agentes, las aprobaciones y el historial de ejecuciones."
+            "en": "A React web portal backed by a small API with a SignalR hub for live run events. It lists runs and their phases, shows gates awaiting a person, the event timeline, development documents and an observability summary (findings and per-run rollups), and sends human actions back to the orchestrator.",
+            "es": "Un portal web en React respaldado por una API pequeña con un hub SignalR para eventos de ejecución en vivo. Lista ejecuciones y sus fases, muestra las compuertas que esperan a una persona, la línea de tiempo de eventos, los documentos de desarrollo y un resumen de observabilidad (hallazgos y consolidados por ejecución), y envía las acciones humanas de vuelta al orquestador."
           },
           "responsibilities": [
             {
-              "en": "Shows live lifecycle events and gate state over SignalR.",
-              "es": "Muestra eventos del ciclo de vida y el estado de las aprobaciones en vivo mediante SignalR."
+              "en": "Events are stored per run and pushed to connected clients by the hub",
+              "es": "Los eventos se guardan por ejecución y el hub los envía a los clientes conectados"
             },
             {
-              "en": "Lets people approve gates and answer clarifications.",
-              "es": "Permite aprobar y responder aclaraciones."
+              "en": "Approvals, plan feedback and clarification answers go through a single actions endpoint",
+              "es": "Las aprobaciones, el feedback del plan y las respuestas a aclaraciones pasan por un único endpoint de acciones"
             },
             {
-              "en": "Keeps the run history visible.",
-              "es": "Mantiene visible el historial de ejecuciones."
+              "en": "Includes an assistant-style bot endpoint with stored conversations and threads",
+              "es": "Incluye un endpoint de bot tipo asistente con conversaciones e hilos guardados"
+            },
+            {
+              "en": "Run rollups and gate state live in the same document store as the runs",
+              "es": "Los consolidados de ejecución y el estado de compuertas viven en el mismo almacén documental que las ejecuciones"
             }
           ]
         }
@@ -339,17 +335,21 @@
         },
         "details": {
           "what": {
-            "en": "A Couchbase store for runs, pending work, leases and notifications.",
-            "es": "Un almacén Couchbase para ejecuciones, trabajo pendiente, leases y notificaciones."
+            "en": "A document database holding one run document per work item, with a compare-and-swap (CAS) write for every state change. It stores the current phase, the pending-work record (pending or started, not-before time, claimed by) and the execution lease. Heartbeats update the same document, so owner transitions can retry on CAS conflicts.",
+            "es": "Una base documental que guarda un documento de ejecución por elemento de trabajo, con escritura compare-and-swap (CAS) para cada cambio de estado. Almacena la fase actual, el registro de trabajo pendiente (pendiente o iniciado, hora mínima de inicio, reclamado por) y el lease de ejecución. Los latidos actualizan el mismo documento, por lo que las transiciones de propietario pueden reintentar ante conflictos de CAS."
           },
           "responsibilities": [
             {
-              "en": "Persists the run phase and pending work.",
-              "es": "Persiste la fase de la ejecución y el trabajo pendiente."
+              "en": "Lease lasts 90 s and is renewed every 20 s by the owner; an expired lease lets another worker take over",
+              "es": "El lease dura 90 s y el propietario lo renueva cada 20 s; un lease vencido permite que otro worker tome el control"
             },
             {
-              "en": "Holds the leases used for recovery.",
-              "es": "Guarda los leases usados para la recuperación."
+              "en": "Pending-work scans compare a string status, so enums are persisted as strings",
+              "es": "Los escaneos de trabajo pendiente comparan un estado en texto, por eso los enums se persisten como texto"
+            },
+            {
+              "en": "A workspace service validates the lease against this store before running leased operations",
+              "es": "Un servicio de workspace valida el lease contra este almacén antes de ejecutar operaciones con lease"
             }
           ]
         }
@@ -373,30 +373,30 @@
         },
         "details": {
           "what": {
-            "en": "A persisted workflow state machine that coordinates the agents from work item to approved pull request.",
-            "es": "Una máquina de estados de flujo persistida que coordina a los agentes desde el work item hasta el pull request aprobado."
+            "en": "A persisted workflow state machine. Phases include created, QA ready/running, dev ready, planning, awaiting plan approval, dev running, review ready/running, rework, ready for PR, publishing PR, CI monitoring, CI fixing, waiting for human approval, completed, needs human review and cancelled. Background work is queued in memory, but its intent is first written to the run document; a recovery scan every 30 s re-enqueues work still marked pending.",
+            "es": "Una máquina de estados de flujo persistida. Las fases incluyen creada, QA lista/en curso, desarrollo listo, planificación, esperando aprobación del plan, desarrollo en curso, revisión lista/en curso, retrabajo, lista para PR, publicando PR, monitoreo de CI, corrección de CI, esperando aprobación humana, completada, requiere revisión humana y cancelada. El trabajo en segundo plano se encola en memoria, pero su intención se escribe antes en el documento de la ejecución; un escaneo de recuperación cada 30 s reencola el trabajo que sigue marcado como pendiente."
           },
           "responsibilities": [
             {
-              "en": "Dispatches the definition, QA planning, plan and development, and review phases.",
-              "es": "Despacha las fases de definición, planificación de QA, plan y desarrollo, y revisión."
+              "en": "Work already started is not blindly re-run on recovery; the execution lease decides who owns it",
+              "es": "El trabajo ya iniciado no se reejecuta a ciegas en la recuperación; el lease de ejecución decide quién lo posee"
             },
             {
-              "en": "Persists the phase, pending work and leases.",
-              "es": "Persiste la fase, el trabajo pendiente y los leases."
+              "en": "Polls pull-request status checks through MCP tools until CI passes or fails, bounded by the phase timeout, and comments the verdict on the work item",
+              "es": "Consulta los estados del pull request mediante herramientas MCP hasta que CI pasa o falla, acotado por el timeout de la fase, y comenta el veredicto en el elemento de trabajo"
             },
             {
-              "en": "Parks, resumes and recovers runs.",
-              "es": "Pausa, reanuda y recupera ejecuciones."
+              "en": "Human gates (plan approval, final approval) park the run until a portal or chat action arrives",
+              "es": "Las compuertas humanas (aprobación del plan, aprobación final) pausan la ejecución hasta que llega una acción del portal o del chat"
             },
             {
-              "en": "Publishes live events and waits for human approvals.",
-              "es": "Publica eventos en vivo y espera las aprobaciones humanas."
+              "en": "Emits run events to the portal and notification cards to chat",
+              "es": "Emite eventos de ejecución al portal y tarjetas de notificación al chat"
             }
           ],
           "why": {
-            "en": "Durable pending-work queues, leases and recovery let runs survive restarts and resume exactly where they stopped.",
-            "es": "Las colas de trabajo pendiente duraderas, los leases y la recuperación permiten que las ejecuciones sobrevivan a reinicios y continúen donde quedaron."
+            "en": "Durable state lets runs survive restarts and resume exactly where they stopped.",
+            "es": "El estado durable permite que las ejecuciones sobrevivan a reinicios y continúen donde se detuvieron."
           }
         }
       },
@@ -419,23 +419,23 @@
         },
         "details": {
           "what": {
-            "en": "An AI agent that reviews pull requests adversarially, on a separate role.",
-            "es": "Un agente de IA que revisa pull requests de forma adversarial, con un rol separado."
+            "en": "An adversarial reviewer that runs under its own role after development and critiques the pull request, separate from the author. Findings that require changes send the run to rework before the pull request is published.",
+            "es": "Un revisor adversarial que corre con su propio rol después del desarrollo y critica el pull request, separado del autor. Los hallazgos que exigen cambios envían la ejecución a retrabajo antes de publicar el pull request."
           },
           "responsibilities": [
             {
-              "en": "Reviews pull requests in the review phase.",
-              "es": "Revisa pull requests en la fase de revisión."
+              "en": "Reads the change and context through MCP tools",
+              "es": "Lee el cambio y el contexto mediante herramientas MCP"
             },
             {
-              "en": "Requests completions through the LLM gateway on a separate role.",
-              "es": "Solicita completions al gateway de LLM con un rol separado."
+              "en": "Calls its model only through the gateway, with its own role-based rate limit and routing",
+              "es": "Llama a su modelo solo a través del gateway, con su propio límite de tasa y enrutamiento por rol"
+            },
+            {
+              "en": "Returns a verdict that moves the run to rework or ready for PR",
+              "es": "Devuelve un veredicto que mueve la ejecución a retrabajo o a lista para PR"
             }
-          ],
-          "why": {
-            "en": "Review runs on a role separate from development.",
-            "es": "La revisión se ejecuta con un rol separado del desarrollo."
-          }
+          ]
         }
       },
       {
@@ -457,13 +457,17 @@
         },
         "details": {
           "what": {
-            "en": "An AI agent that drafts AI-ready work items from requests.",
-            "es": "Un agente de IA que redacta work items listos para IA a partir de solicitudes."
+            "en": "The first agent in a run. It reads the work item through MCP tools, rewrites the description and acceptance criteria, adjusts tags (it can never add the protected agent-ready tag) and may link the target repository. When information is missing it raises a clarification request that parks the run until a person answers.",
+            "es": "El primer agente de una ejecución. Lee el elemento de trabajo mediante herramientas MCP, reescribe la descripción y los criterios de aceptación, ajusta etiquetas (nunca puede añadir la etiqueta protegida de agente listo) y puede enlazar el repositorio destino. Cuando falta información genera una solicitud de aclaración que pausa la ejecución hasta que una persona responde."
           },
           "responsibilities": [
             {
-              "en": "Drafts work items in the definition phase dispatched by the orchestrator.",
-              "es": "Redacta work items en la fase de definición que despacha el orquestador."
+              "en": "Calls its model only through the gateway under its own role",
+              "es": "Llama a su modelo solo a través del gateway con su propio rol"
+            },
+            {
+              "en": "Cannot change state or assignment of the work item",
+              "es": "No puede cambiar el estado ni la asignación del elemento de trabajo"
             }
           ]
         }
@@ -487,13 +491,17 @@
         },
         "details": {
           "what": {
-            "en": "An AI agent that generates test plans and suites.",
-            "es": "Un agente de IA que genera planes y suites de pruebas."
+            "en": "The QA agent derives scenarios (given/when/then, type and risk level) and test suites from the approved definition before code is written. Scenarios can be executed by a separate browser-test runner behind an MCP tool whose policy limits target environments and restricts production to human-triggered read-only smoke scenarios.",
+            "es": "El agente de QA deriva escenarios (dado/cuando/entonces, tipo y nivel de riesgo) y suites de pruebas a partir de la definición aprobada antes de escribir código. Los escenarios pueden ejecutarse en un runner de pruebas de navegador separado, detrás de una herramienta MCP cuya política limita los entornos destino y restringe producción a escenarios de humo de solo lectura disparados por una persona."
           },
           "responsibilities": [
             {
-              "en": "Generates test plans and suites in the QA planning phase.",
-              "es": "Genera planes y suites de pruebas en la fase de planificación de QA."
+              "en": "Results carry per-test pass or fail, failure messages and trace or screenshot links",
+              "es": "Los resultados traen aprobado o fallido por prueba, mensajes de fallo y enlaces a trazas o capturas"
+            },
+            {
+              "en": "A QA suite gate lets people review the suite before development",
+              "es": "Una compuerta de la suite de QA permite revisarla antes del desarrollo"
             }
           ]
         }
@@ -517,21 +525,25 @@
         },
         "details": {
           "what": {
-            "en": "An AI agent that plans, edits code, runs tests and handles rework and CI fixes.",
-            "es": "Un agente de IA que planifica, edita código, ejecuta pruebas y atiende retrabajo y correcciones de CI."
+            "en": "A tool-calling agent loop with two steps: it plans (a reviewable work plan that waits for human approval) and then implements. It reads the item, searches memory, queries the code graph, clones and edits code in the sandbox, and must finish with a green build and test run before pushing a branch and opening a pull request. Every model call goes through the gateway, and every tool call through the MCP server.",
+            "es": "Un bucle de agente con llamadas a herramientas en dos pasos: planifica (un plan de trabajo revisable que espera aprobación humana) y luego implementa. Lee el elemento, busca en memoria, consulta el grafo de código, clona y edita código en el sandbox y debe terminar con compilación y pruebas en verde antes de subir una rama y abrir un pull request. Cada llamada al modelo pasa por el gateway y cada llamada a herramienta por el servidor MCP."
           },
           "responsibilities": [
             {
-              "en": "Plans and implements changes using MCP tools.",
-              "es": "Planifica e implementa cambios usando herramientas MCP."
+              "en": "Plan changes requested by a person loop back to planning with the feedback",
+              "es": "Los cambios pedidos por una persona vuelven a planificación con el feedback"
             },
             {
-              "en": "Runs tests and handles rework and CI fixes.",
-              "es": "Ejecuta pruebas y atiende retrabajo y correcciones de CI."
+              "en": "Parks the run for uncertainty, blocked work, model problems or an exhausted budget, with a notification each time",
+              "es": "Pausa la ejecución por incertidumbre, bloqueo, problemas del modelo o presupuesto agotado, con una notificación en cada caso"
             },
             {
-              "en": "Requests completions through the LLM gateway.",
-              "es": "Solicita completions a través del gateway de LLM."
+              "en": "Workspace commands needing approval are surfaced as approval requests",
+              "es": "Los comandos del workspace que requieren aprobación se presentan como solicitudes de aprobación"
+            },
+            {
+              "en": "Pushes to an agent-prefixed branch; protected branches are blocked for writes",
+              "es": "Sube a una rama con prefijo de agente; las ramas protegidas tienen las escrituras bloqueadas"
             }
           ]
         }
@@ -735,21 +747,25 @@
             },
             "details": {
               "what": {
-                "en": "An AI agent that plans, edits code, runs tests and handles rework and CI fixes.",
-                "es": "Un agente de IA que planifica, edita código, ejecuta pruebas y atiende retrabajo y correcciones de CI."
+                "en": "A tool-calling agent loop with two steps: it plans (a reviewable work plan that waits for human approval) and then implements. It reads the item, searches memory, queries the code graph, clones and edits code in the sandbox, and must finish with a green build and test run before pushing a branch and opening a pull request. Every model call goes through the gateway, and every tool call through the MCP server.",
+                "es": "Un bucle de agente con llamadas a herramientas en dos pasos: planifica (un plan de trabajo revisable que espera aprobación humana) y luego implementa. Lee el elemento, busca en memoria, consulta el grafo de código, clona y edita código en el sandbox y debe terminar con compilación y pruebas en verde antes de subir una rama y abrir un pull request. Cada llamada al modelo pasa por el gateway y cada llamada a herramienta por el servidor MCP."
               },
               "responsibilities": [
                 {
-                  "en": "Plans and implements changes using MCP tools.",
-                  "es": "Planifica e implementa cambios usando herramientas MCP."
+                  "en": "Plan changes requested by a person loop back to planning with the feedback",
+                  "es": "Los cambios pedidos por una persona vuelven a planificación con el feedback"
                 },
                 {
-                  "en": "Runs tests and handles rework and CI fixes.",
-                  "es": "Ejecuta pruebas y atiende retrabajo y correcciones de CI."
+                  "en": "Parks the run for uncertainty, blocked work, model problems or an exhausted budget, with a notification each time",
+                  "es": "Pausa la ejecución por incertidumbre, bloqueo, problemas del modelo o presupuesto agotado, con una notificación en cada caso"
                 },
                 {
-                  "en": "Requests completions through the LLM gateway.",
-                  "es": "Solicita completions a través del gateway de LLM."
+                  "en": "Workspace commands needing approval are surfaced as approval requests",
+                  "es": "Los comandos del workspace que requieren aprobación se presentan como solicitudes de aprobación"
+                },
+                {
+                  "en": "Pushes to an agent-prefixed branch; protected branches are blocked for writes",
+                  "es": "Sube a una rama con prefijo de agente; las ramas protegidas tienen las escrituras bloqueadas"
                 }
               ]
             }
@@ -773,27 +789,31 @@
             },
             "details": {
               "what": {
-                "en": "A multi-provider LLM gateway between the agents and the model providers.",
-                "es": "Un gateway de LLM multiproveedor entre los agentes y los proveedores de modelos."
+                "en": "The single path for every model call. Per request it: applies a per-role fixed-window rate limit, scans the input with the safety layer (blocked, or redacted before leaving), routes to a provider with bounded retries and fallback, prices the call from token usage, scans the model's response, and records an audit entry. Blocked requests and responses are archived and audited too.",
+                "es": "La única ruta de toda llamada a un modelo. Por solicitud: aplica un límite de tasa de ventana fija por rol, analiza la entrada con la capa de seguridad (bloqueada, o redactada antes de salir), enruta a un proveedor con reintentos acotados y respaldo, calcula el costo con el uso de tokens, analiza la respuesta del modelo y registra una entrada de auditoría. Las solicitudes y respuestas bloqueadas también se archivan y auditan."
               },
               "responsibilities": [
                 {
-                  "en": "Routes requests by role and applies per-role rate limiting.",
-                  "es": "Enruta solicitudes por rol y aplica límites de tasa por rol."
+                  "en": "Retries only transient availability failures, honors Retry-After when it fits the chain budget, otherwise backs off 0.5 to 4 s with jitter",
+                  "es": "Reintenta solo fallos transitorios de disponibilidad, respeta Retry-After si cabe en el presupuesto de la cadena y, si no, espera de 0,5 a 4 s con jitter"
                 },
                 {
-                  "en": "Falls back between providers with circuit breaking.",
-                  "es": "Cambia entre proveedores con circuit breaking."
+                  "en": "Per-provider in-memory circuit breaker opens after a failure threshold and fails over to the fallback provider",
+                  "es": "Un circuit breaker en memoria por proveedor se abre tras un umbral de fallos y conmuta al proveedor de respaldo"
                 },
                 {
-                  "en": "Continues truncated responses automatically.",
-                  "es": "Continúa automáticamente las respuestas truncadas."
+                  "en": "Failover, stall and outage events raise operational alerts",
+                  "es": "Los eventos de conmutación, estancamiento e indisponibilidad generan alertas operativas"
                 },
                 {
-                  "en": "Monitors provider health with operational alerts and audits requests.",
-                  "es": "Monitorea la salud de los proveedores con alertas operativas y audita las solicitudes."
+                  "en": "Tracks a workflow trace per stage (rate limit, scan, provider, audit)",
+                  "es": "Registra una traza del flujo por etapa (límite de tasa, análisis, proveedor, auditoría)"
                 }
-              ]
+              ],
+              "why": {
+                "en": "One chokepoint makes limits, safety and auditing impossible to bypass.",
+                "es": "Un único punto de paso hace imposible eludir límites, seguridad y auditoría."
+              }
             }
           },
           {
@@ -815,19 +835,23 @@
             },
             "details": {
               "what": {
-                "en": "Cerberus, the in-process prompt-safety layer used by the gateway.",
-                "es": "Cerberus, la capa de seguridad de prompts en proceso que usa el gateway."
+                "en": "Cerberus, an in-process scanning module. On the way in it scans the prompt, system prompt, metadata and flattened conversation segments (tool results, tool arguments); findings can block the request or, in redact mode, be replaced with markers. On the way out it scans the model's response: findings in tool-call arguments block, while findings only in free text are redacted and allowed. Human-approved findings for a work item can be allowed.",
+                "es": "Cerberus, un módulo de análisis en proceso. A la entrada analiza el prompt, el prompt de sistema, los metadatos y los segmentos aplanados de la conversación (resultados y argumentos de herramientas); los hallazgos pueden bloquear la solicitud o, en modo redacción, reemplazarse por marcadores. A la salida analiza la respuesta del modelo: los hallazgos en argumentos de llamadas a herramientas bloquean, mientras que los que solo aparecen en texto libre se redactan y se permite la respuesta. Los hallazgos aprobados por una persona para un elemento de trabajo pueden permitirse."
               },
               "responsibilities": [
                 {
-                  "en": "Scans prompts and metadata with shared detection rules.",
-                  "es": "Analiza prompts y metadatos con reglas de detección compartidas."
+                  "en": "Metadata scanning and fail-closed behavior on scanner error are configurable",
+                  "es": "El análisis de metadatos y el comportamiento de cierre ante error del analizador son configurables"
                 },
                 {
-                  "en": "Blocks secrets, credentials and personal or payment data before a request leaves the trust boundary.",
-                  "es": "Bloquea secretos, credenciales y datos personales o de pago antes de que una solicitud salga del límite de confianza."
+                  "en": "A blocked response is still returned to the caller in a masked form, so the model can see what was blocked",
+                  "es": "Una respuesta bloqueada se devuelve al llamador en forma enmascarada, para que el modelo vea qué se bloqueó"
                 }
-              ]
+              ],
+              "why": {
+                "en": "Scanning first prevents sensitive data from ever reaching an external model.",
+                "es": "Analizar primero evita que datos sensibles lleguen a un modelo externo."
+              }
             }
           },
           {
@@ -849,17 +873,17 @@
             },
             "details": {
               "what": {
-                "en": "Couchbase audit records and a blob payload archive.",
-                "es": "Registros de auditoría en Couchbase y un archivo de payloads en blob."
+                "en": "Audit trail with a queue in between. The gateway publishes audit and failover records to a durable message queue; a consumer processes one message at a time with acknowledgement and persists documents to a document database, with an optional payload archive for allowed and blocked traffic. Records hold correlation id, agent, work item, tokens, cost estimate, flags, decision and a payload reference.",
+                "es": "Rastro de auditoría con una cola intermedia. El gateway publica registros de auditoría y de conmutación en una cola de mensajes durable; un consumidor procesa un mensaje a la vez con confirmación y persiste documentos en una base documental, con un archivo opcional de cargas para tráfico permitido y bloqueado. Los registros guardan identificador de correlación, agente, elemento de trabajo, tokens, costo estimado, banderas, decisión y referencia a la carga."
               },
               "responsibilities": [
                 {
-                  "en": "Records allowed and rejected requests.",
-                  "es": "Registra las solicitudes permitidas y rechazadas."
+                  "en": "Queue consumer reconnects automatically and retries after 15 s on connection errors",
+                  "es": "El consumidor de la cola se reconecta automáticamente y reintenta tras 15 s ante errores de conexión"
                 },
                 {
-                  "en": "Archives payloads optionally.",
-                  "es": "Archiva payloads de forma opcional."
+                  "en": "Payloads are hashed and archived only when archiving is enabled",
+                  "es": "Las cargas se calculan con hash y se archivan solo cuando el archivo está habilitado"
                 }
               ]
             }
@@ -883,17 +907,17 @@
             },
             "details": {
               "what": {
-                "en": "The LLM providers: primary, fallback and self-hosted models, with output validation.",
-                "es": "Los proveedores de LLM: modelos principal, de respaldo y autoalojados, con validación de salida."
+                "en": "The language-model providers behind the gateway: a hosted primary, a hosted fallback and a self-hosted option, each with its own client, pricing and timeout. The router selects by role; each leg gets a time reservation inside a per-request chain budget so a slow primary cannot starve the fallback.",
+                "es": "Los proveedores de modelos de lenguaje detrás del gateway: un primario alojado, un respaldo alojado y una opción autoalojada, cada uno con su propio cliente, precios y timeout. El enrutador selecciona por rol; cada tramo recibe una reserva de tiempo dentro de un presupuesto de cadena por solicitud para que un primario lento no deje sin tiempo al respaldo."
               },
               "responsibilities": [
                 {
-                  "en": "Serves the calls routed by the gateway.",
-                  "es": "Atiende las llamadas enrutadas por el gateway."
+                  "en": "Errors are classified: transient availability, request rejection and deterministic availability (auth or billing), each handled differently",
+                  "es": "Los errores se clasifican: disponibilidad transitoria, rechazo de la solicitud y disponibilidad determinista (autenticación o facturación), cada uno con un trato distinto"
                 },
                 {
-                  "en": "Provides fallback when the primary provider fails.",
-                  "es": "Ofrece respaldo cuando falla el proveedor principal."
+                  "en": "Responses carry token usage including cache read and creation tokens",
+                  "es": "Las respuestas traen uso de tokens, incluidos tokens de lectura y creación de caché"
                 }
               ]
             }
@@ -917,23 +941,19 @@
             },
             "details": {
               "what": {
-                "en": "A Roslyn-based indexer that emits an immutable, commit-addressed structural graph of the code.",
-                "es": "Un indexador basado en Roslyn que emite un grafo estructural inmutable del código, direccionado por commit."
+                "en": "A Roslyn-based indexer that parses projects and emits a structural graph (projects, types, members, references) for a commit. A merger combines per-project output into one code map, and a publisher posts it in batches to the MCP server's publish service, addressed by commit so agents query an immutable snapshot.",
+                "es": "Un indexador basado en Roslyn que analiza proyectos y emite un grafo estructural (proyectos, tipos, miembros, referencias) para un commit. Un fusionador combina la salida por proyecto en un único mapa de código y un publicador lo envía por lotes al servicio de publicación del servidor MCP, direccionado por commit para que los agentes consulten una instantánea inmutable."
               },
               "responsibilities": [
                 {
-                  "en": "Emits a graph of projects, types, members and references per commit.",
-                  "es": "Emite un grafo de proyectos, tipos, miembros y referencias por commit."
+                  "en": "Publishing is a push to the MCP server, not a pull from it",
+                  "es": "La publicación es un envío hacia el servidor MCP, no una lectura desde él"
                 },
                 {
-                  "en": "Publishes the graph to the MCP tool server.",
-                  "es": "Publica el grafo en el servidor de herramientas MCP."
+                  "en": "Lookups from agents hit the published graph, so the indexer need not be running during a run",
+                  "es": "Las consultas de los agentes usan el grafo publicado, por lo que el indexador no necesita estar activo durante una ejecución"
                 }
-              ],
-              "why": {
-                "en": "It gives the planner and dev agent precise code context instead of raw file dumps.",
-                "es": "Da al planificador y al agente de desarrollo contexto de código preciso en lugar de volcados de archivos."
-              }
+              ]
             }
           },
           {
@@ -955,21 +975,25 @@
             },
             "details": {
               "what": {
-                "en": "An MCP server exposing least-privilege, role-scoped tools to the agents.",
-                "es": "Un servidor MCP que expone a los agentes herramientas de mínimo privilegio, acotadas por rol."
+                "en": "An HTTP server exposing agent tools through the Model Context Protocol in separate modules: work-item tracking, pull-request and repository operations, vector memory, code graph, sandbox workspace, framework file tools, chat notifications and browser-test execution. Callers authenticate with an API key mapped to a role claim, which policies use to scope each tool.",
+                "es": "Un servidor HTTP que expone herramientas de agentes mediante el Model Context Protocol en módulos separados: seguimiento de elementos de trabajo, operaciones de pull request y repositorio, memoria vectorial, grafo de código, workspace en sandbox, herramientas de archivos del framework, notificaciones de chat y ejecución de pruebas de navegador. Los llamadores se autentican con una clave de API asociada a un claim de rol, que las políticas usan para acotar cada herramienta."
               },
               "responsibilities": [
                 {
-                  "en": "Offers work-item reading and tagging, and branch, file and pull-request operations.",
-                  "es": "Ofrece lectura y etiquetado de work items, y operaciones de ramas, archivos y pull requests."
+                  "en": "Key comparison hashes both values before comparing",
+                  "es": "La comparación de claves aplica hash a ambos valores antes de comparar"
                 },
                 {
-                  "en": "Offers code-graph queries, vector memory and test execution.",
-                  "es": "Ofrece consultas al grafo de código, memoria vectorial y ejecución de pruebas."
+                  "en": "Work-item tools enforce project, area and type scope and a configured list of allowed target states, with optimistic concurrency on revisions",
+                  "es": "Las herramientas de elementos de trabajo imponen alcance de proyecto, área y tipo y una lista configurada de estados destino permitidos, con concurrencia optimista sobre revisiones"
                 },
                 {
-                  "en": "Enforces role-scoped permissions and audit records at runtime.",
-                  "es": "Aplica en tiempo de ejecución permisos por rol y registros de auditoría."
+                  "en": "Memory-file proposals are idempotent: they reuse an existing branch, skip an identical commit and return an existing open pull request",
+                  "es": "Las propuestas de archivos de memoria son idempotentes: reutilizan una rama existente, omiten un commit idéntico y devuelven un pull request abierto existente"
+                },
+                {
+                  "en": "Write operations emit an audit record with correlation id",
+                  "es": "Las operaciones de escritura emiten un registro de auditoría con identificador de correlación"
                 }
               ]
             }
@@ -993,21 +1017,21 @@
             },
             "details": {
               "what": {
-                "en": "A container-based workspace worker that clones, edits, builds and tests repositories in isolation.",
-                "es": "Un worker de espacio de trabajo en contenedores que clona, edita, compila y prueba repositorios de forma aislada."
+                "en": "A containerized worker where the agent clones repositories (allowlisted, optional shallow clone), edits files, builds and runs tests. It needs git and several SDK versions, so it ships as a container. The process holds no credentials. The MCP server is its only caller, and before leased operations it asks the orchestrator's API to validate the workflow lease, re-checking about every 2 s.",
+                "es": "Un worker en contenedor donde el agente clona repositorios (con lista permitida y clon superficial opcional), edita archivos, compila y ejecuta pruebas. Necesita git y varias versiones de SDK, por eso se entrega como contenedor. El proceso no tiene credenciales. El servidor MCP es su único llamador y, antes de operaciones con lease, pide a la API del orquestador validar el lease del flujo, revalidando cada ~2 s."
               },
               "responsibilities": [
                 {
-                  "en": "Clones, edits, builds and tests repositories.",
-                  "es": "Clona, edita, compila y prueba repositorios."
+                  "en": "Each workspace uses 1 to 3 GB for the clone, build output and package cache",
+                  "es": "Cada workspace usa de 1 a 3 GB entre clon, salida de compilación y caché de paquetes"
                 },
                 {
-                  "en": "Runs a browser test runner that produces evidence artifacts.",
-                  "es": "Ejecuta un runner de pruebas de navegador que produce artefactos de evidencia."
+                  "en": "Fails open when lease validation is not configured unless a require flag is set",
+                  "es": "Falla en modo abierto cuando la validación de lease no está configurada, salvo que se active la bandera de requerido"
                 },
                 {
-                  "en": "Keeps risky commands behind approval gates.",
-                  "es": "Mantiene los comandos riesgosos detrás de aprobaciones."
+                  "en": "Creates an agent branch per workspace and supports multi-repository workspaces",
+                  "es": "Crea una rama de agente por workspace y admite workspaces con varios repositorios"
                 }
               ]
             }
@@ -1031,13 +1055,17 @@
             },
             "details": {
               "what": {
-                "en": "Curated episodic memory stored as embeddings.",
-                "es": "Memoria episódica curada almacenada como embeddings."
+                "en": "A vector database used as episodic memory. The MCP memory module upserts and searches documents with embeddings produced by a pluggable embedding provider (hosted or self-hosted options). Access goes through scoped, role-checked tools rather than direct database access.",
+                "es": "Una base de datos vectorial usada como memoria episódica. El módulo de memoria de MCP inserta y busca documentos con embeddings generados por un proveedor de embeddings intercambiable (opciones alojadas o autoalojadas). El acceso pasa por herramientas acotadas y verificadas por rol, no por acceso directo a la base."
               },
               "responsibilities": [
                 {
-                  "en": "Is searched and updated through MCP tools.",
-                  "es": "Se consulta y actualiza mediante herramientas MCP."
+                  "en": "Stores earlier decisions and lessons for recall by similarity",
+                  "es": "Guarda decisiones y lecciones previas para recuperarlas por similitud"
+                },
+                {
+                  "en": "Memory the agent writes is also proposed to the framework repository through a pull request",
+                  "es": "La memoria que escribe el agente también se propone al repositorio del framework mediante un pull request"
                 }
               ]
             }
@@ -1061,21 +1089,17 @@
             },
             "details": {
               "what": {
-                "en": "The external work-tracking and repository system: work items, branches, pull requests and pipelines.",
-                "es": "El sistema externo de seguimiento de trabajo y repositorios: work items, ramas, pull requests y pipelines."
+                "en": "The external work-tracking and repository system. It signals the orchestrator through webhook endpoints (a work item marked ready, a pull request merged). The orchestrator and agents never call it directly: reads, updates, branches, pull requests and CI status polling all go through scoped MCP tools.",
+                "es": "El sistema externo de seguimiento de trabajo y repositorios. Avisa al orquestador mediante endpoints de webhook (un elemento marcado como listo, un pull request fusionado). El orquestador y los agentes nunca lo llaman directamente: lecturas, actualizaciones, ramas, pull requests y consulta del estado de CI pasan por herramientas MCP acotadas."
               },
               "responsibilities": [
                 {
-                  "en": "Signals when a work item is ready, through a webhook.",
-                  "es": "Avisa cuando un work item está listo, mediante un webhook."
+                  "en": "Work-item updates use revision checks for optimistic concurrency",
+                  "es": "Las actualizaciones de elementos de trabajo usan revisiones para concurrencia optimista"
                 },
                 {
-                  "en": "Hosts the branches and pull requests the agents work on.",
-                  "es": "Aloja las ramas y los pull requests sobre los que trabajan los agentes."
-                },
-                {
-                  "en": "Reports CI status and pull-request feedback to the orchestrator.",
-                  "es": "Informa al orquestador del estado de CI y los comentarios del pull request."
+                  "en": "Pull-request feedback and status checks flow back as events and polls",
+                  "es": "El feedback y los estados de checks del pull request vuelven como eventos y consultas"
                 }
               ]
             }

@@ -177,185 +177,352 @@
           "en": "Data and messaging",
           "es": "Datos y mensajería"
         }
-      },
-      {
-        "id": "obs",
-        "label": {
-          "en": "Observability",
-          "es": "Observabilidad"
-        }
       }
     ],
     "nodes": [
       {
         "id": "browser",
-        "label": "Browser",
+        "label": {
+          "en": "Player / operator browser",
+          "es": "Navegador de jugador y operador"
+        },
         "sublabel": {
           "en": "Player and operator",
           "es": "Jugador y operador"
         },
         "kind": "client",
-        "group": "client"
+        "group": "client",
+        "tech": "Browser",
+        "owned": false,
+        "pos": {
+          "col": 0,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The browser used by players to sign in and by operators to open the control console.",
+            "es": "El navegador que usan los jugadores para iniciar sesión y los operadores para abrir la consola de control."
+          },
+          "responsibilities": [
+            {
+              "en": "Players sign in with an email one-time code",
+              "es": "Los jugadores inician sesión con un código por correo"
+            },
+            {
+              "en": "Operators open the Control Center",
+              "es": "Los operadores abren el Control Center"
+            },
+            {
+              "en": "Never holds service credentials; sessions live server-side",
+              "es": "Nunca guarda credenciales de servicio; las sesiones viven en el servidor"
+            }
+          ]
+        }
       },
       {
         "id": "portal",
-        "label": "Portal & Control Center (Next.js)",
+        "label": {
+          "en": "Portal and Control Center",
+          "es": "Portal y Control Center"
+        },
         "sublabel": {
           "en": "Identity UI and operator console",
           "es": "UI de identidad y consola de operador"
         },
         "kind": "service",
-        "group": "app"
+        "group": "app",
+        "tech": "Next.js 16",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The web front end: a player-facing identity portal and an operator-facing Control Center.",
+            "es": "El front end web: un portal de identidad para jugadores y un Control Center para operadores."
+          },
+          "responsibilities": [
+            {
+              "en": "Renders sign-in and account screens",
+              "es": "Renderiza las pantallas de inicio de sesión y cuenta"
+            },
+            {
+              "en": "Hosts the operator Control Center",
+              "es": "Aloja el Control Center del operador"
+            },
+            {
+              "en": "Talks to backends only through its BFF",
+              "es": "Habla con los backends solo a través de su BFF"
+            }
+          ]
+        }
       },
       {
         "id": "bff",
-        "label": "Per-app BFF",
+        "label": {
+          "en": "Backend-for-frontend",
+          "es": "Backend para el frontend"
+        },
         "sublabel": {
           "en": "Server-held sessions, credential mediation",
           "es": "Sesiones en servidor, mediación de credenciales"
         },
         "kind": "gateway",
-        "group": "app"
+        "group": "app",
+        "tech": "Next.js server",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "A per-app BFF that keeps sessions on the server and mediates every call to the backend services.",
+            "es": "Un BFF por aplicación que mantiene las sesiones en el servidor y media cada llamada a los servicios backend."
+          },
+          "responsibilities": [
+            {
+              "en": "Holds the session server-side",
+              "es": "Mantiene la sesión en el servidor"
+            },
+            {
+              "en": "Attaches credentials to backend calls",
+              "es": "Adjunta credenciales a las llamadas al backend"
+            },
+            {
+              "en": "Routes to Identity Core and Game Services",
+              "es": "Enruta hacia Identity Core y Game Services"
+            }
+          ],
+          "why": {
+            "en": "Tokens never reach the browser, which shrinks the attack surface.",
+            "es": "Los tokens nunca llegan al navegador, lo que reduce la superficie de ataque."
+          }
+        }
       },
       {
         "id": "identity",
-        "label": "Identity Core (Spring Boot)",
+        "label": {
+          "en": "Identity Core",
+          "es": "Identity Core"
+        },
         "sublabel": {
           "en": "OTP, sessions, handles, game links",
           "es": "OTP, sesiones, handles, vínculos con juegos"
         },
         "kind": "service",
-        "group": "app"
-      },
-      {
-        "id": "games",
-        "label": "Game Services (Spring Boot)",
-        "sublabel": {
-          "en": "Per-game accounts, progress, receipts",
-          "es": "Cuentas por juego, progreso, recibos"
+        "group": "app",
+        "tech": "Spring Boot (Java 21)",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 1
         },
-        "kind": "service",
-        "group": "app"
+        "details": {
+          "what": {
+            "en": "The owner of player identity: one-time codes, sessions, handle claims and the registry of linked games.",
+            "es": "El dueño de la identidad del jugador: códigos de un solo uso, sesiones, claims de handle y el registro de juegos vinculados."
+          },
+          "responsibilities": [
+            {
+              "en": "Issues and verifies email OTPs and sessions; refresh rotation and revocation in conditional DynamoDB writes",
+              "es": "Emite y verifica OTP por correo y sesiones; rotación y revocación de refresh con escrituras condicionales en DynamoDB"
+            },
+            {
+              "en": "Applies OTP quotas per email key and per IP, backed by Redis",
+              "es": "Aplica cuotas de OTP por clave de correo y por IP, respaldadas por Redis"
+            },
+            {
+              "en": "Calls Risk Service with a 250 ms timeout and circuit breaker",
+              "es": "Llama a Risk Service con timeout de 250 ms y circuit breaker"
+            },
+            {
+              "en": "Owns handle claims, game memberships and the link registry",
+              "es": "Es dueño de los handles, las membresías de juego y el registro de vínculos"
+            },
+            {
+              "en": "Writes each outbox event in the same transaction as the mutation",
+              "es": "Escribe cada evento de outbox en la misma transacción que la mutación"
+            }
+          ],
+          "why": {
+            "en": "Dependency tests forbid identity from importing game implementation classes.",
+            "es": "Tests de dependencias impiden que identity importe clases de implementación de juegos."
+          }
+        }
       },
       {
         "id": "risk",
-        "label": "Risk Service (Spring Boot)",
+        "label": {
+          "en": "Risk Service",
+          "es": "Risk Service"
+        },
         "sublabel": {
           "en": "Rules, assessments, trusted devices",
           "es": "Reglas, evaluaciones, dispositivos de confianza"
         },
         "kind": "service",
-        "group": "app"
-      },
-      {
-        "id": "worker",
-        "label": "Platform Worker",
-        "sublabel": {
-          "en": "Audit, notifications, projections",
-          "es": "Auditoría, notificaciones, proyecciones"
+        "group": "app",
+        "tech": "Spring Boot (Java 21)",
+        "owned": true,
+        "pos": {
+          "col": 4,
+          "row": 1
         },
-        "kind": "worker",
-        "group": "app"
+        "details": {
+          "what": {
+            "en": "Evaluates sign-in risk against rules and tracks trusted devices.",
+            "es": "Evalúa el riesgo de inicio de sesión contra reglas y registra dispositivos de confianza."
+          },
+          "responsibilities": [
+            {
+              "en": "Deterministic versioned rules score 0-100: allow below 30, challenge 30-70, block above 70",
+              "es": "Reglas deterministas versionadas puntúan 0-100: permite bajo 30, desafía 30-70, bloquea sobre 70"
+            },
+            {
+              "en": "Keeps assessment history and trusted-device projection",
+              "es": "Mantiene el historial de evaluaciones y la proyección de dispositivos de confianza"
+            },
+            {
+              "en": "Updates its projection from identity and security events",
+              "es": "Actualiza su proyección con eventos de identidad y seguridad"
+            },
+            {
+              "en": "If it times out, only existing trusted sessions get degraded access",
+              "es": "Si expira, solo las sesiones de confianza existentes tienen acceso degradado"
+            }
+          ]
+        }
       },
       {
-        "id": "obsapi",
-        "label": "Observability API",
+        "id": "games",
+        "label": {
+          "en": "Game Services",
+          "es": "Game Services"
+        },
         "sublabel": {
-          "en": "Fixed authorized queries, incidents, chaos",
-          "es": "Consultas fijas autorizadas, incidentes, caos"
+          "en": "Per-game accounts, progress, receipts",
+          "es": "Cuentas por juego, progreso, recibos"
         },
         "kind": "service",
-        "group": "app"
+        "group": "app",
+        "tech": "Spring Boot (Java 21)",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "Spring Boot service hosting the dungeon and detective modules. It validates every command against the selected account and persists progress itself.",
+            "es": "Servicio Spring Boot que aloja los módulos del dungeon y del detective. Valida cada comando contra la cuenta seleccionada y persiste el progreso por sí mismo."
+          },
+          "responsibilities": [
+            {
+              "en": "Validates commands with expectedVersion and idempotency keys; the client cannot invent progress",
+              "es": "Valida comandos con expectedVersion y claves de idempotencia; el cliente no puede inventar progreso"
+            },
+            {
+              "en": "Checks session and membership through Identity before committing",
+              "es": "Comprueba sesión y membresía a través de Identity antes de confirmar"
+            },
+            {
+              "en": "Writes accounts, saves, achievements and outbox in one DynamoDB transaction",
+              "es": "Escribe cuentas, partidas, logros y outbox en una sola transacción DynamoDB"
+            },
+            {
+              "en": "Never reads identity tables",
+              "es": "Nunca lee tablas de identidad"
+            }
+          ],
+          "why": {
+            "en": "Both games share a process by default, so a crash affects both; isolation is logical, not per process.",
+            "es": "Ambos juegos comparten proceso por defecto, así que una caída afecta a los dos; el aislamiento es lógico, no por proceso."
+          }
+        }
       },
       {
         "id": "ddb",
-        "label": "DynamoDB",
+        "label": {
+          "en": "Service data store",
+          "es": "Almacén de datos de servicios"
+        },
         "sublabel": {
-          "en": "Identity, game, risk and projection tables",
-          "es": "Tablas de identidad, juegos, riesgo y proyecciones"
+          "en": "Identity, game, risk, projection tables",
+          "es": "Tablas de identidad, juego, riesgo y proyecciones"
         },
         "kind": "db",
-        "group": "deps"
+        "group": "deps",
+        "tech": "DynamoDB",
+        "owned": true,
+        "pos": {
+          "col": 4,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "DynamoDB tables designed around access patterns, with each service owning its own tables.",
+            "es": "Tablas DynamoDB diseñadas según patrones de acceso, donde cada servicio posee sus propias tablas."
+          },
+          "responsibilities": [
+            {
+              "en": "Owner-specific tables for identity, each game, risk, projections and audit",
+              "es": "Tablas por propietario para identidad, cada juego, riesgo, proyecciones y auditoría"
+            },
+            {
+              "en": "Conditional writes and transactions protect uniqueness and versions",
+              "es": "Escrituras condicionales y transacciones protegen unicidad y versiones"
+            },
+            {
+              "en": "Outbox items live next to the domain data and are polled for publication",
+              "es": "Los ítems de outbox viven junto a los datos de dominio y se consultan para publicarse"
+            }
+          ]
+        }
       },
       {
         "id": "redis",
-        "label": "Redis",
-        "sublabel": {
+        "label": {
           "en": "Cache and quotas",
           "es": "Caché y cuotas"
         },
+        "sublabel": {
+          "en": "OTP quotas, short status cache",
+          "es": "Cuotas de OTP, caché corta de estado"
+        },
         "kind": "cache",
-        "group": "deps"
-      },
-      {
-        "id": "redpanda",
-        "label": "Redpanda (Kafka API)",
-        "sublabel": {
-          "en": "Outbox event backbone",
-          "es": "Backbone de eventos outbox"
+        "group": "deps",
+        "tech": "Redis",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 0
         },
-        "kind": "queue",
-        "group": "deps"
-      },
-      {
-        "id": "mail",
-        "label": "Email provider",
-        "sublabel": {
-          "en": "OTP and notification delivery",
-          "es": "Entrega de OTP y notificaciones"
-        },
-        "kind": "external",
-        "group": "deps"
-      },
-      {
-        "id": "otel",
-        "label": "OTel Collector",
-        "sublabel": {
-          "en": "Receives traces, metrics, logs",
-          "es": "Recibe trazas, métricas y logs"
-        },
-        "kind": "worker",
-        "group": "obs"
-      },
-      {
-        "id": "prom",
-        "label": "Prometheus",
-        "sublabel": {
-          "en": "Metrics and rules",
-          "es": "Métricas y reglas"
-        },
-        "kind": "db",
-        "group": "obs"
-      },
-      {
-        "id": "loki",
-        "label": "Loki",
-        "sublabel": {
-          "en": "Logs",
-          "es": "Logs"
-        },
-        "kind": "db",
-        "group": "obs"
-      },
-      {
-        "id": "tempo",
-        "label": "Tempo",
-        "sublabel": {
-          "en": "Traces",
-          "es": "Trazas"
-        },
-        "kind": "db",
-        "group": "obs"
-      },
-      {
-        "id": "grafana",
-        "label": "Grafana",
-        "sublabel": {
-          "en": "Dashboards",
-          "es": "Dashboards"
-        },
-        "kind": "service",
-        "group": "obs"
+        "details": {
+          "what": {
+            "en": "Redis holds rate-limit counters and short-lived cached session status for Identity Core. It is never the only copy of auth state.",
+            "es": "Redis guarda contadores de límite de tasa y estado de sesión en caché de corta vida para Identity Core. Nunca es la única copia del estado de autenticación."
+          },
+          "responsibilities": [
+            {
+              "en": "OTP quotas: 5 per email key and 20 per IP per hour, 60 s resend cooldown",
+              "es": "Cuotas de OTP: 5 por clave de correo y 20 por IP por hora, 60 s entre reenvíos"
+            },
+            {
+              "en": "Short cached session status for ordinary reads (15 s maximum staleness)",
+              "es": "Estado de sesión en caché corta para lecturas ordinarias (15 s de desfase máximo)"
+            },
+            {
+              "en": "If it is lost, identity falls back to local or durable limits or refuses sensitive endpoints",
+              "es": "Si se pierde, identity usa límites locales o durables o rechaza endpoints sensibles"
+            }
+          ],
+          "why": {
+            "en": "Durable auth state stays in DynamoDB, so cache loss cannot resurrect revoked sessions.",
+            "es": "El estado de autenticación durable queda en DynamoDB, así que perder la caché no puede resucitar sesiones revocadas."
+          }
+        }
       }
     ],
     "edges": [
@@ -364,8 +531,8 @@
         "from": "browser",
         "to": "portal",
         "label": {
-          "en": "HTTP :3000",
-          "es": "HTTP :3000"
+          "en": "HTTP",
+          "es": "HTTP"
         },
         "async": false
       },
@@ -375,7 +542,7 @@
         "to": "bff",
         "label": {
           "en": "session-bound requests",
-          "es": "solicitudes ligadas a sesión"
+          "es": "solicitudes ligadas a la sesión"
         },
         "async": false
       },
@@ -404,8 +571,8 @@
         "from": "identity",
         "to": "risk",
         "label": {
-          "en": "risk assessment",
-          "es": "evaluación de riesgo"
+          "en": "risk assessment (250 ms timeout)",
+          "es": "evaluación de riesgo (timeout 250 ms)"
         },
         "async": false
       },
@@ -414,8 +581,8 @@
         "from": "identity",
         "to": "ddb",
         "label": {
-          "en": "conditional writes",
-          "es": "escrituras condicionales"
+          "en": "conditional writes + outbox",
+          "es": "escrituras condicionales + outbox"
         },
         "async": false
       },
@@ -424,8 +591,8 @@
         "from": "games",
         "to": "ddb",
         "label": {
-          "en": "game-owned tables",
-          "es": "tablas propias del juego"
+          "en": "game tables + outbox",
+          "es": "tablas de juego + outbox"
         },
         "async": false
       },
@@ -434,188 +601,28 @@
         "from": "identity",
         "to": "redis",
         "label": {
-          "en": "cache and quotas",
-          "es": "caché y cuotas"
+          "en": "OTP quotas, status cache",
+          "es": "cuotas de OTP, caché de estado"
         },
         "async": false
       },
       {
         "id": "e9",
-        "from": "identity",
-        "to": "redpanda",
+        "from": "games",
+        "to": "identity",
         "label": {
-          "en": "outbox events",
-          "es": "eventos outbox"
+          "en": "session and membership check",
+          "es": "verifica sesión y membresía"
         },
-        "async": true
+        "async": false
       },
       {
         "id": "e10",
-        "from": "games",
-        "to": "redpanda",
-        "label": {
-          "en": "outbox events",
-          "es": "eventos outbox"
-        },
-        "async": true
-      },
-      {
-        "id": "e11",
-        "from": "redpanda",
-        "to": "worker",
-        "label": {
-          "en": "consume (idempotent)",
-          "es": "consume (idempotente)"
-        },
-        "async": true
-      },
-      {
-        "id": "e12",
-        "from": "redpanda",
-        "to": "risk",
-        "label": {
-          "en": "device signals",
-          "es": "señales de dispositivo"
-        },
-        "async": true
-      },
-      {
-        "id": "e13",
-        "from": "worker",
-        "to": "mail",
-        "label": {
-          "en": "OTP email",
-          "es": "correo OTP"
-        },
-        "async": true
-      },
-      {
-        "id": "e14",
-        "from": "worker",
+        "from": "risk",
         "to": "ddb",
         "label": {
-          "en": "audit and projections",
-          "es": "auditoría y proyecciones"
-        },
-        "async": false
-      },
-      {
-        "id": "e15",
-        "from": "portal",
-        "to": "obsapi",
-        "label": {
-          "en": "operator queries",
-          "es": "consultas de operador"
-        },
-        "async": false
-      },
-      {
-        "id": "e16",
-        "from": "obsapi",
-        "to": "prom",
-        "label": {
-          "en": "metric queries",
-          "es": "consultas de métricas"
-        },
-        "async": false
-      },
-      {
-        "id": "e17",
-        "from": "obsapi",
-        "to": "loki",
-        "label": {
-          "en": "log queries",
-          "es": "consultas de logs"
-        },
-        "async": false
-      },
-      {
-        "id": "e18",
-        "from": "obsapi",
-        "to": "tempo",
-        "label": {
-          "en": "trace queries",
-          "es": "consultas de trazas"
-        },
-        "async": false
-      },
-      {
-        "id": "e19",
-        "from": "identity",
-        "to": "otel",
-        "label": {
-          "en": "traces, metrics, logs",
-          "es": "trazas, métricas, logs"
-        },
-        "async": true
-      },
-      {
-        "id": "e20",
-        "from": "games",
-        "to": "otel",
-        "label": {
-          "en": "traces, metrics, logs",
-          "es": "trazas, métricas, logs"
-        },
-        "async": true
-      },
-      {
-        "id": "e21",
-        "from": "otel",
-        "to": "prom",
-        "label": {
-          "en": "metrics",
-          "es": "métricas"
-        },
-        "async": true
-      },
-      {
-        "id": "e22",
-        "from": "otel",
-        "to": "loki",
-        "label": {
-          "en": "logs",
-          "es": "logs"
-        },
-        "async": true
-      },
-      {
-        "id": "e23",
-        "from": "otel",
-        "to": "tempo",
-        "label": {
-          "en": "traces",
-          "es": "trazas"
-        },
-        "async": true
-      },
-      {
-        "id": "e24",
-        "from": "grafana",
-        "to": "prom",
-        "label": {
-          "en": "query",
-          "es": "consulta"
-        },
-        "async": false
-      },
-      {
-        "id": "e25",
-        "from": "grafana",
-        "to": "loki",
-        "label": {
-          "en": "query",
-          "es": "consulta"
-        },
-        "async": false
-      },
-      {
-        "id": "e26",
-        "from": "grafana",
-        "to": "tempo",
-        "label": {
-          "en": "query",
-          "es": "consulta"
+          "en": "assessments, device projection",
+          "es": "evaluaciones, proyección de dispositivos"
         },
         "async": false
       }
@@ -624,61 +631,1481 @@
       {
         "id": "f1",
         "name": {
-          "en": "Player sign-in and events",
-          "es": "Inicio de sesión y eventos"
+          "en": "Player sign-in",
+          "es": "Inicio de sesión del jugador"
         },
         "description": {
-          "en": "A player signs in through the portal and BFF; Identity Core persists state with conditional writes, caches it, publishes an outbox event, and the Platform Worker consumes it to send the OTP email.",
-          "es": "El jugador inicia sesión mediante el portal y el BFF; Identity Core persiste con escrituras condicionales, cachea, publica un evento outbox y el Platform Worker lo consume para enviar el correo OTP."
+          "en": "The BFF calls Identity Core, which checks OTP quotas in Redis, asks Risk Service to assess the attempt, and commits the session and its outbox event with conditional writes. The email is sent asynchronously (see the events view).",
+          "es": "El BFF llama a Identity Core, que revisa las cuotas de OTP en Redis, pide a Risk Service evaluar el intento y confirma la sesión y su evento de outbox con escrituras condicionales. El correo se envía de forma asíncrona (ver la vista de eventos)."
         },
         "edges": [
           "e1",
           "e2",
           "e3",
-          "e6",
           "e8",
-          "e9",
-          "e11",
-          "e13"
+          "e5",
+          "e10",
+          "e6"
         ]
       },
       {
         "id": "f2",
         "name": {
-          "en": "Telemetry path",
-          "es": "Ruta de telemetría"
+          "en": "Game command",
+          "es": "Comando de juego"
         },
         "description": {
-          "en": "Services emit telemetry to the collector, which fans out to the metric, log and trace backends that Grafana queries.",
-          "es": "Los servicios emiten telemetría al colector, que la distribuye a los backends de métricas, logs y trazas que consulta Grafana."
-        },
-        "edges": [
-          "e19",
-          "e21",
-          "e22",
-          "e23",
-          "e24",
-          "e25",
-          "e26"
-        ]
-      },
-      {
-        "id": "f3",
-        "name": {
-          "en": "Operator diagnostics",
-          "es": "Diagnóstico de operador"
-        },
-        "description": {
-          "en": "An operator opens the Control Center, which asks the Observability API for fixed, authorized queries over metrics, logs and traces.",
-          "es": "El operador abre el Control Center, que pide a la API de observabilidad consultas fijas y autorizadas sobre métricas, logs y trazas."
+          "en": "The BFF sends a command to Game Services, which verifies session and membership with Identity and persists progress, receipt and outbox in one transaction.",
+          "es": "El BFF envía un comando a Game Services, que verifica sesión y membresía con Identity y persiste progreso, recibo y outbox en una sola transacción."
         },
         "edges": [
           "e1",
-          "e15",
-          "e16",
-          "e17",
-          "e18"
+          "e2",
+          "e4",
+          "e9",
+          "e7"
         ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Identity, games and risk as separate services",
+        "es": "Identidad, juegos y riesgo como servicios separados"
+      },
+      {
+        "en": "Database-per-service on DynamoDB",
+        "es": "Base de datos por servicio en DynamoDB"
+      },
+      {
+        "en": "Transactional outbox over Redpanda (Kafka)",
+        "es": "Outbox transaccional sobre Redpanda (Kafka)"
+      },
+      {
+        "en": "Server-side sessions through a BFF",
+        "es": "Sesiones en servidor mediante un BFF"
+      },
+      {
+        "en": "Redis cache and quotas",
+        "es": "Caché y cuotas en Redis"
+      }
+    ],
+    "viewName": {
+      "en": "Core platform",
+      "es": "Plataforma principal"
+    },
+    "additionalViews": [
+      {
+        "id": "events",
+        "name": {
+          "en": "Events and notifications",
+          "es": "Eventos y notificaciones"
+        },
+        "description": {
+          "en": "How committed changes become events: transactional outbox, Redpanda, idempotent consumers, email and audit.",
+          "es": "Cómo los cambios confirmados se convierten en eventos: outbox transaccional, Redpanda, consumidores idempotentes, correo y auditoría."
+        },
+        "architecture": {
+          "groups": [
+            {
+              "id": "client",
+              "label": {
+                "en": "Clients",
+                "es": "Clientes"
+              }
+            },
+            {
+              "id": "app",
+              "label": {
+                "en": "Application tier",
+                "es": "Nivel de aplicación"
+              }
+            },
+            {
+              "id": "deps",
+              "label": {
+                "en": "Data and messaging",
+                "es": "Datos y mensajería"
+              }
+            }
+          ],
+          "nodes": [
+            {
+              "id": "identity",
+              "label": {
+                "en": "Identity Core",
+                "es": "Identity Core"
+              },
+              "sublabel": {
+                "en": "OTP, sessions, handles, game links",
+                "es": "OTP, sesiones, handles, vínculos con juegos"
+              },
+              "kind": "service",
+              "group": "app",
+              "tech": "Spring Boot (Java 21)",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "The owner of player identity: one-time codes, sessions, handle claims and the registry of linked games.",
+                  "es": "El dueño de la identidad del jugador: códigos de un solo uso, sesiones, claims de handle y el registro de juegos vinculados."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Issues and verifies email OTPs and sessions; refresh rotation and revocation in conditional DynamoDB writes",
+                    "es": "Emite y verifica OTP por correo y sesiones; rotación y revocación de refresh con escrituras condicionales en DynamoDB"
+                  },
+                  {
+                    "en": "Applies OTP quotas per email key and per IP, backed by Redis",
+                    "es": "Aplica cuotas de OTP por clave de correo y por IP, respaldadas por Redis"
+                  },
+                  {
+                    "en": "Calls Risk Service with a 250 ms timeout and circuit breaker",
+                    "es": "Llama a Risk Service con timeout de 250 ms y circuit breaker"
+                  },
+                  {
+                    "en": "Owns handle claims, game memberships and the link registry",
+                    "es": "Es dueño de los handles, las membresías de juego y el registro de vínculos"
+                  },
+                  {
+                    "en": "Writes each outbox event in the same transaction as the mutation",
+                    "es": "Escribe cada evento de outbox en la misma transacción que la mutación"
+                  }
+                ],
+                "why": {
+                  "en": "Dependency tests forbid identity from importing game implementation classes.",
+                  "es": "Tests de dependencias impiden que identity importe clases de implementación de juegos."
+                }
+              }
+            },
+            {
+              "id": "games",
+              "label": {
+                "en": "Game Services",
+                "es": "Game Services"
+              },
+              "sublabel": {
+                "en": "Per-game accounts, progress, receipts",
+                "es": "Cuentas por juego, progreso, recibos"
+              },
+              "kind": "service",
+              "group": "app",
+              "tech": "Spring Boot (Java 21)",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Spring Boot service hosting the dungeon and detective modules. It validates every command against the selected account and persists progress itself.",
+                  "es": "Servicio Spring Boot que aloja los módulos del dungeon y del detective. Valida cada comando contra la cuenta seleccionada y persiste el progreso por sí mismo."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Validates commands with expectedVersion and idempotency keys; the client cannot invent progress",
+                    "es": "Valida comandos con expectedVersion y claves de idempotencia; el cliente no puede inventar progreso"
+                  },
+                  {
+                    "en": "Checks session and membership through Identity before committing",
+                    "es": "Comprueba sesión y membresía a través de Identity antes de confirmar"
+                  },
+                  {
+                    "en": "Writes accounts, saves, achievements and outbox in one DynamoDB transaction",
+                    "es": "Escribe cuentas, partidas, logros y outbox en una sola transacción DynamoDB"
+                  },
+                  {
+                    "en": "Never reads identity tables",
+                    "es": "Nunca lee tablas de identidad"
+                  }
+                ],
+                "why": {
+                  "en": "Both games share a process by default, so a crash affects both; isolation is logical, not per process.",
+                  "es": "Ambos juegos comparten proceso por defecto, así que una caída afecta a los dos; el aislamiento es lógico, no por proceso."
+                }
+              }
+            },
+            {
+              "id": "redpanda",
+              "label": {
+                "en": "Event backbone",
+                "es": "Backbone de eventos"
+              },
+              "sublabel": {
+                "en": "Outbox event backbone",
+                "es": "Backbone de eventos outbox"
+              },
+              "kind": "queue",
+              "group": "deps",
+              "tech": "Redpanda (Kafka API)",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The Kafka-compatible event stream that carries outbox events between services.",
+                  "es": "El flujo de eventos compatible con Kafka que transporta eventos outbox entre servicios."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Topics per domain (identity, security, game, notifications, ops) keyed by playerId or gameAccountId",
+                    "es": "Topics por dominio (identidad, seguridad, juego, notificaciones, ops) con clave playerId o gameAccountId"
+                  },
+                  {
+                    "en": "At-least-once delivery; order only within a partition",
+                    "es": "Entrega al menos una vez; orden solo dentro de una partición"
+                  },
+                  {
+                    "en": "Failed consumers send records to a dead-letter topic",
+                    "es": "Los consumidores fallidos envían registros a un topic de mensajes muertos"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "worker",
+              "label": {
+                "en": "Platform Worker",
+                "es": "Platform Worker"
+              },
+              "sublabel": {
+                "en": "Audit, notifications, projections",
+                "es": "Auditoría, notificaciones, proyecciones"
+              },
+              "kind": "worker",
+              "group": "app",
+              "tech": "Spring Boot (Java 21)",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "A background consumer that turns events into audit records, notification emails and projections.",
+                  "es": "Un consumidor en segundo plano que convierte eventos en registros de auditoría, correos de notificación y proyecciones."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Consumes events with inbox/dedupe receipts, then commits offsets",
+                    "es": "Consume eventos con recibos de deduplicación y luego confirma offsets"
+                  },
+                  {
+                    "en": "Sends OTP and notification emails as durable delivery jobs",
+                    "es": "Envía correos de OTP y notificaciones como trabajos de entrega durables"
+                  },
+                  {
+                    "en": "Writes audit and activity projections to DynamoDB",
+                    "es": "Escribe auditoría y proyecciones de actividad en DynamoDB"
+                  },
+                  {
+                    "en": "Never a synchronous dependency for a successful save",
+                    "es": "Nunca es una dependencia síncrona para que un guardado sea exitoso"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "mail",
+              "label": {
+                "en": "Email provider",
+                "es": "Proveedor de correo"
+              },
+              "sublabel": {
+                "en": "OTP and notification delivery",
+                "es": "Entrega de OTP y notificaciones"
+              },
+              "kind": "external",
+              "group": "deps",
+              "tech": "SMTP",
+              "owned": false,
+              "pos": {
+                "col": 3,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The external email provider (an SMTP sink in local development).",
+                  "es": "El proveedor externo de correo (un sumidero SMTP en desarrollo local)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Delivers OTP codes to players",
+                    "es": "Entrega códigos OTP a los jugadores"
+                  },
+                  {
+                    "en": "Delivers notifications",
+                    "es": "Entrega notificaciones"
+                  },
+                  {
+                    "en": "Replaced by an SMTP sink locally",
+                    "es": "Reemplazado por un sumidero SMTP en local"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "ddb",
+              "label": {
+                "en": "Service data store",
+                "es": "Almacén de datos de servicios"
+              },
+              "sublabel": {
+                "en": "Identity, game, risk, projection tables",
+                "es": "Tablas de identidad, juego, riesgo y proyecciones"
+              },
+              "kind": "db",
+              "group": "deps",
+              "tech": "DynamoDB",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "DynamoDB tables designed around access patterns, with each service owning its own tables.",
+                  "es": "Tablas DynamoDB diseñadas según patrones de acceso, donde cada servicio posee sus propias tablas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Owner-specific tables for identity, each game, risk, projections and audit",
+                    "es": "Tablas por propietario para identidad, cada juego, riesgo, proyecciones y auditoría"
+                  },
+                  {
+                    "en": "Conditional writes and transactions protect uniqueness and versions",
+                    "es": "Escrituras condicionales y transacciones protegen unicidad y versiones"
+                  },
+                  {
+                    "en": "Outbox items live next to the domain data and are polled for publication",
+                    "es": "Los ítems de outbox viven junto a los datos de dominio y se consultan para publicarse"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "risk",
+              "label": {
+                "en": "Risk Service",
+                "es": "Risk Service"
+              },
+              "sublabel": {
+                "en": "Rules, assessments, trusted devices",
+                "es": "Reglas, evaluaciones, dispositivos de confianza"
+              },
+              "kind": "service",
+              "group": "app",
+              "tech": "Spring Boot (Java 21)",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Evaluates sign-in risk against rules and tracks trusted devices.",
+                  "es": "Evalúa el riesgo de inicio de sesión contra reglas y registra dispositivos de confianza."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Deterministic versioned rules score 0-100: allow below 30, challenge 30-70, block above 70",
+                    "es": "Reglas deterministas versionadas puntúan 0-100: permite bajo 30, desafía 30-70, bloquea sobre 70"
+                  },
+                  {
+                    "en": "Keeps assessment history and trusted-device projection",
+                    "es": "Mantiene el historial de evaluaciones y la proyección de dispositivos de confianza"
+                  },
+                  {
+                    "en": "Updates its projection from identity and security events",
+                    "es": "Actualiza su proyección con eventos de identidad y seguridad"
+                  },
+                  {
+                    "en": "If it times out, only existing trusted sessions get degraded access",
+                    "es": "Si expira, solo las sesiones de confianza existentes tienen acceso degradado"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e1",
+              "from": "identity",
+              "to": "ddb",
+              "label": {
+                "en": "mutation + outbox in one transaction",
+                "es": "mutación + outbox en una transacción"
+              },
+              "async": false
+            },
+            {
+              "id": "e2",
+              "from": "games",
+              "to": "ddb",
+              "label": {
+                "en": "command + outbox in one transaction",
+                "es": "comando + outbox en una transacción"
+              },
+              "async": false
+            },
+            {
+              "id": "e3",
+              "from": "identity",
+              "to": "redpanda",
+              "label": {
+                "en": "publish outbox events",
+                "es": "publica eventos de outbox"
+              },
+              "async": true
+            },
+            {
+              "id": "e4",
+              "from": "games",
+              "to": "redpanda",
+              "label": {
+                "en": "publish outbox events",
+                "es": "publica eventos de outbox"
+              },
+              "async": true
+            },
+            {
+              "id": "e5",
+              "from": "redpanda",
+              "to": "worker",
+              "label": {
+                "en": "consume idempotently",
+                "es": "consume de forma idempotente"
+              },
+              "async": true
+            },
+            {
+              "id": "e6",
+              "from": "redpanda",
+              "to": "risk",
+              "label": {
+                "en": "identity and security events",
+                "es": "eventos de identidad y seguridad"
+              },
+              "async": true
+            },
+            {
+              "id": "e7",
+              "from": "worker",
+              "to": "mail",
+              "label": {
+                "en": "OTP and notification email",
+                "es": "correo de OTP y notificaciones"
+              },
+              "async": true
+            },
+            {
+              "id": "e8",
+              "from": "worker",
+              "to": "ddb",
+              "label": {
+                "en": "audit, projections, dedupe receipts",
+                "es": "auditoría, proyecciones, recibos de deduplicación"
+              },
+              "async": false
+            },
+            {
+              "id": "e9",
+              "from": "risk",
+              "to": "ddb",
+              "label": {
+                "en": "assessments, device projection",
+                "es": "evaluaciones, proyección de dispositivos"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f1",
+              "name": {
+                "en": "From write to email",
+                "es": "De la escritura al correo"
+              },
+              "description": {
+                "en": "A mutation and its outbox record commit together; a poller publishes the event to Redpanda, the worker consumes it and sends the email.",
+                "es": "Una mutación y su registro de outbox se confirman juntos; un poller publica el evento en Redpanda, el worker lo consume y envía el correo."
+              },
+              "edges": [
+                "e1",
+                "e3",
+                "e5",
+                "e7"
+              ]
+            },
+            {
+              "id": "f2",
+              "name": {
+                "en": "Game event to audit",
+                "es": "Evento de juego a auditoría"
+              },
+              "description": {
+                "en": "Game Services commit a command with its outbox record; the event reaches the worker, which writes audit and activity projections.",
+                "es": "Game Services confirma un comando con su registro de outbox; el evento llega al worker, que escribe auditoría y proyecciones de actividad."
+              },
+              "edges": [
+                "e2",
+                "e4",
+                "e5",
+                "e8"
+              ]
+            },
+            {
+              "id": "f3",
+              "name": {
+                "en": "Risk projection",
+                "es": "Proyección de riesgo"
+              },
+              "description": {
+                "en": "Identity and security events update the trusted-device projection kept by Risk Service.",
+                "es": "Los eventos de identidad y seguridad actualizan la proyección de dispositivos de confianza que mantiene Risk Service."
+              },
+              "edges": [
+                "e1",
+                "e3",
+                "e6",
+                "e9"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "Outbox written in the same transaction as the mutation",
+              "es": "Outbox escrito en la misma transacción que la mutación"
+            },
+            {
+              "en": "At-least-once delivery; consumers dedupe",
+              "es": "Entrega al menos una vez; los consumidores deduplican"
+            },
+            {
+              "en": "Worker is never on the save path",
+              "es": "El worker nunca está en la ruta de guardado"
+            }
+          ]
+        }
+      },
+      {
+        "id": "telemetry",
+        "name": {
+          "en": "Telemetry pipeline",
+          "es": "Pipeline de telemetría"
+        },
+        "description": {
+          "en": "How services emit telemetry and how it reaches Grafana.",
+          "es": "Cómo los servicios emiten telemetría y cómo llega a Grafana."
+        },
+        "architecture": {
+          "groups": [
+            {
+              "id": "app",
+              "label": {
+                "en": "Application tier",
+                "es": "Nivel de aplicación"
+              }
+            },
+            {
+              "id": "obs",
+              "label": {
+                "en": "Observability",
+                "es": "Observabilidad"
+              }
+            }
+          ],
+          "nodes": [
+            {
+              "id": "identity",
+              "label": {
+                "en": "Identity Core",
+                "es": "Identity Core"
+              },
+              "sublabel": {
+                "en": "OTP, sessions, handles, game links",
+                "es": "OTP, sesiones, handles, vínculos con juegos"
+              },
+              "kind": "service",
+              "group": "app",
+              "tech": "Spring Boot (Java 21)",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "The owner of player identity: one-time codes, sessions, handle claims and the registry of linked games.",
+                  "es": "El dueño de la identidad del jugador: códigos de un solo uso, sesiones, claims de handle y el registro de juegos vinculados."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Issues and verifies email OTPs and sessions",
+                    "es": "Emite y verifica OTPs por correo y sesiones"
+                  },
+                  {
+                    "en": "Handles handle claims and game links",
+                    "es": "Gestiona claims de handle y vínculos con juegos"
+                  },
+                  {
+                    "en": "Asks Risk Service to assess sign-ins",
+                    "es": "Pide a Risk Service evaluar los inicios de sesión"
+                  },
+                  {
+                    "en": "Uses Redis for cache and quotas and DynamoDB conditional writes",
+                    "es": "Usa Redis para caché y cuotas y escrituras condicionales en DynamoDB"
+                  },
+                  {
+                    "en": "Publishes events via a transactional outbox",
+                    "es": "Publica eventos mediante un outbox transaccional"
+                  }
+                ],
+                "why": {
+                  "en": "Dependency tests forbid identity from importing game implementation classes.",
+                  "es": "Tests de dependencias impiden que identity importe clases de implementación de juegos."
+                }
+              }
+            },
+            {
+              "id": "games",
+              "label": {
+                "en": "Game Services",
+                "es": "Game Services"
+              },
+              "sublabel": {
+                "en": "Per-game accounts, progress, receipts",
+                "es": "Cuentas por juego, progreso, recibos"
+              },
+              "kind": "service",
+              "group": "app",
+              "tech": "Spring Boot (Java 21)",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Services that own per-game accounts, progress and receipts, each with its own data.",
+                  "es": "Servicios que poseen cuentas por juego, progreso y recibos, cada uno con sus propios datos."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Per-game accounts and progress",
+                    "es": "Cuentas y progreso por juego"
+                  },
+                  {
+                    "en": "Receipts for game events",
+                    "es": "Recibos de eventos del juego"
+                  },
+                  {
+                    "en": "Never read another service's tables",
+                    "es": "Nunca leen las tablas de otro servicio"
+                  },
+                  {
+                    "en": "Publish outbox events to Redpanda",
+                    "es": "Publican eventos outbox en Redpanda"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "otel",
+              "label": {
+                "en": "Telemetry collector",
+                "es": "Colector de telemetría"
+              },
+              "sublabel": {
+                "en": "Receives traces, metrics, logs",
+                "es": "Recibe trazas, métricas y logs"
+              },
+              "kind": "worker",
+              "group": "obs",
+              "tech": "OpenTelemetry Collector",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The single receiver for telemetry from the services, which fans it out to the stores.",
+                  "es": "El receptor único de telemetría de los servicios, que la distribuye a los almacenes."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Receives OTLP traces, metrics and logs",
+                    "es": "Recibe trazas, métricas y logs OTLP"
+                  },
+                  {
+                    "en": "Exports metrics to Prometheus",
+                    "es": "Exporta métricas a Prometheus"
+                  },
+                  {
+                    "en": "Exports logs to Loki and traces to Tempo",
+                    "es": "Exporta logs a Loki y trazas a Tempo"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "prom",
+              "label": {
+                "en": "Metrics store",
+                "es": "Almacén de métricas"
+              },
+              "sublabel": {
+                "en": "Metrics and rules",
+                "es": "Métricas y reglas"
+              },
+              "kind": "db",
+              "group": "obs",
+              "tech": "Prometheus",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "Stores metrics and evaluates rules.",
+                  "es": "Almacena métricas y evalúa reglas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Holds service metrics",
+                    "es": "Guarda métricas de los servicios"
+                  },
+                  {
+                    "en": "Evaluates alert rules",
+                    "es": "Evalúa reglas de alerta"
+                  },
+                  {
+                    "en": "Queried by Grafana and the Observability API",
+                    "es": "Consultado por Grafana y la API de observabilidad"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "loki",
+              "label": {
+                "en": "Log store",
+                "es": "Almacén de logs"
+              },
+              "sublabel": {
+                "en": "Logs",
+                "es": "Logs"
+              },
+              "kind": "db",
+              "group": "obs",
+              "tech": "Loki",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Stores service logs.",
+                  "es": "Almacena los logs de los servicios."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Holds service logs",
+                    "es": "Guarda los logs de los servicios"
+                  },
+                  {
+                    "en": "Queried by Grafana",
+                    "es": "Consultado por Grafana"
+                  },
+                  {
+                    "en": "Queried by the Observability API",
+                    "es": "Consultado por la API de observabilidad"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "tempo",
+              "label": {
+                "en": "Trace store",
+                "es": "Almacén de trazas"
+              },
+              "sublabel": {
+                "en": "Traces",
+                "es": "Trazas"
+              },
+              "kind": "db",
+              "group": "obs",
+              "tech": "Tempo",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Stores distributed traces.",
+                  "es": "Almacena trazas distribuidas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Holds distributed traces",
+                    "es": "Guarda trazas distribuidas"
+                  },
+                  {
+                    "en": "Queried by Grafana",
+                    "es": "Consultado por Grafana"
+                  },
+                  {
+                    "en": "Queried by the Observability API",
+                    "es": "Consultado por la API de observabilidad"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "grafana",
+              "label": {
+                "en": "Dashboards",
+                "es": "Dashboards"
+              },
+              "sublabel": {
+                "en": "Dashboards over all three stores",
+                "es": "Dashboards sobre los tres almacenes"
+              },
+              "kind": "service",
+              "group": "obs",
+              "tech": "Grafana",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Dashboards that query metrics, logs and traces.",
+                  "es": "Dashboards que consultan métricas, logs y trazas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Queries Prometheus, Loki and Tempo",
+                    "es": "Consulta Prometheus, Loki y Tempo"
+                  },
+                  {
+                    "en": "Provides engineering dashboards",
+                    "es": "Ofrece dashboards de ingeniería"
+                  },
+                  {
+                    "en": "Correlates the three signals",
+                    "es": "Correlaciona las tres señales"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e1",
+              "from": "identity",
+              "to": "otel",
+              "label": {
+                "en": "traces, metrics, logs",
+                "es": "trazas, métricas, logs"
+              },
+              "async": true
+            },
+            {
+              "id": "e2",
+              "from": "games",
+              "to": "otel",
+              "label": {
+                "en": "traces, metrics, logs",
+                "es": "trazas, métricas, logs"
+              },
+              "async": true
+            },
+            {
+              "id": "e3",
+              "from": "otel",
+              "to": "prom",
+              "label": {
+                "en": "metrics",
+                "es": "métricas"
+              },
+              "async": true
+            },
+            {
+              "id": "e4",
+              "from": "otel",
+              "to": "loki",
+              "label": {
+                "en": "logs",
+                "es": "logs"
+              },
+              "async": true
+            },
+            {
+              "id": "e5",
+              "from": "otel",
+              "to": "tempo",
+              "label": {
+                "en": "traces",
+                "es": "trazas"
+              },
+              "async": true
+            },
+            {
+              "id": "e6",
+              "from": "grafana",
+              "to": "prom",
+              "label": {
+                "en": "query",
+                "es": "consulta"
+              },
+              "async": false
+            },
+            {
+              "id": "e7",
+              "from": "grafana",
+              "to": "loki",
+              "label": {
+                "en": "query",
+                "es": "consulta"
+              },
+              "async": false
+            },
+            {
+              "id": "e8",
+              "from": "grafana",
+              "to": "tempo",
+              "label": {
+                "en": "query",
+                "es": "consulta"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f1",
+              "name": {
+                "en": "Telemetry path",
+                "es": "Ruta de telemetría"
+              },
+              "description": {
+                "en": "Services emit OTLP data to the collector, which stores metrics, logs and traces; Grafana queries all three.",
+                "es": "Los servicios emiten datos OTLP al colector, que guarda métricas, logs y trazas; Grafana consulta los tres."
+              },
+              "edges": [
+                "e1",
+                "e2",
+                "e3",
+                "e4",
+                "e5",
+                "e6",
+                "e7",
+                "e8"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "OpenTelemetry in every service",
+              "es": "OpenTelemetry en cada servicio"
+            },
+            {
+              "en": "Metrics, logs and traces separated",
+              "es": "Métricas, logs y trazas separados"
+            },
+            {
+              "en": "Grafana dashboards over all signals",
+              "es": "Dashboards de Grafana sobre todas las señales"
+            }
+          ]
+        }
+      },
+      {
+        "id": "operator",
+        "name": {
+          "en": "Operator diagnostics",
+          "es": "Diagnóstico del operador"
+        },
+        "description": {
+          "en": "How the Control Center queries observability data through a fixed API.",
+          "es": "Cómo el Control Center consulta datos de observabilidad mediante una API fija."
+        },
+        "architecture": {
+          "groups": [
+            {
+              "id": "client",
+              "label": {
+                "en": "Clients",
+                "es": "Clientes"
+              }
+            },
+            {
+              "id": "app",
+              "label": {
+                "en": "Application tier",
+                "es": "Nivel de aplicación"
+              }
+            },
+            {
+              "id": "obs",
+              "label": {
+                "en": "Observability",
+                "es": "Observabilidad"
+              }
+            }
+          ],
+          "nodes": [
+            {
+              "id": "browser",
+              "label": {
+                "en": "Player / operator browser",
+                "es": "Navegador de jugador y operador"
+              },
+              "sublabel": {
+                "en": "Player and operator",
+                "es": "Jugador y operador"
+              },
+              "kind": "client",
+              "group": "client",
+              "tech": "Browser",
+              "owned": false,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The browser used by players to sign in and by operators to open the control console.",
+                  "es": "El navegador que usan los jugadores para iniciar sesión y los operadores para abrir la consola de control."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Players sign in with an email one-time code",
+                    "es": "Los jugadores inician sesión con un código por correo"
+                  },
+                  {
+                    "en": "Operators open the Control Center",
+                    "es": "Los operadores abren el Control Center"
+                  },
+                  {
+                    "en": "Never holds service credentials; sessions live server-side",
+                    "es": "Nunca guarda credenciales de servicio; las sesiones viven en el servidor"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "portal",
+              "label": {
+                "en": "Portal and Control Center",
+                "es": "Portal y Control Center"
+              },
+              "sublabel": {
+                "en": "Identity UI and operator console",
+                "es": "UI de identidad y consola de operador"
+              },
+              "kind": "service",
+              "group": "app",
+              "tech": "Next.js 16",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The web front end: a player-facing identity portal and an operator-facing Control Center.",
+                  "es": "El front end web: un portal de identidad para jugadores y un Control Center para operadores."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Renders sign-in and account screens",
+                    "es": "Renderiza las pantallas de inicio de sesión y cuenta"
+                  },
+                  {
+                    "en": "Hosts the operator Control Center",
+                    "es": "Aloja el Control Center del operador"
+                  },
+                  {
+                    "en": "Talks to backends only through its BFF",
+                    "es": "Habla con los backends solo a través de su BFF"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "obsapi",
+              "label": {
+                "en": "Observability API",
+                "es": "API de observabilidad"
+              },
+              "sublabel": {
+                "en": "Fixed authorized queries, incidents, chaos",
+                "es": "Consultas fijas autorizadas, incidentes, caos"
+              },
+              "kind": "service",
+              "group": "app",
+              "tech": "Spring Boot (Java 21)",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The backend of the Control Center. It exposes only fixed, authorized queries over the telemetry stores.",
+                  "es": "El backend del Control Center. Expone solo consultas fijas y autorizadas sobre los almacenes de telemetría."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Fixed, authorized queries over metrics, logs and traces",
+                    "es": "Consultas fijas y autorizadas sobre métricas, logs y trazas"
+                  },
+                  {
+                    "en": "Tracks incidents",
+                    "es": "Registra incidentes"
+                  },
+                  {
+                    "en": "Runs chaos experiments",
+                    "es": "Ejecuta experimentos de caos"
+                  }
+                ],
+                "why": {
+                  "en": "Operators never write free-form queries, so the console cannot be used to explore arbitrary data.",
+                  "es": "Los operadores no escriben consultas libres, así que la consola no sirve para explorar datos arbitrarios."
+                }
+              }
+            },
+            {
+              "id": "prom",
+              "label": {
+                "en": "Metrics store",
+                "es": "Almacén de métricas"
+              },
+              "sublabel": {
+                "en": "Metrics and rules",
+                "es": "Métricas y reglas"
+              },
+              "kind": "db",
+              "group": "obs",
+              "tech": "Prometheus",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "Stores metrics and evaluates rules.",
+                  "es": "Almacena métricas y evalúa reglas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Holds service metrics",
+                    "es": "Guarda métricas de los servicios"
+                  },
+                  {
+                    "en": "Evaluates alert rules",
+                    "es": "Evalúa reglas de alerta"
+                  },
+                  {
+                    "en": "Queried by Grafana and the Observability API",
+                    "es": "Consultado por Grafana y la API de observabilidad"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "loki",
+              "label": {
+                "en": "Log store",
+                "es": "Almacén de logs"
+              },
+              "sublabel": {
+                "en": "Logs",
+                "es": "Logs"
+              },
+              "kind": "db",
+              "group": "obs",
+              "tech": "Loki",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Stores service logs.",
+                  "es": "Almacena los logs de los servicios."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Holds service logs",
+                    "es": "Guarda los logs de los servicios"
+                  },
+                  {
+                    "en": "Queried by Grafana",
+                    "es": "Consultado por Grafana"
+                  },
+                  {
+                    "en": "Queried by the Observability API",
+                    "es": "Consultado por la API de observabilidad"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "tempo",
+              "label": {
+                "en": "Trace store",
+                "es": "Almacén de trazas"
+              },
+              "sublabel": {
+                "en": "Traces",
+                "es": "Trazas"
+              },
+              "kind": "db",
+              "group": "obs",
+              "tech": "Tempo",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Stores distributed traces.",
+                  "es": "Almacena trazas distribuidas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Holds distributed traces",
+                    "es": "Guarda trazas distribuidas"
+                  },
+                  {
+                    "en": "Queried by Grafana",
+                    "es": "Consultado por Grafana"
+                  },
+                  {
+                    "en": "Queried by the Observability API",
+                    "es": "Consultado por la API de observabilidad"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "ddb",
+              "label": {
+                "en": "Projection store",
+                "es": "Almacén de proyecciones"
+              },
+              "sublabel": {
+                "en": "Activity, audit, incidents",
+                "es": "Actividad, auditoría, incidentes"
+              },
+              "kind": "db",
+              "group": "obs",
+              "tech": "DynamoDB",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "DynamoDB projection tables written by the Platform Worker and read by the Observability API for bounded activity and audit views.",
+                  "es": "Tablas de proyección en DynamoDB escritas por el Platform Worker y leídas por la Observability API para vistas acotadas de actividad y auditoría."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Activity and audit items keyed by day and shard",
+                    "es": "Ítems de actividad y auditoría con clave por día y shard"
+                  },
+                  {
+                    "en": "Incident annotations and experiment metadata",
+                    "es": "Anotaciones de incidentes y metadatos de experimentos"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "chaos",
+              "label": {
+                "en": "Chaos controller",
+                "es": "Controlador de caos"
+              },
+              "sublabel": {
+                "en": "Allowlisted local experiments",
+                "es": "Experimentos locales de lista permitida"
+              },
+              "kind": "worker",
+              "group": "obs",
+              "tech": "Local controller",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "A narrow local-only controller that starts and rolls back allowlisted fault experiments on behalf of the Observability API.",
+                  "es": "Un controlador local y acotado que inicia y revierte experimentos de falla de una lista permitida a pedido de la Observability API."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Accepts only preset experiments with a TTL (30 s default, 120 s maximum)",
+                    "es": "Acepta solo experimentos predefinidos con TTL (30 s por defecto, 120 s máximo)"
+                  },
+                  {
+                    "en": "Holds a durable lease and rollback state, with a watchdog",
+                    "es": "Guarda un lease durable y el estado de rollback, con un watchdog"
+                  },
+                  {
+                    "en": "Never takes arbitrary container IDs or commands",
+                    "es": "Nunca acepta IDs de contenedor ni comandos arbitrarios"
+                  }
+                ],
+                "why": {
+                  "en": "Keeping the fault-injection power out of the browser and general services bounds the blast radius.",
+                  "es": "Mantener el poder de inyectar fallas fuera del navegador y de los servicios generales acota el radio de impacto."
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e1",
+              "from": "browser",
+              "to": "portal",
+              "label": {
+                "en": "HTTP",
+                "es": "HTTP"
+              },
+              "async": false
+            },
+            {
+              "id": "e2",
+              "from": "portal",
+              "to": "obsapi",
+              "label": {
+                "en": "operator queries",
+                "es": "consultas del operador"
+              },
+              "async": false
+            },
+            {
+              "id": "e3",
+              "from": "obsapi",
+              "to": "prom",
+              "label": {
+                "en": "metric queries",
+                "es": "consultas de métricas"
+              },
+              "async": false
+            },
+            {
+              "id": "e4",
+              "from": "obsapi",
+              "to": "loki",
+              "label": {
+                "en": "log queries",
+                "es": "consultas de logs"
+              },
+              "async": false
+            },
+            {
+              "id": "e5",
+              "from": "obsapi",
+              "to": "tempo",
+              "label": {
+                "en": "trace queries",
+                "es": "consultas de trazas"
+              },
+              "async": false
+            },
+            {
+              "id": "e6",
+              "from": "obsapi",
+              "to": "ddb",
+              "label": {
+                "en": "activity and audit projections",
+                "es": "proyecciones de actividad y auditoría"
+              },
+              "async": false
+            },
+            {
+              "id": "e7",
+              "from": "obsapi",
+              "to": "chaos",
+              "label": {
+                "en": "start / stop experiments",
+                "es": "inicia / detiene experimentos"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f1",
+              "name": {
+                "en": "Operator diagnostics",
+                "es": "Diagnóstico del operador"
+              },
+              "description": {
+                "en": "An operator opens the Control Center; the Observability API runs fixed, authorized queries on metrics, logs and traces.",
+                "es": "Un operador abre el Control Center; la API de observabilidad ejecuta consultas fijas y autorizadas sobre métricas, logs y trazas."
+              },
+              "edges": [
+                "e1",
+                "e2",
+                "e3",
+                "e4",
+                "e5"
+              ]
+            },
+            {
+              "id": "f2",
+              "name": {
+                "en": "Run a chaos experiment",
+                "es": "Ejecutar un experimento de caos"
+              },
+              "description": {
+                "en": "An operator starts a preset experiment from the Control Center; the Observability API asks the local controller to inject and later roll back the fault.",
+                "es": "Un operador inicia un experimento predefinido desde el Control Center; la Observability API pide al controlador local inyectar y luego revertir la falla."
+              },
+              "edges": [
+                "e1",
+                "e2",
+                "e7"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "Fixed, authorized queries only",
+              "es": "Solo consultas fijas y autorizadas"
+            },
+            {
+              "en": "Incidents and chaos experiments",
+              "es": "Incidentes y experimentos de caos"
+            },
+            {
+              "en": "No free-form data access",
+              "es": "Sin acceso libre a datos"
+            }
+          ]
+        }
       }
     ]
   }

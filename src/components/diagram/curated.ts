@@ -114,7 +114,8 @@ export function computeCurated(arch: Architecture, _locale: Locale, opts: Curate
     const a = byId.get(e.from)!, b = byId.get(e.to)!, s = sides.get(e.id)!;
     return { id: e.id, start: anchor(a, s.from, e.id), startDir: s.from, end: anchor(b, s.to, e.id), endDir: s.to };
   });
-  const routes = routeEdges(reqs, nodes, { w: width, h: height });
+  // Phones: keep routes within one lane of the nodes so the drawing never outgrows its frame.
+  const routes = routeEdges(reqs, nodes, { w: vertical ? maxX : width, h: height });
   const cedges: CEdge[] = edges.map((e) => {
     const pts = compress(routes.get(e.id)!);
     return { id: e.id, from: e.from, to: e.to, async: e.async, points: pts, d: roundedPath(pts, 10), anchor: labelAnchor(pts) };
@@ -123,7 +124,7 @@ export function computeCurated(arch: Architecture, _locale: Locale, opts: Curate
   for (const n of nodes) { xs.push(n.x, n.x + n.w); ys.push(n.y, n.y + n.h); }
   if (boundary) { xs.push(boundary.x, boundary.x + boundary.w); ys.push(boundary.y, boundary.y + boundary.h); }
   for (const e of cedges) for (const p of e.points) { xs.push(p.x); ys.push(p.y); }
-  const VP = vertical ? 4 : 12;
+  const VP = vertical ? 0 : 12;
   const vx = Math.min(...xs) - VP, vy = Math.min(...ys) - VP;
   const vb = { x: vx, y: vy, w: Math.max(...xs) + VP - vx, h: Math.max(...ys) + VP - vy };
   return { width: vb.w, height: vb.h, orientation: vertical ? 'vertical' : 'horizontal', vb, nodes, boundary, edges: cedges };

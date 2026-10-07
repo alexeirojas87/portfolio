@@ -1,66 +1,1159 @@
 {
-"slug":"my-outfits","category":"personal",
-"title":{"en":"Mirra — AI Wardrobe & Outfit Planner","es":"Mirra — Armario Digital y Planificador de Outfits con IA"},
-"tagline":{"en":"Photograph your clothes; get outfits built from what you already own","es":"Fotografía tu ropa y obtén outfits armados con lo que ya tienes"},
-"summary":{"en":"Mirra is a native iOS/Android app (Expo / React Native) that turns a user's own clothes into a digital closet. A garment photo is uploaded to private object storage, a vision model proposes its attributes, and the user confirms them. Outfit generation is built on a pure domain model that enforces composition rules.","es":"Mirra es una app nativa iOS/Android (Expo / React Native) que convierte la ropa del usuario en un armario digital. La foto de una prenda se sube a almacenamiento privado, un modelo de visión propone sus atributos y el usuario los confirma. La generación de outfits se apoya en un modelo de dominio puro que aplica reglas de composición."},
-"problem":{"en":"People own clothes they rarely combine well and have no single place that knows what is in their wardrobe. Manual cataloguing is too tedious, so the app automates classification while keeping the user in control of the result.","es":"Las personas tienen ropa que rara vez combinan bien y no cuentan con un lugar que conozca lo que hay en su armario. Catalogar a mano es tedioso, por eso la app automatiza la clasificación y deja el control final al usuario."},
-"role":{"en":"Solo: product, architecture, mobile app, Supabase backend and edge functions, CI","es":"Individual: producto, arquitectura, app móvil, backend Supabase y edge functions, CI"},
-"status":"in-progress","year":"2026",
-"links":{"live":null,"github":null},
-"stack":[
-{"name":"TypeScript (strict)","category":"language"},
-{"name":"Expo / React Native","category":"frontend"},
-{"name":"expo-router","category":"frontend"},
-{"name":"Supabase Postgres + RLS","category":"data"},
-{"name":"pgvector","category":"data"},
-{"name":"Supabase Auth (email OTP)","category":"backend"},
-{"name":"Supabase Edge Functions (Deno)","category":"backend"},
-{"name":"Cloudflare R2","category":"cloud"},
-{"name":"Vision LLM (OpenAI-compatible API)","category":"ai"},
-{"name":"Jest + Testing Library","category":"testing"},
-{"name":"pgTAP","category":"testing"},
-{"name":"GitHub Actions","category":"devops"}],
-"highlights":[
-{"en":"Hexagonal wardrobe core (domain / application / ports / adapters) with in-memory fakes for every port, so use cases are tested without any framework.","es":"Núcleo hexagonal del armario (dominio / aplicación / puertos / adaptadores) con fakes en memoria para cada puerto, de modo que los casos de uso se prueban sin framework."},
-{"en":"An architecture-guard test fails the build if domain or application code imports React, Expo, Supabase or path aliases, keeping the core portable to Deno edge functions.","es":"Un test de guardia arquitectónica rompe el build si el dominio o la aplicación importan React, Expo, Supabase o alias de rutas, manteniendo el núcleo portable a Deno."},
-{"en":"Database-level ownership guarantees: composite foreign keys (outfit_id, owner_id) and (garment_id, owner_id) make it impossible to compose an outfit from another user's garments; RLS on all tables, anon privileges revoked, verified with pgTAP.","es":"Garantías de propiedad a nivel de base de datos: claves foráneas compuestas (outfit_id, owner_id) y (garment_id, owner_id) impiden armar outfits con prendas de otro usuario; RLS en todas las tablas, privilegios anon revocados, verificado con pgTAP."},
-{"en":"Photos never touch Postgres or the app bundle's secrets: edge functions issue short-lived presigned R2 URLs, enforce owner-scoped object keys, and call the vision model server-side.","es":"Las fotos nunca pasan por Postgres ni hay secretos en la app: las edge functions emiten URLs prefirmadas de R2 de corta vida, imponen claves por propietario y llaman al modelo de visión desde el servidor."},
-{"en":"Vision model chosen by an evaluation harness (scripts/eval-vision) with timeout derived from measured p95 latency rather than guessed.","es":"Modelo de visión elegido mediante un arnés de evaluación (scripts/eval-vision) con timeout derivado de la latencia p95 medida, no estimada."},
-{"en":"CI runs lint, format, typecheck, Jest, pgTAP against a local Supabase stack, and Deno function tests.","es":"El CI ejecuta lint, formato, typecheck, Jest, pgTAP contra un stack local de Supabase y tests de funciones Deno."}],
-"decisions":[
-{"title":{"en":"Hexagonal architecture with a Result type","es":"Arquitectura hexagonal con tipo Result"},"why":{"en":"Database, storage and AI providers are swappable adapters behind ports. Expected failures return Result values instead of exceptions, so callers must handle both branches.","es":"Base de datos, almacenamiento e IA son adaptadores intercambiables detrás de puertos. Los fallos esperados devuelven Result en lugar de excepciones, obligando a manejar ambos caminos."}},
-{"title":{"en":"Cloudflare R2 for images, keys only in Postgres","es":"Cloudflare R2 para imágenes, solo claves en Postgres"},"why":{"en":"Zero egress cost and no 1 GB storage ceiling; the database stays small and holds only object keys and metadata.","es":"Sin costo de egreso ni límite de 1 GB; la base de datos se mantiene pequeña y solo guarda claves y metadatos."}},
-{"title":{"en":"AI calls only from edge functions, behind a swappable port","es":"Llamadas de IA solo desde edge functions, tras un puerto intercambiable"},"why":{"en":"API keys stay as server secrets, cost is measurable in one place, and the OpenAI-compatible provider can be replaced without touching the app.","es":"Las claves quedan como secretos del servidor, el costo es medible en un solo lugar y el proveedor compatible con OpenAI puede cambiarse sin tocar la app."}},
-{"title":{"en":"Ownership enforced by schema, not only by policy","es":"Propiedad garantizada por el esquema, no solo por políticas"},"why":{"en":"Composite foreign keys make cross-user composition structurally impossible, so a bug in application code or RLS cannot leak data between users.","es":"Las claves foráneas compuestas hacen imposible estructuralmente la composición entre usuarios, de modo que un bug en el código o en RLS no filtra datos."}},
-{"title":{"en":"Passwordless email OTP","es":"OTP por correo sin contraseña"},"why":{"en":"No passwords to store and no deep-link setup needed for the MVP; social login is deferred until credentials exist.","es":"Sin contraseñas que almacenar ni configuración de deep links en el MVP; el login social se difiere hasta tener credenciales."}}],
-"architecture":{
-"groups":[{"id":"client","label":{"en":"Mobile client","es":"Cliente móvil"}},{"id":"core","label":{"en":"Domain core (hexagon)","es":"Núcleo de dominio (hexágono)"}},{"id":"edge","label":{"en":"Supabase Edge Functions","es":"Supabase Edge Functions"}},{"id":"data","label":{"en":"Data & storage","es":"Datos y almacenamiento"}},{"id":"external","label":{"en":"External services","es":"Servicios externos"}}],
-"nodes":[
-{"id":"app","label":"Expo / React Native app","sublabel":{"en":"expo-router screens: capture, wardrobe grid, detail","es":"Pantallas expo-router: captura, grilla, detalle"},"kind":"client","group":"client"},
-{"id":"usecases","label":"Use cases","sublabel":{"en":"addGarmentFromPhoto, listWardrobe, generateOutfits","es":"addGarmentFromPhoto, listWardrobe, generateOutfits"},"kind":"service","group":"core"},
-{"id":"domain","label":"Domain","sublabel":{"en":"Garment, Outfit, value objects, isWearableFor","es":"Garment, Outfit, objetos de valor, isWearableFor"},"kind":"service","group":"core"},
-{"id":"adapters","label":"Infrastructure adapters","sublabel":{"en":"Supabase repos, R2 storage, classifier, URL cache","es":"Repos Supabase, almacenamiento R2, clasificador, caché de URLs"},"kind":"service","group":"core"},
-{"id":"auth","label":"Supabase Auth","sublabel":{"en":"Email OTP, session in AsyncStorage","es":"OTP por correo, sesión en AsyncStorage"},"kind":"service","group":"edge"},
-{"id":"upload","label":"create-upload-url","sublabel":{"en":"Presigned PUT, owner-scoped key","es":"PUT prefirmado, clave por propietario"},"kind":"worker","group":"edge"},
-{"id":"read","label":"create-read-urls","sublabel":{"en":"Batch presigned GET URLs","es":"URLs GET prefirmadas por lote"},"kind":"worker","group":"edge"},
-{"id":"classify","label":"classify-garment","sublabel":{"en":"Fetch photo, call vision model, parse JSON","es":"Obtiene foto, llama al modelo de visión, parsea JSON"},"kind":"ai","group":"edge"},
-{"id":"pg","label":"Postgres + RLS","sublabel":{"en":"garments, outfits, outfit_items, pgvector","es":"garments, outfits, outfit_items, pgvector"},"kind":"db","group":"data"},
-{"id":"r2","label":"Cloudflare R2","sublabel":{"en":"Private bucket of garment photos","es":"Bucket privado de fotos de prendas"},"kind":"storage","group":"data"},
-{"id":"llm","label":"Vision LLM API","sublabel":{"en":"OpenAI-compatible provider","es":"Proveedor compatible con OpenAI"},"kind":"external","group":"external"}],
-"edges":[
-{"id":"e1","from":"app","to":"usecases","label":{"en":"invoke","es":"invoca"},"async":false},
-{"id":"e2","from":"usecases","to":"domain","label":{"en":"validate invariants","es":"valida invariantes"},"async":false},
-{"id":"e3","from":"usecases","to":"adapters","label":{"en":"via ports","es":"vía puertos"},"async":false},
-{"id":"e4","from":"adapters","to":"upload","label":{"en":"request upload URL","es":"pide URL de subida"},"async":false},
-{"id":"e5","from":"upload","to":"r2","label":{"en":"sign PUT URL","es":"firma URL PUT"},"async":false},
-{"id":"e6","from":"adapters","to":"r2","label":{"en":"upload photo (direct)","es":"sube foto (directo)"},"async":false},
-{"id":"e7","from":"adapters","to":"classify","label":{"en":"classify imageKey","es":"clasifica imageKey"},"async":false},
-{"id":"e8","from":"classify","to":"r2","label":{"en":"read photo (60s URL)","es":"lee foto (URL 60s)"},"async":false},
-{"id":"e9","from":"classify","to":"llm","label":{"en":"vision prompt","es":"prompt de visión"},"async":false},
-{"id":"e10","from":"adapters","to":"pg","label":{"en":"save garment (RLS)","es":"guarda prenda (RLS)"},"async":false},
-{"id":"e11","from":"adapters","to":"read","label":{"en":"batch read URLs","es":"URLs de lectura por lote"},"async":false},
-{"id":"e12","from":"app","to":"auth","label":{"en":"sign in with OTP","es":"inicia sesión con OTP"},"async":false}],
-"flows":[
-{"id":"f1","name":{"en":"Add a garment from a photo","es":"Agregar una prenda desde una foto"},"description":{"en":"The user takes a photo; it is uploaded straight to R2, classified server-side, confirmed by the user, then saved under RLS.","es":"El usuario toma una foto; se sube directo a R2, se clasifica en el servidor, el usuario la confirma y se guarda bajo RLS."},"edges":["e1","e3","e4","e5","e6","e7","e8","e9","e2","e10"]},
-{"id":"f2","name":{"en":"Browse the wardrobe","es":"Explorar el armario"},"description":{"en":"The grid loads garments from Postgres and resolves cached, batched read URLs for thumbnails.","es":"La grilla carga prendas desde Postgres y resuelve URLs de lectura cacheadas y por lote para las miniaturas."},"edges":["e1","e3","e10","e11"]}]}
+  "slug": "my-outfits",
+  "category": "personal",
+  "title": {
+    "en": "Mirra — AI Wardrobe & Outfit Planner",
+    "es": "Mirra — Armario Digital y Planificador de Outfits con IA"
+  },
+  "tagline": {
+    "en": "Photograph your clothes; get outfits built from what you already own",
+    "es": "Fotografía tu ropa y obtén outfits armados con lo que ya tienes"
+  },
+  "summary": {
+    "en": "Mirra is a native iOS/Android app (Expo / React Native) that turns a user's own clothes into a digital closet. A garment photo is uploaded to private object storage, a vision model proposes its attributes, and the user confirms them. Outfit generation is built on a pure domain model that enforces composition rules.",
+    "es": "Mirra es una app nativa iOS/Android (Expo / React Native) que convierte la ropa del usuario en un armario digital. La foto de una prenda se sube a almacenamiento privado, un modelo de visión propone sus atributos y el usuario los confirma. La generación de outfits se apoya en un modelo de dominio puro que aplica reglas de composición."
+  },
+  "problem": {
+    "en": "People own clothes they rarely combine well and have no single place that knows what is in their wardrobe. Manual cataloguing is too tedious, so the app automates classification while keeping the user in control of the result.",
+    "es": "Las personas tienen ropa que rara vez combinan bien y no cuentan con un lugar que conozca lo que hay en su armario. Catalogar a mano es tedioso, por eso la app automatiza la clasificación y deja el control final al usuario."
+  },
+  "role": {
+    "en": "Solo: product, architecture, mobile app, Supabase backend and edge functions, CI",
+    "es": "Individual: producto, arquitectura, app móvil, backend Supabase y edge functions, CI"
+  },
+  "status": "in-progress",
+  "year": "2026",
+  "links": {
+    "live": null,
+    "github": null
+  },
+  "stack": [
+    {
+      "name": "TypeScript (strict)",
+      "category": "language"
+    },
+    {
+      "name": "Expo / React Native",
+      "category": "frontend"
+    },
+    {
+      "name": "expo-router",
+      "category": "frontend"
+    },
+    {
+      "name": "Supabase Postgres + RLS",
+      "category": "data"
+    },
+    {
+      "name": "pgvector",
+      "category": "data"
+    },
+    {
+      "name": "Supabase Auth (email OTP)",
+      "category": "backend"
+    },
+    {
+      "name": "Supabase Edge Functions (Deno)",
+      "category": "backend"
+    },
+    {
+      "name": "Cloudflare R2",
+      "category": "cloud"
+    },
+    {
+      "name": "Vision LLM (OpenAI-compatible API)",
+      "category": "ai"
+    },
+    {
+      "name": "Jest + Testing Library",
+      "category": "testing"
+    },
+    {
+      "name": "pgTAP",
+      "category": "testing"
+    },
+    {
+      "name": "GitHub Actions",
+      "category": "devops"
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Hexagonal wardrobe core (domain / application / ports / adapters) with in-memory fakes for every port, so use cases are tested without any framework.",
+      "es": "Núcleo hexagonal del armario (dominio / aplicación / puertos / adaptadores) con fakes en memoria para cada puerto, de modo que los casos de uso se prueban sin framework."
+    },
+    {
+      "en": "An architecture-guard test fails the build if domain or application code imports React, Expo, Supabase or path aliases, keeping the core portable to Deno edge functions.",
+      "es": "Un test de guardia arquitectónica rompe el build si el dominio o la aplicación importan React, Expo, Supabase o alias de rutas, manteniendo el núcleo portable a Deno."
+    },
+    {
+      "en": "Database-level ownership guarantees: composite foreign keys (outfit_id, owner_id) and (garment_id, owner_id) make it impossible to compose an outfit from another user's garments; RLS on all tables, anon privileges revoked, verified with pgTAP.",
+      "es": "Garantías de propiedad a nivel de base de datos: claves foráneas compuestas (outfit_id, owner_id) y (garment_id, owner_id) impiden armar outfits con prendas de otro usuario; RLS en todas las tablas, privilegios anon revocados, verificado con pgTAP."
+    },
+    {
+      "en": "Photos never touch Postgres or the app bundle's secrets: edge functions issue short-lived presigned R2 URLs, enforce owner-scoped object keys, and call the vision model server-side.",
+      "es": "Las fotos nunca pasan por Postgres ni hay secretos en la app: las edge functions emiten URLs prefirmadas de R2 de corta vida, imponen claves por propietario y llaman al modelo de visión desde el servidor."
+    },
+    {
+      "en": "Vision model chosen by an evaluation harness (scripts/eval-vision) with timeout derived from measured p95 latency rather than guessed.",
+      "es": "Modelo de visión elegido mediante un arnés de evaluación (scripts/eval-vision) con timeout derivado de la latencia p95 medida, no estimada."
+    },
+    {
+      "en": "CI runs lint, format, typecheck, Jest, pgTAP against a local Supabase stack, and Deno function tests.",
+      "es": "El CI ejecuta lint, formato, typecheck, Jest, pgTAP contra un stack local de Supabase y tests de funciones Deno."
+    }
+  ],
+  "decisions": [
+    {
+      "title": {
+        "en": "Hexagonal architecture with a Result type",
+        "es": "Arquitectura hexagonal con tipo Result"
+      },
+      "why": {
+        "en": "Database, storage and AI providers are swappable adapters behind ports. Expected failures return Result values instead of exceptions, so callers must handle both branches.",
+        "es": "Base de datos, almacenamiento e IA son adaptadores intercambiables detrás de puertos. Los fallos esperados devuelven Result en lugar de excepciones, obligando a manejar ambos caminos."
+      }
+    },
+    {
+      "title": {
+        "en": "Cloudflare R2 for images, keys only in Postgres",
+        "es": "Cloudflare R2 para imágenes, solo claves en Postgres"
+      },
+      "why": {
+        "en": "Zero egress cost and no 1 GB storage ceiling; the database stays small and holds only object keys and metadata.",
+        "es": "Sin costo de egreso ni límite de 1 GB; la base de datos se mantiene pequeña y solo guarda claves y metadatos."
+      }
+    },
+    {
+      "title": {
+        "en": "AI calls only from edge functions, behind a swappable port",
+        "es": "Llamadas de IA solo desde edge functions, tras un puerto intercambiable"
+      },
+      "why": {
+        "en": "API keys stay as server secrets, cost is measurable in one place, and the OpenAI-compatible provider can be replaced without touching the app.",
+        "es": "Las claves quedan como secretos del servidor, el costo es medible en un solo lugar y el proveedor compatible con OpenAI puede cambiarse sin tocar la app."
+      }
+    },
+    {
+      "title": {
+        "en": "Ownership enforced by schema, not only by policy",
+        "es": "Propiedad garantizada por el esquema, no solo por políticas"
+      },
+      "why": {
+        "en": "Composite foreign keys make cross-user composition structurally impossible, so a bug in application code or RLS cannot leak data between users.",
+        "es": "Las claves foráneas compuestas hacen imposible estructuralmente la composición entre usuarios, de modo que un bug en el código o en RLS no filtra datos."
+      }
+    },
+    {
+      "title": {
+        "en": "Passwordless email OTP",
+        "es": "OTP por correo sin contraseña"
+      },
+      "why": {
+        "en": "No passwords to store and no deep-link setup needed for the MVP; social login is deferred until credentials exist.",
+        "es": "Sin contraseñas que almacenar ni configuración de deep links en el MVP; el login social se difiere hasta tener credenciales."
+      }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      {
+        "id": "client",
+        "label": {
+          "en": "Mobile client",
+          "es": "Cliente móvil"
+        }
+      },
+      {
+        "id": "core",
+        "label": {
+          "en": "Domain core (hexagon)",
+          "es": "Núcleo de dominio (hexágono)"
+        }
+      },
+      {
+        "id": "edge",
+        "label": {
+          "en": "Supabase Edge Functions",
+          "es": "Supabase Edge Functions"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Data & storage",
+          "es": "Datos y almacenamiento"
+        }
+      },
+      {
+        "id": "external",
+        "label": {
+          "en": "External services",
+          "es": "Servicios externos"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "app",
+        "label": {
+          "en": "Mobile app",
+          "es": "App móvil"
+        },
+        "sublabel": {
+          "en": "Capture, wardrobe grid, detail",
+          "es": "Captura, grilla y detalle"
+        },
+        "kind": "client",
+        "group": "client",
+        "tech": "Expo / React Native",
+        "owned": false,
+        "pos": {
+          "col": -1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The user-facing app built with expo-router. It lets the owner photograph a garment, browse the wardrobe and open a garment detail screen.",
+            "es": "La app de cara al usuario, construida con expo-router. Permite fotografiar una prenda, explorar el guardarropa y abrir el detalle de una prenda."
+          },
+          "responsibilities": [
+            {
+              "en": "Screens for capture, wardrobe grid and garment detail",
+              "es": "Pantallas de captura, grilla del guardarropa y detalle de prenda"
+            },
+            {
+              "en": "Invokes use cases instead of calling Supabase directly",
+              "es": "Invoca casos de uso en lugar de llamar a Supabase directamente"
+            },
+            {
+              "en": "Starts email-OTP sign-in and keeps the session in AsyncStorage",
+              "es": "Inicia sesión con OTP por correo y guarda la sesión en AsyncStorage"
+            }
+          ]
+        }
+      },
+      {
+        "id": "auth",
+        "label": {
+          "en": "Sign-in",
+          "es": "Inicio de sesión"
+        },
+        "sublabel": {
+          "en": "Email OTP, session in AsyncStorage",
+          "es": "OTP por correo, sesión en AsyncStorage"
+        },
+        "kind": "service",
+        "group": "edge",
+        "tech": "Supabase Auth",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "Supabase Auth authenticates the owner with a one-time code sent by email. The resulting session identifies the user for every later call.",
+            "es": "Supabase Auth autentica al propietario con un código de un solo uso enviado por correo. La sesión resultante identifica al usuario en cada llamada posterior."
+          },
+          "responsibilities": [
+            {
+              "en": "Email one-time-password sign-in",
+              "es": "Inicio de sesión con OTP por correo"
+            },
+            {
+              "en": "Issues the session used by RLS policies and edge functions",
+              "es": "Emite la sesión que usan las políticas RLS y las edge functions"
+            },
+            {
+              "en": "Session persisted on-device in AsyncStorage",
+              "es": "Sesión persistida en el dispositivo con AsyncStorage"
+            }
+          ]
+        }
+      },
+      {
+        "id": "usecases",
+        "label": {
+          "en": "Application use cases",
+          "es": "Casos de uso"
+        },
+        "sublabel": {
+          "en": "addGarmentFromPhoto, listWardrobe",
+          "es": "addGarmentFromPhoto, listWardrobe"
+        },
+        "kind": "service",
+        "group": "core",
+        "tech": "TypeScript",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The application layer of the hexagon. Each use case orchestrates a user goal through ports, with no knowledge of React, Expo or Supabase.",
+            "es": "La capa de aplicación del hexágono. Cada caso de uso orquesta un objetivo del usuario a través de puertos, sin conocer React, Expo ni Supabase."
+          },
+          "responsibilities": [
+            {
+              "en": "addGarmentFromPhoto, listWardrobe and generateOutfits",
+              "es": "addGarmentFromPhoto, listWardrobe y generateOutfits"
+            },
+            {
+              "en": "Depends only on ports, never on concrete infrastructure",
+              "es": "Depende solo de puertos, nunca de infraestructura concreta"
+            },
+            {
+              "en": "Tested with in-memory fakes for every port",
+              "es": "Probado con fakes en memoria para cada puerto"
+            }
+          ],
+          "why": {
+            "en": "An architecture-guard test fails the build if this layer imports a framework, keeping it portable to Deno edge functions.",
+            "es": "Un test de guarda de arquitectura rompe el build si esta capa importa un framework, manteniéndola portable a edge functions en Deno."
+          }
+        }
+      },
+      {
+        "id": "domain",
+        "label": {
+          "en": "Domain model",
+          "es": "Modelo de dominio"
+        },
+        "sublabel": {
+          "en": "Garment, Outfit, isWearableFor",
+          "es": "Garment, Outfit, isWearableFor"
+        },
+        "kind": "service",
+        "group": "core",
+        "tech": "TypeScript",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "The pure business model: garments, outfits and their value objects. It encodes the rules that must hold regardless of storage or UI.",
+            "es": "El modelo de negocio puro: prendas, outfits y sus objetos de valor. Codifica las reglas que deben cumplirse sin importar el almacenamiento o la UI."
+          },
+          "responsibilities": [
+            {
+              "en": "Garment and Outfit entities with value objects",
+              "es": "Entidades Garment y Outfit con objetos de valor"
+            },
+            {
+              "en": "Invariants such as isWearableFor",
+              "es": "Invariantes como isWearableFor"
+            },
+            {
+              "en": "No imports from React, Expo, Supabase or path aliases",
+              "es": "Sin importaciones de React, Expo, Supabase ni alias de rutas"
+            }
+          ]
+        }
+      },
+      {
+        "id": "adapters",
+        "label": {
+          "en": "Infrastructure adapters",
+          "es": "Adaptadores de infraestructura"
+        },
+        "sublabel": {
+          "en": "Repos, R2 storage, classifier, URL cache",
+          "es": "Repos, almacenamiento R2, clasificador, caché de URLs"
+        },
+        "kind": "service",
+        "group": "core",
+        "tech": "TypeScript",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Concrete implementations of the ports. They translate use-case needs into calls to Supabase, the edge functions and Cloudflare R2.",
+            "es": "Implementaciones concretas de los puertos. Traducen las necesidades de los casos de uso en llamadas a Supabase, a las edge functions y a Cloudflare R2."
+          },
+          "responsibilities": [
+            {
+              "en": "Supabase repositories for garments and outfits",
+              "es": "Repositorios Supabase para prendas y outfits"
+            },
+            {
+              "en": "Request presigned URLs and upload photos straight to R2",
+              "es": "Piden URLs prefirmadas y suben fotos directo a R2"
+            },
+            {
+              "en": "Call the garment classifier edge function",
+              "es": "Llaman a la edge function clasificadora de prendas"
+            },
+            {
+              "en": "Cache batch read URLs for the wardrobe grid",
+              "es": "Cachean URLs de lectura por lote para la grilla"
+            }
+          ]
+        }
+      },
+      {
+        "id": "pg",
+        "label": {
+          "en": "Wardrobe database",
+          "es": "Base de datos del guardarropa"
+        },
+        "sublabel": {
+          "en": "Garments, outfits, pgvector",
+          "es": "Prendas, outfits, pgvector"
+        },
+        "kind": "db",
+        "group": "data",
+        "tech": "Postgres + RLS",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "Supabase Postgres stores garments, outfits and outfit items. Row-level security and composite foreign keys enforce ownership in the database itself.",
+            "es": "Supabase Postgres guarda prendas, outfits e ítems de outfit. La seguridad a nivel de fila y las claves foráneas compuestas hacen cumplir la propiedad en la propia base de datos."
+          },
+          "responsibilities": [
+            {
+              "en": "Tables for garments, outfits and outfit_items, plus pgvector",
+              "es": "Tablas de garments, outfits y outfit_items, más pgvector"
+            },
+            {
+              "en": "RLS on every table with anon privileges revoked",
+              "es": "RLS en todas las tablas con privilegios anon revocados"
+            },
+            {
+              "en": "Composite FKs prevent outfits built from another user's garments",
+              "es": "Las FKs compuestas impiden outfits con prendas de otro usuario"
+            },
+            {
+              "en": "Policies verified with pgTAP in CI",
+              "es": "Políticas verificadas con pgTAP en CI"
+            }
+          ],
+          "why": {
+            "en": "Ownership is a database guarantee, not just application code, so a client bug cannot leak another user's data.",
+            "es": "La propiedad es una garantía de la base de datos y no solo del código, así que un bug del cliente no puede filtrar datos de otro usuario."
+          }
+        }
+      },
+      {
+        "id": "classify",
+        "label": {
+          "en": "Garment classifier",
+          "es": "Clasificador de prendas"
+        },
+        "sublabel": {
+          "en": "Reads photo, asks vision model",
+          "es": "Lee la foto y consulta el modelo de visión"
+        },
+        "kind": "ai",
+        "group": "edge",
+        "tech": "Edge Function (Deno)",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "A server-side edge function that fetches an uploaded photo and asks a vision model to describe the garment. The model call stays off the device.",
+            "es": "Una edge function en el servidor que obtiene una foto subida y pide a un modelo de visión que describa la prenda. La llamada al modelo queda fuera del dispositivo."
+          },
+          "responsibilities": [
+            {
+              "en": "Authenticates the caller, checks the key is theirs, then reads the photo through a 60-second presigned URL",
+              "es": "Autentica al llamador, comprueba que la clave es suya y lee la foto con una URL prefirmada de 60 segundos"
+            },
+            {
+              "en": "Sends a vision prompt to the LLM provider",
+              "es": "Envía un prompt de visión al proveedor LLM"
+            },
+            {
+              "en": "Parses the model's JSON into structured garment attributes",
+              "es": "Convierte el JSON del modelo en atributos estructurados de la prenda"
+            },
+            {
+              "en": "Applies a timeout derived from measured p95 latency",
+              "es": "Aplica un timeout derivado de la latencia p95 medida"
+            }
+          ],
+          "why": {
+            "en": "Calling the model server-side keeps the API key out of the app bundle.",
+            "es": "Llamar al modelo desde el servidor mantiene la clave de API fuera del bundle de la app."
+          }
+        }
+      },
+      {
+        "id": "llm",
+        "label": {
+          "en": "Vision model",
+          "es": "Modelo de visión"
+        },
+        "sublabel": {
+          "en": "Describes garment from photo",
+          "es": "Describe la prenda a partir de la foto"
+        },
+        "kind": "external",
+        "group": "external",
+        "tech": "OpenAI-compatible API",
+        "owned": false,
+        "pos": {
+          "col": 4,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "An external OpenAI-compatible vision model. It is chosen through an evaluation harness rather than guessed.",
+            "es": "Un modelo de visión externo compatible con OpenAI. Se eligió mediante un harness de evaluación y no por intuición."
+          },
+          "responsibilities": [
+            {
+              "en": "Receives the photo prompt from the classifier",
+              "es": "Recibe el prompt con la foto desde el clasificador"
+            },
+            {
+              "en": "Returns garment attributes as JSON",
+              "es": "Devuelve los atributos de la prenda en JSON"
+            },
+            {
+              "en": "Selected with scripts/eval-vision",
+              "es": "Seleccionado con scripts/eval-vision"
+            }
+          ]
+        }
+      },
+      {
+        "id": "r2",
+        "label": {
+          "en": "Photo storage",
+          "es": "Almacenamiento de fotos"
+        },
+        "sublabel": {
+          "en": "Private bucket of garment photos",
+          "es": "Bucket privado de fotos de prendas"
+        },
+        "kind": "storage",
+        "group": "data",
+        "tech": "Cloudflare R2",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "A private Cloudflare R2 bucket holds the garment photos. Photos never touch Postgres and are reachable only through presigned URLs.",
+            "es": "Un bucket privado de Cloudflare R2 guarda las fotos de prendas. Las fotos nunca pasan por Postgres y solo son accesibles mediante URLs prefirmadas."
+          },
+          "responsibilities": [
+            {
+              "en": "Receives photo uploads directly from the app through presigned PUT URLs",
+              "es": "Recibe las fotos directamente de la app mediante URLs PUT prefirmadas"
+            },
+            {
+              "en": "Serves photos to the app and to the classifier through presigned GET URLs",
+              "es": "Sirve fotos a la app y al clasificador mediante URLs GET prefirmadas"
+            },
+            {
+              "en": "Private bucket; keys are namespaced by owner",
+              "es": "Bucket privado; las claves llevan el espacio del propietario"
+            }
+          ]
+        }
+      },
+      {
+        "id": "upload",
+        "label": {
+          "en": "Upload URL function",
+          "es": "Función de URL de subida"
+        },
+        "sublabel": {
+          "en": "create-upload-url",
+          "es": "create-upload-url"
+        },
+        "kind": "worker",
+        "group": "edge",
+        "tech": "Edge Function (Deno)",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "Edge function that validates the content type and size, builds an owner-scoped image key with a random UUID and returns a 5-minute presigned PUT URL for it.",
+            "es": "Edge function que valida el tipo de contenido y el tamaño, construye una clave de imagen por propietario con un UUID aleatorio y devuelve una URL PUT prefirmada de 5 minutos."
+          },
+          "responsibilities": [
+            {
+              "en": "Authenticates the caller from the bearer JWT via Supabase Auth",
+              "es": "Autentica al llamador con el JWT bearer mediante Supabase Auth"
+            },
+            {
+              "en": "Validates contentType and contentLength before signing",
+              "es": "Valida contentType y contentLength antes de firmar"
+            },
+            {
+              "en": "Signs the URL locally with the R2 credentials; it makes no call to R2",
+              "es": "Firma la URL localmente con las credenciales de R2; no llama a R2"
+            }
+          ],
+          "why": {
+            "en": "The app never holds storage credentials and cannot choose the key, so it can only write inside its own namespace.",
+            "es": "La app nunca tiene credenciales de almacenamiento y no elige la clave, así que solo puede escribir en su propio espacio."
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "app",
+        "to": "usecases",
+        "label": {
+          "en": "invoke use case",
+          "es": "invoca un caso de uso"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "usecases",
+        "to": "domain",
+        "label": {
+          "en": "validate invariants",
+          "es": "valida invariantes"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "usecases",
+        "to": "adapters",
+        "label": {
+          "en": "through ports",
+          "es": "a través de puertos"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "adapters",
+        "to": "upload",
+        "label": {
+          "en": "request upload URL",
+          "es": "pide URL de subida"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "adapters",
+        "to": "r2",
+        "label": {
+          "en": "PUT photo with presigned URL",
+          "es": "PUT de la foto con URL prefirmada"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "adapters",
+        "to": "classify",
+        "label": {
+          "en": "classify photo",
+          "es": "clasifica la foto"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "classify",
+        "to": "r2",
+        "label": {
+          "en": "read photo (60 s URL)",
+          "es": "lee la foto (URL de 60 s)"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "classify",
+        "to": "llm",
+        "label": {
+          "en": "vision prompt",
+          "es": "prompt de visión"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "adapters",
+        "to": "pg",
+        "label": {
+          "en": "save garment (RLS)",
+          "es": "guarda la prenda (RLS)"
+        },
+        "async": false
+      },
+      {
+        "id": "e10",
+        "from": "app",
+        "to": "auth",
+        "label": {
+          "en": "sign in with email OTP",
+          "es": "inicia sesión con OTP por correo"
+        },
+        "async": false
+      }
+    ],
+    "flows": [
+      {
+        "id": "f1",
+        "name": {
+          "en": "Add a garment from a photo",
+          "es": "Agregar una prenda desde una foto"
+        },
+        "description": {
+          "en": "The adapter gets a presigned URL, uploads the photo straight to R2, asks the classifier (which reads the photo and calls the vision model), the use case validates the proposal in the domain and the garment is saved under row-level security.",
+          "es": "El adaptador obtiene una URL prefirmada, sube la foto directo a R2, consulta al clasificador (que lee la foto y llama al modelo de visión), el caso de uso valida la propuesta en el dominio y la prenda se guarda bajo seguridad a nivel de fila."
+        },
+        "edges": [
+          "e1",
+          "e3",
+          "e4",
+          "e5",
+          "e6",
+          "e7",
+          "e8",
+          "e2",
+          "e9"
+        ]
+      },
+      {
+        "id": "f2",
+        "name": {
+          "en": "Sign in",
+          "es": "Iniciar sesión"
+        },
+        "description": {
+          "en": "The owner signs in with an email one-time code and the session is kept on the device.",
+          "es": "El propietario inicia sesión con un código de un solo uso por correo y la sesión queda en el dispositivo."
+        },
+        "edges": [
+          "e10"
+        ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Hexagonal core, framework-free",
+        "es": "Núcleo hexagonal, sin frameworks"
+      },
+      {
+        "en": "Ownership enforced by RLS + composite FKs",
+        "es": "Propiedad garantizada por RLS + FKs compuestas"
+      },
+      {
+        "en": "Photos via presigned R2 URLs",
+        "es": "Fotos mediante URLs prefirmadas de R2"
+      },
+      {
+        "en": "Vision model called server-side",
+        "es": "Modelo de visión llamado desde el servidor"
+      }
+    ],
+    "viewName": {
+      "en": "Add a garment from a photo",
+      "es": "Agregar una prenda desde una foto"
+    },
+    "additionalViews": [
+      {
+        "id": "browse",
+        "name": {
+          "en": "Browse the wardrobe",
+          "es": "Explorar el guardarropa"
+        },
+        "description": {
+          "en": "How the wardrobe grid reads garments and loads photos through presigned read URLs.",
+          "es": "Cómo la grilla del guardarropa lee prendas y carga fotos con URLs de lectura prefirmadas."
+        },
+        "architecture": {
+          "groups": [
+            {
+              "id": "client",
+              "label": {
+                "en": "Mobile client",
+                "es": "Cliente móvil"
+              }
+            },
+            {
+              "id": "core",
+              "label": {
+                "en": "Domain core (hexagon)",
+                "es": "Núcleo de dominio (hexágono)"
+              }
+            },
+            {
+              "id": "edge",
+              "label": {
+                "en": "Supabase Edge Functions",
+                "es": "Supabase Edge Functions"
+              }
+            },
+            {
+              "id": "data",
+              "label": {
+                "en": "Data & storage",
+                "es": "Datos y almacenamiento"
+              }
+            },
+            {
+              "id": "external",
+              "label": {
+                "en": "External services",
+                "es": "Servicios externos"
+              }
+            }
+          ],
+          "nodes": [
+            {
+              "id": "app",
+              "label": {
+                "en": "Mobile app",
+                "es": "App móvil"
+              },
+              "sublabel": {
+                "en": "Capture, wardrobe grid, detail",
+                "es": "Captura, grilla y detalle"
+              },
+              "kind": "client",
+              "group": "client",
+              "tech": "Expo / React Native",
+              "owned": false,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The user-facing app built with expo-router. It lets the owner photograph a garment, browse the wardrobe and open a garment detail screen.",
+                  "es": "La app de cara al usuario, construida con expo-router. Permite fotografiar una prenda, explorar el guardarropa y abrir el detalle de una prenda."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Screens for capture, wardrobe grid and garment detail",
+                    "es": "Pantallas de captura, grilla del guardarropa y detalle de prenda"
+                  },
+                  {
+                    "en": "Invokes use cases instead of calling Supabase directly",
+                    "es": "Invoca casos de uso en lugar de llamar a Supabase directamente"
+                  },
+                  {
+                    "en": "Starts email-OTP sign-in and keeps the session in AsyncStorage",
+                    "es": "Inicia sesión con OTP por correo y guarda la sesión en AsyncStorage"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "usecases",
+              "label": {
+                "en": "Application use cases",
+                "es": "Casos de uso"
+              },
+              "sublabel": {
+                "en": "addGarmentFromPhoto, listWardrobe",
+                "es": "addGarmentFromPhoto, listWardrobe"
+              },
+              "kind": "service",
+              "group": "core",
+              "tech": "TypeScript",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The application layer of the hexagon. Each use case orchestrates a user goal through ports, with no knowledge of React, Expo or Supabase.",
+                  "es": "La capa de aplicación del hexágono. Cada caso de uso orquesta un objetivo del usuario a través de puertos, sin conocer React, Expo ni Supabase."
+                },
+                "responsibilities": [
+                  {
+                    "en": "addGarmentFromPhoto, listWardrobe and generateOutfits",
+                    "es": "addGarmentFromPhoto, listWardrobe y generateOutfits"
+                  },
+                  {
+                    "en": "Depends only on ports, never on concrete infrastructure",
+                    "es": "Depende solo de puertos, nunca de infraestructura concreta"
+                  },
+                  {
+                    "en": "Tested with in-memory fakes for every port",
+                    "es": "Probado con fakes en memoria para cada puerto"
+                  }
+                ],
+                "why": {
+                  "en": "An architecture-guard test fails the build if this layer imports a framework, keeping it portable to Deno edge functions.",
+                  "es": "Un test de guarda de arquitectura rompe el build si esta capa importa un framework, manteniéndola portable a edge functions en Deno."
+                }
+              }
+            },
+            {
+              "id": "adapters",
+              "label": {
+                "en": "Infrastructure adapters",
+                "es": "Adaptadores de infraestructura"
+              },
+              "sublabel": {
+                "en": "Repos, R2 storage, classifier, URL cache",
+                "es": "Repos, almacenamiento R2, clasificador, caché de URLs"
+              },
+              "kind": "service",
+              "group": "core",
+              "tech": "TypeScript",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Concrete implementations of the ports. They translate use-case needs into calls to Supabase, the edge functions and Cloudflare R2.",
+                  "es": "Implementaciones concretas de los puertos. Traducen las necesidades de los casos de uso en llamadas a Supabase, a las edge functions y a Cloudflare R2."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Supabase repositories for garments and outfits",
+                    "es": "Repositorios Supabase para prendas y outfits"
+                  },
+                  {
+                    "en": "Request presigned URLs and upload photos straight to R2",
+                    "es": "Piden URLs prefirmadas y suben fotos directo a R2"
+                  },
+                  {
+                    "en": "Call the garment classifier edge function",
+                    "es": "Llaman a la edge function clasificadora de prendas"
+                  },
+                  {
+                    "en": "Cache batch read URLs for the wardrobe grid",
+                    "es": "Cachean URLs de lectura por lote para la grilla"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "pg",
+              "label": {
+                "en": "Wardrobe database",
+                "es": "Base de datos del guardarropa"
+              },
+              "sublabel": {
+                "en": "Garments, outfits, pgvector",
+                "es": "Prendas, outfits, pgvector"
+              },
+              "kind": "db",
+              "group": "data",
+              "tech": "Postgres + RLS",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "Supabase Postgres stores garments, outfits and outfit items. Row-level security and composite foreign keys enforce ownership in the database itself.",
+                  "es": "Supabase Postgres guarda prendas, outfits e ítems de outfit. La seguridad a nivel de fila y las claves foráneas compuestas hacen cumplir la propiedad en la propia base de datos."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Tables for garments, outfits and outfit_items, plus pgvector",
+                    "es": "Tablas de garments, outfits y outfit_items, más pgvector"
+                  },
+                  {
+                    "en": "RLS on every table with anon privileges revoked",
+                    "es": "RLS en todas las tablas con privilegios anon revocados"
+                  },
+                  {
+                    "en": "Composite FKs prevent outfits built from another user's garments",
+                    "es": "Las FKs compuestas impiden outfits con prendas de otro usuario"
+                  },
+                  {
+                    "en": "Policies verified with pgTAP in CI",
+                    "es": "Políticas verificadas con pgTAP en CI"
+                  }
+                ],
+                "why": {
+                  "en": "Ownership is a database guarantee, not just application code, so a client bug cannot leak another user's data.",
+                  "es": "La propiedad es una garantía de la base de datos y no solo del código, así que un bug del cliente no puede filtrar datos de otro usuario."
+                }
+              }
+            },
+            {
+              "id": "r2",
+              "label": {
+                "en": "Photo storage",
+                "es": "Almacenamiento de fotos"
+              },
+              "sublabel": {
+                "en": "Private bucket of garment photos",
+                "es": "Bucket privado de fotos de prendas"
+              },
+              "kind": "storage",
+              "group": "data",
+              "tech": "Cloudflare R2",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "A private Cloudflare R2 bucket holds the garment photos. Photos never touch Postgres and are reachable only through presigned URLs.",
+                  "es": "Un bucket privado de Cloudflare R2 guarda las fotos de prendas. Las fotos nunca pasan por Postgres y solo son accesibles mediante URLs prefirmadas."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Receives photo uploads directly from the app through presigned PUT URLs",
+                    "es": "Recibe las fotos directamente de la app mediante URLs PUT prefirmadas"
+                  },
+                  {
+                    "en": "Serves photos to the app and to the classifier through presigned GET URLs",
+                    "es": "Sirve fotos a la app y al clasificador mediante URLs GET prefirmadas"
+                  },
+                  {
+                    "en": "Private bucket; keys are namespaced by owner",
+                    "es": "Bucket privado; las claves llevan el espacio del propietario"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "read",
+              "label": {
+                "en": "Read URLs function",
+                "es": "Función de URLs de lectura"
+              },
+              "sublabel": {
+                "en": "create-read-urls",
+                "es": "create-read-urls"
+              },
+              "kind": "worker",
+              "group": "edge",
+              "tech": "Edge Function (Deno)",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Edge function that takes a batch of image keys (up to 50) and returns one 1-hour presigned GET URL per key, after checking each key belongs to the caller.",
+                  "es": "Edge function que recibe un lote de claves de imagen (hasta 50) y devuelve una URL GET prefirmada de 1 hora por clave, tras comprobar que cada clave pertenece al llamador."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Authenticates the caller and rejects any key outside their owner scope (403)",
+                    "es": "Autentica al llamador y rechaza cualquier clave fuera de su alcance de propietario (403)"
+                  },
+                  {
+                    "en": "Signs all URLs locally in one pass; no call to R2",
+                    "es": "Firma todas las URLs localmente de una vez; sin llamar a R2"
+                  },
+                  {
+                    "en": "Called in batches of 50 by the adapter, behind an in-memory cache",
+                    "es": "El adaptador la llama en lotes de 50, detrás de una caché en memoria"
+                  }
+                ],
+                "why": {
+                  "en": "Splitting reads from uploads gives each function one job and a different expiry (1 hour for display, 5 minutes for writes).",
+                  "es": "Separar lecturas de subidas da a cada función una sola tarea y una expiración distinta (1 hora para mostrar, 5 minutos para escribir)."
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e1",
+              "from": "app",
+              "to": "usecases",
+              "label": {
+                "en": "list wardrobe",
+                "es": "lista el guardarropa"
+              },
+              "async": false
+            },
+            {
+              "id": "e2",
+              "from": "usecases",
+              "to": "adapters",
+              "label": {
+                "en": "through ports",
+                "es": "a través de puertos"
+              },
+              "async": false
+            },
+            {
+              "id": "e3",
+              "from": "adapters",
+              "to": "pg",
+              "label": {
+                "en": "read garments (RLS)",
+                "es": "lee prendas (RLS)"
+              },
+              "async": false
+            },
+            {
+              "id": "e4",
+              "from": "adapters",
+              "to": "read",
+              "label": {
+                "en": "batch read URLs (cached 1 h)",
+                "es": "URLs de lectura por lote (caché 1 h)"
+              },
+              "async": false
+            },
+            {
+              "id": "e5",
+              "from": "app",
+              "to": "r2",
+              "label": {
+                "en": "load photos with presigned URLs",
+                "es": "carga fotos con URLs prefirmadas"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f1",
+              "name": {
+                "en": "Browse the wardrobe",
+                "es": "Explorar el guardarropa"
+              },
+              "description": {
+                "en": "Garments are read from Postgres through the repository port; photo URLs come in batches from the read-URL function and the app loads the images straight from R2.",
+                "es": "Las prendas se leen de Postgres a través del puerto de repositorio; las URLs de las fotos llegan por lotes desde la función de lectura y la app carga las imágenes directo desde R2."
+              },
+              "edges": [
+                "e1",
+                "e2",
+                "e3",
+                "e4",
+                "e5"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
 }

@@ -167,8 +167,8 @@
       {
         "id": "server",
         "label": {
-          "en": "Next.js server",
-          "es": "Servidor Next.js"
+          "en": "Server",
+          "es": "Servidor"
         }
       },
       {
@@ -182,123 +182,358 @@
     "nodes": [
       {
         "id": "ui",
-        "label": "React UI",
+        "label": {
+          "en": "Game interface",
+          "es": "Interfaz del juego"
+        },
         "sublabel": {
-          "en": "Terminal, combat, character, inventory views",
-          "es": "Vistas de terminal, combate, personaje, inventario"
+          "en": "Terminal, combat, character views",
+          "es": "Terminal, combate y personaje"
         },
         "kind": "client",
-        "group": "client"
+        "group": "client",
+        "tech": "React 19 · Next.js",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The browser UI where the player types actions and sees narration, combat, character sheet and inventory.",
+            "es": "La interfaz en el navegador donde el jugador escribe acciones y ve narración, combate, hoja de personaje e inventario."
+          },
+          "responsibilities": [
+            {
+              "en": "Terminal-style narrative with a free-text action bar",
+              "es": "Narrativa tipo terminal con barra de acciones de texto libre"
+            },
+            {
+              "en": "Combat, character, inventory panels, character creation and chapter transitions",
+              "es": "Paneles de combate, personaje e inventario, creación de personaje y transiciones de capítulo"
+            },
+            {
+              "en": "useGame hook owns the engine instance and autosaves",
+              "es": "El hook useGame posee la instancia del motor y autoguarda"
+            },
+            {
+              "en": "Bilingual strings (en/es)",
+              "es": "Textos bilingües (en/es)"
+            }
+          ]
+        }
       },
       {
         "id": "engine",
-        "label": "Game engine",
+        "label": {
+          "en": "Game engine",
+          "es": "Motor de juego"
+        },
         "sublabel": {
-          "en": "Dice, combat, intent, puzzles, campaign",
-          "es": "Dados, combate, intención, puzles, campaña"
+          "en": "Dice, combat, intent, puzzles",
+          "es": "Dados, combate, intención y puzles"
         },
         "kind": "service",
-        "group": "client"
-      },
-      {
-        "id": "chapters",
-        "label": "Chapter and story data",
-        "sublabel": {
-          "en": "Story graph, monsters, NPCs, 10 chapters",
-          "es": "Grafo de historia, monstruos, NPC, 10 capítulos"
+        "group": "client",
+        "tech": "TypeScript",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
         },
-        "kind": "storage",
-        "group": "client"
+        "details": {
+          "what": {
+            "en": "A rules engine (src/engine/gameEngine.ts) that resolves every player action: intent parsing, dice, combat, puzzles and story-graph traversal. It is the only code that mutates game state and it emits typed domain events.",
+            "es": "Un motor de reglas (src/engine/gameEngine.ts) que resuelve cada acción del jugador: interpretación de intención, dados, combate, puzles y recorrido del grafo de historia. Es el único código que modifica el estado y emite eventos de dominio tipados."
+          },
+          "responsibilities": [
+            {
+              "en": "Parses free-text intent into game actions",
+              "es": "Interpreta texto libre como acciones de juego"
+            },
+            {
+              "en": "Resolves dice, combat and skill checks",
+              "es": "Resuelve dados, combate y pruebas de habilidad"
+            },
+            {
+              "en": "Walks the story graph and campaign",
+              "es": "Recorre el grafo de historia y la campaña"
+            },
+            {
+              "en": "Emits domain events for the narrator",
+              "es": "Emite eventos de dominio para el narrador"
+            }
+          ],
+          "why": {
+            "en": "The LLM narrates facts but never decides them, keeping the game deterministic and testable.",
+            "es": "El LLM narra los hechos pero nunca los decide, así el juego es determinista y testeable."
+          }
+        }
       },
       {
         "id": "events",
-        "label": "Domain event bus",
+        "label": {
+          "en": "Domain event bus",
+          "es": "Bus de eventos de dominio"
+        },
         "sublabel": {
           "en": "Resolved facts for the narrator",
           "es": "Hechos resueltos para el narrador"
         },
         "kind": "queue",
-        "group": "client"
-      },
-      {
-        "id": "save",
-        "label": "Save system",
-        "sublabel": {
-          "en": "Persistence with migration",
-          "es": "Persistencia con migración"
+        "group": "client",
+        "tech": "In-process",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 1
         },
-        "kind": "storage",
-        "group": "client"
+        "details": {
+          "what": {
+            "en": "A small in-process bus where the engine publishes what actually happened, such as hits, rolls and discoveries. The narrator reads these as authoritative facts.",
+            "es": "Un pequeño bus en proceso donde el motor publica lo que realmente ocurrió, como golpes, tiradas y descubrimientos. El narrador los lee como hechos autoritativos."
+          },
+          "responsibilities": [
+            {
+              "en": "Typed events created by the engine",
+              "es": "Eventos tipados creados por el motor"
+            },
+            {
+              "en": "Decouples rules from narration",
+              "es": "Desacopla las reglas de la narración"
+            },
+            {
+              "en": "Feeds the DM client prompt",
+              "es": "Alimenta el prompt del cliente DM"
+            }
+          ]
+        }
       },
       {
         "id": "dmclient",
-        "label": "DM client",
+        "label": {
+          "en": "Narrator client",
+          "es": "Cliente narrador"
+        },
         "sublabel": {
-          "en": "Prompt builder and length budget",
-          "es": "Constructor de prompt y presupuesto de longitud"
+          "en": "Prompt builder, length budget",
+          "es": "Constructor de prompt y presupuesto"
         },
         "kind": "service",
-        "group": "client"
+        "group": "client",
+        "tech": "TypeScript",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "src/ai/dmClient.ts builds the narration prompt from engine events and game context and POSTs it to /api/dm with an 8 s timeout; it also generates NPC dialogue the same way.",
+            "es": "src/ai/dmClient.ts construye el prompt de narración desde los eventos del motor y el contexto, y lo envía por POST a /api/dm con 8 s de timeout; también genera diálogo de NPC del mismo modo."
+          },
+          "responsibilities": [
+            {
+              "en": "Prompts built from authoritative events",
+              "es": "Prompts construidos a partir de eventos autoritativos"
+            },
+            {
+              "en": "Narration capped at 500 characters (NARRATION_MAX_CHARS)",
+              "es": "Narración limitada a 500 caracteres (NARRATION_MAX_CHARS)"
+            },
+            {
+              "en": "On timeout or API error it logs and uses the local fallback narrator",
+              "es": "Ante timeout o error de API registra y usa el narrador local de respaldo"
+            }
+          ]
+        }
       },
       {
         "id": "dmroute",
-        "label": "/api/dm route",
+        "label": {
+          "en": "Narration proxy",
+          "es": "Proxy de narración"
+        },
         "sublabel": {
-          "en": "Server-side LLM proxy",
-          "es": "Proxy LLM del lado servidor"
+          "en": "Server-side LLM call",
+          "es": "Llamada al LLM desde el servidor"
         },
         "kind": "gateway",
-        "group": "server"
-      },
-      {
-        "id": "asset",
-        "label": "/api/asset route",
-        "sublabel": {
-          "en": "Serves game art and audio",
-          "es": "Sirve arte y audio del juego"
+        "group": "server",
+        "tech": "Next.js route",
+        "owned": true,
+        "pos": {
+          "col": 4,
+          "row": 1
         },
-        "kind": "service",
-        "group": "server"
-      },
-      {
-        "id": "ws",
-        "label": "WebSocket server",
-        "sublabel": {
-          "en": "Multiplayer rooms (optional)",
-          "es": "Salas multijugador (opcional)"
-        },
-        "kind": "service",
-        "group": "server"
+        "details": {
+          "what": {
+            "en": "POST /api/dm forwards chat completions to the NaN Builders API (model deepseek-v4-flash, non-streaming, default max 1,200 tokens) so the key stays on the server.",
+            "es": "POST /api/dm reenvía chat completions a la API de NaN Builders (modelo deepseek-v4-flash, sin streaming, 1.200 tokens por defecto) para que la clave quede en el servidor."
+          },
+          "responsibilities": [
+            {
+              "en": "Returns 500 if NAN_API_KEY is not configured",
+              "es": "Devuelve 500 si NAN_API_KEY no está configurada"
+            },
+            {
+              "en": "Returns a clean error when generation fails, so the client falls back",
+              "es": "Devuelve un error limpio si falla la generación, para que el cliente use el respaldo"
+            }
+          ]
+        }
       },
       {
         "id": "llm",
-        "label": "NaN Builders LLM",
+        "label": {
+          "en": "LLM provider",
+          "es": "Proveedor LLM"
+        },
         "sublabel": {
           "en": "Narration and chapter generation",
           "es": "Narración y generación de capítulos"
         },
         "kind": "ai",
-        "group": "external"
-      },
-      {
-        "id": "chapapi",
-        "label": "/api/chapter route",
-        "sublabel": {
-          "en": "Chapter generation with repair loop",
-          "es": "Generación de capítulos con bucle de reparación"
+        "group": "external",
+        "tech": "NaN Builders API",
+        "owned": false,
+        "pos": {
+          "col": 5,
+          "row": 1
         },
-        "kind": "gateway",
-        "group": "server"
+        "details": {
+          "what": {
+            "en": "NaN Builders, an OpenAI-compatible chat completions API. Today it narrates turns through /api/dm; the earlier chapter route used it to generate whole chapters (qwen3.6, with deepseek-v4-flash as fallback).",
+            "es": "NaN Builders, una API de chat completions compatible con OpenAI. Hoy narra turnos mediante /api/dm; la ruta de capítulos anterior la usó para generar capítulos completos (qwen3.6, con deepseek-v4-flash de respaldo)."
+          },
+          "responsibilities": [
+            {
+              "en": "Narration: short chat completions",
+              "es": "Narración: chat completions cortos"
+            },
+            {
+              "en": "Chapter generation: streamed JSON outlines and chapters",
+              "es": "Generación de capítulos: esquemas y capítulos JSON en streaming"
+            }
+          ]
+        }
       },
       {
-        "id": "validator",
-        "label": "Chapter validator",
+        "id": "chapters",
+        "label": {
+          "en": "Chapter and story data",
+          "es": "Datos de capítulos e historia"
+        },
         "sublabel": {
-          "en": "Zod schema and reachability checks",
-          "es": "Esquema Zod y chequeos de alcanzabilidad"
+          "en": "Story graph, monsters, 10 chapters",
+          "es": "Grafo de historia, monstruos, 10 capítulos"
+        },
+        "kind": "storage",
+        "group": "client",
+        "tech": "Typed data + Zod",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "Typed data validated by Zod: ten authored chapters (src/data/chapters), the story graph, locations, NPCs, monsters, quests and spells. Every chapter follows the same Chapter contract, which is also the one generated chapters had to satisfy.",
+            "es": "Datos tipados validados con Zod: diez capítulos autorales (src/data/chapters), el grafo de historia, ubicaciones, NPCs, monstruos, misiones y hechizos. Todos los capítulos siguen el mismo contrato Chapter, que también debían cumplir los capítulos generados."
+          },
+          "responsibilities": [
+            {
+              "en": "One schema for authored and generated chapters",
+              "es": "Un solo esquema para capítulos autorales y generados"
+            },
+            {
+              "en": "Story graph replaces hardcoded flow",
+              "es": "El grafo de historia reemplaza el flujo fijo"
+            },
+            {
+              "en": "validate-chapters.ts checks all authored chapters and the campaign",
+              "es": "validate-chapters.ts revisa todos los capítulos autorales y la campaña"
+            }
+          ]
+        }
+      },
+      {
+        "id": "save",
+        "label": {
+          "en": "Save system",
+          "es": "Sistema de guardado"
+        },
+        "sublabel": {
+          "en": "Saves, checkpoints, migration",
+          "es": "Guardados, checkpoints y migración"
+        },
+        "kind": "storage",
+        "group": "client",
+        "tech": "localStorage",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "src/lib/persistence.ts stores game state, narrative log and settings in the browser's localStorage, with a separate checkpoint slot and migration of older saves.",
+            "es": "src/lib/persistence.ts guarda estado de juego, registro narrativo y ajustes en el localStorage del navegador, con un slot aparte de checkpoint y migración de guardados antiguos."
+          },
+          "responsibilities": [
+            {
+              "en": "Save, checkpoint and load of full game state",
+              "es": "Guardado, checkpoint y carga del estado completo"
+            },
+            {
+              "en": "Legacy save migration",
+              "es": "Migración de guardados antiguos"
+            },
+            {
+              "en": "Campaign progress folded in",
+              "es": "Progreso de campaña integrado"
+            },
+            {
+              "en": "Never relies on the model remembering the story",
+              "es": "Nunca depende de que el modelo recuerde la historia"
+            }
+          ]
+        }
+      },
+      {
+        "id": "fallback",
+        "label": {
+          "en": "Local narrator",
+          "es": "Narrador local"
+        },
+        "sublabel": {
+          "en": "Template narration when the LLM fails",
+          "es": "Narración por plantillas si falla el LLM"
         },
         "kind": "service",
-        "group": "server"
+        "group": "client",
+        "tech": "TypeScript",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "src/ai/dungeonMaster.ts builds narration, NPC dialogue, combat narration and location descriptions from templates, without any network call.",
+            "es": "src/ai/dungeonMaster.ts construye narración, diálogo de NPC, narración de combate y descripciones de ubicación a partir de plantillas, sin ninguna llamada de red."
+          },
+          "responsibilities": [
+            {
+              "en": "Used when /api/dm times out or fails",
+              "es": "Se usa cuando /api/dm da timeout o falla"
+            },
+            {
+              "en": "Also builds the DM context passed to the LLM",
+              "es": "También construye el contexto del DM que se pasa al LLM"
+            }
+          ]
+        }
       }
     ],
     "edges": [
@@ -347,8 +582,8 @@
         "from": "dmclient",
         "to": "dmroute",
         "label": {
-          "en": "POST narration request",
-          "es": "POST de petición de narración"
+          "en": "POST /api/dm (8 s timeout)",
+          "es": "POST /api/dm (timeout de 8 s)"
         },
         "async": false
       },
@@ -367,68 +602,18 @@
         "from": "engine",
         "to": "save",
         "label": {
-          "en": "save state",
-          "es": "guarda el estado"
+          "en": "save state and checkpoints",
+          "es": "guarda estado y checkpoints"
         },
         "async": false
       },
       {
-        "id": "e8",
-        "from": "ui",
-        "to": "asset",
+        "id": "e14",
+        "from": "dmclient",
+        "to": "fallback",
         "label": {
-          "en": "loads assets",
-          "es": "carga assets"
-        },
-        "async": false
-      },
-      {
-        "id": "e9",
-        "from": "ui",
-        "to": "ws",
-        "label": {
-          "en": "join room",
-          "es": "unirse a sala"
-        },
-        "async": true
-      },
-      {
-        "id": "e10",
-        "from": "ui",
-        "to": "chapapi",
-        "label": {
-          "en": "request new chapter",
-          "es": "pide un capítulo nuevo"
-        },
-        "async": false
-      },
-      {
-        "id": "e11",
-        "from": "chapapi",
-        "to": "llm",
-        "label": {
-          "en": "outline and chapter JSON (streaming)",
-          "es": "esquema y JSON de capítulo (streaming)"
-        },
-        "async": false
-      },
-      {
-        "id": "e12",
-        "from": "chapapi",
-        "to": "validator",
-        "label": {
-          "en": "schema and playability check",
-          "es": "chequeo de esquema y jugabilidad"
-        },
-        "async": false
-      },
-      {
-        "id": "e13",
-        "from": "validator",
-        "to": "chapters",
-        "label": {
-          "en": "validated chapter loads as data",
-          "es": "el capítulo validado se carga como datos"
+          "en": "falls back on failure",
+          "es": "recurre al respaldo si falla"
         },
         "async": false
       }
@@ -441,49 +626,759 @@
           "es": "Un turno de juego"
         },
         "description": {
-          "en": "The engine resolves the player's action deterministically, emits events, and only then asks the LLM to narrate; the state is saved.",
-          "es": "El motor resuelve la acción del jugador de forma determinista, emite eventos y solo entonces pide al LLM que narre; el estado se guarda."
+          "en": "The player acts, the engine resolves it against chapter data, emits events and saves; the narrator turns those facts into text through the server route, or locally if the LLM fails.",
+          "es": "El jugador actúa, el motor lo resuelve con los datos del capítulo, emite eventos y guarda; el narrador convierte esos hechos en texto por la ruta del servidor, o localmente si falla el LLM."
         },
         "edges": [
           "e1",
           "e2",
           "e3",
+          "e7",
           "e4",
           "e5",
-          "e6",
-          "e7"
+          "e6"
         ]
       },
       {
-        "id": "f2",
+        "id": "f1b",
         "name": {
-          "en": "Multiplayer room",
-          "es": "Sala multijugador"
+          "en": "Narration fallback",
+          "es": "Respaldo de narración"
         },
         "description": {
-          "en": "A client joins a room on the WebSocket server for shared state and chat.",
-          "es": "Un cliente se une a una sala del servidor WebSocket para compartir estado y chat."
+          "en": "If /api/dm times out or fails, the client narrates from local templates.",
+          "es": "Si /api/dm da timeout o falla, el cliente narra con plantillas locales."
         },
         "edges": [
-          "e9"
+          "e4",
+          "e5",
+          "e14"
         ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Pure engine, LLM only narrates",
+        "es": "Motor puro; el LLM solo narra"
       },
       {
-        "id": "f3",
+        "en": "10 authored, validated chapters",
+        "es": "10 capítulos autorales validados"
+      },
+      {
+        "en": "Local fallback narrator",
+        "es": "Narrador local de respaldo"
+      },
+      {
+        "en": "Headless playthrough tests",
+        "es": "Pruebas de partida automática"
+      },
+      {
+        "en": "Optional multiplayer",
+        "es": "Multijugador opcional"
+      }
+    ],
+    "viewName": {
+      "en": "Gameplay loop",
+      "es": "Ciclo de juego"
+    },
+    "additionalViews": [
+      {
+        "id": "generation",
         "name": {
           "en": "LLM chapter generation",
           "es": "Generación de capítulos con LLM"
         },
         "description": {
-          "en": "The chapter route asks the LLM for an outline and a bilingual chapter, validates it against the schema and the reachability rules, repairs errors for up to three attempts, and only then lets it load as playable data.",
-          "es": "La ruta de capítulos pide al LLM un esquema y un capítulo bilingüe, lo valida contra el esquema y las reglas de alcanzabilidad, repara errores hasta en tres intentos y solo entonces permite cargarlo como datos jugables."
+          "en": "How chapters were generated at runtime by the LLM and validated before play. The route was replaced by the authored campaign in the current tree; the validator, scripts and fixtures remain.",
+          "es": "Cómo el LLM generaba capítulos en tiempo de ejecución y se validaban antes de jugar. La ruta fue reemplazada por la campaña autoral en el árbol actual; el validador, los scripts y los fixtures siguen."
         },
-        "edges": [
-          "e10",
-          "e11",
-          "e12",
-          "e13"
-        ]
+        "architecture": {
+          "nodes": [
+            {
+              "id": "ui",
+              "label": {
+                "en": "Game interface",
+                "es": "Interfaz del juego"
+              },
+              "sublabel": {
+                "en": "Terminal, combat, character views",
+                "es": "Terminal, combate y personaje"
+              },
+              "kind": "client",
+              "group": "client",
+              "tech": "React 19 · Next.js",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The browser UI where the player types actions and sees narration, combat, character sheet and inventory.",
+                  "es": "La interfaz en el navegador donde el jugador escribe acciones y ve narración, combate, hoja de personaje e inventario."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Terminal-style narrative with a free-text action bar",
+                    "es": "Narrativa tipo terminal con barra de acciones de texto libre"
+                  },
+                  {
+                    "en": "Combat, character, inventory panels, character creation and chapter transitions",
+                    "es": "Paneles de combate, personaje e inventario, creación de personaje y transiciones de capítulo"
+                  },
+                  {
+                    "en": "useGame hook owns the engine instance and autosaves",
+                    "es": "El hook useGame posee la instancia del motor y autoguarda"
+                  },
+                  {
+                    "en": "Bilingual strings (en/es)",
+                    "es": "Textos bilingües (en/es)"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "chapclient",
+              "label": {
+                "en": "Chapter client",
+                "es": "Cliente de capítulos"
+              },
+              "sublabel": {
+                "en": "Prefetches the next chapter",
+                "es": "Precarga el siguiente capítulo"
+              },
+              "kind": "service",
+              "group": "client",
+              "tech": "TypeScript",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "src/ai/chapterClient.ts summarizes the hero and the campaign chronicle and POSTs them to /api/chapter. The useGame hook fires it as soon as a chapter ends and holds the result until the player presses Continue.",
+                  "es": "src/ai/chapterClient.ts resume al héroe y la crónica de la campaña y los envía por POST a /api/chapter. El hook useGame lo dispara al terminar un capítulo y guarda el resultado hasta que el jugador pulsa Continuar."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Sends nextIndex, chronicle, hero brief (level, items, spells), language and used ids",
+                    "es": "Envía nextIndex, crónica, resumen del héroe (nivel, objetos, hechizos), idioma e ids usados"
+                  },
+                  {
+                    "en": "Discards the prefetched chapter after a checkpoint restore",
+                    "es": "Descarta el capítulo precargado tras restaurar un checkpoint"
+                  },
+                  {
+                    "en": "On failure the UI showed the error and a retry button; there was no fallback chapter",
+                    "es": "Si fallaba, la UI mostraba el error y un botón de reintento; no había capítulo de respaldo"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "chapapi",
+              "label": {
+                "en": "Chapter generator",
+                "es": "Generador de capítulos"
+              },
+              "sublabel": {
+                "en": "Outline, drafts, repair",
+                "es": "Esquema, borradores, reparación"
+              },
+              "kind": "gateway",
+              "group": "server",
+              "tech": "Next.js route",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "POST /api/chapter ran the whole generation: an outline pass, then three parallel full-chapter drafts of that outline where the first valid one wins, then a repair round that feeds the broken JSON back to the model. Removed from the current tree in favor of the authored campaign; fixtures and the playthrough harness remain.",
+                  "es": "POST /api/chapter ejecutaba toda la generación: un paso de esquema, luego tres borradores completos en paralelo de ese esquema donde gana el primero válido, y una ronda de reparación que devuelve el JSON roto al modelo. Se retiró del árbol actual a favor de la campaña autoral; los fixtures y el arnés de partida automática siguen."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Outline: up to 3 tries (primary, primary, fallback model)",
+                    "es": "Esquema: hasta 3 intentos (modelo principal, principal, respaldo)"
+                  },
+                  {
+                    "en": "Round A: 3 drafts at temperatures 0.8, 0.55 and 0.7 on qwen3.6",
+                    "es": "Ronda A: 3 borradores con temperaturas 0,8, 0,55 y 0,7 en qwen3.6"
+                  },
+                  {
+                    "en": "Round B: repair on the primary and on deepseek-v4-flash in parallel, 0.4 temperature",
+                    "es": "Ronda B: reparación con el modelo principal y con deepseek-v4-flash en paralelo, temperatura 0,4"
+                  },
+                  {
+                    "en": "Streamed (SSE) so gateways do not kill minutes-long requests; transport errors retried separately, up to 2 times",
+                    "es": "En streaming (SSE) para que las pasarelas no corten peticiones de minutos; los errores de transporte se reintentan aparte, hasta 2 veces"
+                  },
+                  {
+                    "en": "Returns 422 with the issue list if no draft validates",
+                    "es": "Devuelve 422 con la lista de problemas si ningún borrador valida"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "validator",
+              "label": {
+                "en": "Chapter validator",
+                "es": "Validador de capítulos"
+              },
+              "sublabel": {
+                "en": "Zod schema and graph check",
+                "es": "Esquema Zod y verificación de grafo"
+              },
+              "kind": "service",
+              "group": "server",
+              "tech": "Zod · TypeScript",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "src/engine/chapter.ts: ChapterSchema (Zod) plus coerce and normalize steps and validateChapter, a structural check that every node, choice and ending is reachable and that no state is an inescapable loop. The same validator now gates the authored chapters.",
+                  "es": "src/engine/chapter.ts: ChapterSchema (Zod) más pasos de coerce y normalize y validateChapter, una verificación estructural de que todo nodo, opción y final es alcanzable y de que ningún estado es un bucle sin salida. El mismo validador ahora controla los capítulos autorales."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Bookkeeping is repaired in code; only design problems go back to the model",
+                    "es": "El bookkeeping se repara en código; solo los problemas de diseño vuelven al modelo"
+                  },
+                  {
+                    "en": "Issue list (max 25) drives the repair prompt",
+                    "es": "La lista de problemas (máx. 25) alimenta el prompt de reparación"
+                  }
+                ],
+                "why": {
+                  "en": "It caught real generated chapters from which the player could never finish.",
+                  "es": "Detectó capítulos generados reales desde los que el jugador nunca podía terminar."
+                }
+              }
+            },
+            {
+              "id": "engine",
+              "label": {
+                "en": "Game engine",
+                "es": "Motor de juego"
+              },
+              "sublabel": {
+                "en": "Dice, combat, intent, puzzles",
+                "es": "Dados, combate, intención y puzles"
+              },
+              "kind": "service",
+              "group": "client",
+              "tech": "TypeScript",
+              "owned": true,
+              "pos": {
+                "col": 4,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "A rules engine (src/engine/gameEngine.ts) that resolves every player action: intent parsing, dice, combat, puzzles and story-graph traversal. It is the only code that mutates game state and it emits typed domain events.",
+                  "es": "Un motor de reglas (src/engine/gameEngine.ts) que resuelve cada acción del jugador: interpretación de intención, dados, combate, puzles y recorrido del grafo de historia. Es el único código que modifica el estado y emite eventos de dominio tipados."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Parses free-text intent into game actions",
+                    "es": "Interpreta texto libre como acciones de juego"
+                  },
+                  {
+                    "en": "Resolves dice, combat and skill checks",
+                    "es": "Resuelve dados, combate y pruebas de habilidad"
+                  },
+                  {
+                    "en": "Walks the story graph and campaign",
+                    "es": "Recorre el grafo de historia y la campaña"
+                  },
+                  {
+                    "en": "Emits domain events for the narrator",
+                    "es": "Emite eventos de dominio para el narrador"
+                  }
+                ],
+                "why": {
+                  "en": "The LLM narrates facts but never decides them, keeping the game deterministic and testable.",
+                  "es": "El LLM narra los hechos pero nunca los decide, así el juego es determinista y testeable."
+                }
+              }
+            },
+            {
+              "id": "llm",
+              "label": {
+                "en": "LLM provider",
+                "es": "Proveedor LLM"
+              },
+              "sublabel": {
+                "en": "Narration and chapter generation",
+                "es": "Narración y generación de capítulos"
+              },
+              "kind": "ai",
+              "group": "external",
+              "tech": "NaN Builders API",
+              "owned": false,
+              "pos": {
+                "col": 2,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "NaN Builders, an OpenAI-compatible chat completions API. Today it narrates turns through /api/dm; the earlier chapter route used it to generate whole chapters (qwen3.6, with deepseek-v4-flash as fallback).",
+                  "es": "NaN Builders, una API de chat completions compatible con OpenAI. Hoy narra turnos mediante /api/dm; la ruta de capítulos anterior la usó para generar capítulos completos (qwen3.6, con deepseek-v4-flash de respaldo)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Narration: short chat completions",
+                    "es": "Narración: chat completions cortos"
+                  },
+                  {
+                    "en": "Chapter generation: streamed JSON outlines and chapters",
+                    "es": "Generación de capítulos: esquemas y capítulos JSON en streaming"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "cache",
+              "label": {
+                "en": "Chapter cache",
+                "es": "Caché de capítulos"
+              },
+              "sublabel": {
+                "en": "In-memory, 128 entries, 2 h",
+                "es": "En memoria, 128 entradas, 2 h"
+              },
+              "kind": "storage",
+              "group": "server",
+              "tech": "In-memory Map",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "A per-process LRU map keyed by a SHA-1 of the request (index, chronicle, hero, language, used ids), plus an in-flight map so identical concurrent requests share one generation.",
+                  "es": "Un mapa LRU por proceso con clave SHA-1 de la petición (índice, crónica, héroe, idioma, ids usados), más un mapa de peticiones en curso para que peticiones idénticas concurrentes compartan una sola generación."
+                },
+                "responsibilities": [
+                  {
+                    "en": "A generation takes minutes, so retries and reloads must not pay twice",
+                    "es": "Una generación toma minutos, así que reintentos y recargas no deben pagarse dos veces"
+                  },
+                  {
+                    "en": "Not persisted: a restart is a cold cache",
+                    "es": "No persiste: un reinicio deja la caché vacía"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "scripts",
+              "label": {
+                "en": "Validation scripts",
+                "es": "Scripts de validación"
+              },
+              "sublabel": {
+                "en": "validate-chapters, validate-campaign, playthrough",
+                "es": "validate-chapters, validate-campaign, playthrough"
+              },
+              "kind": "worker",
+              "group": "server",
+              "tech": "tsx",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Local scripts run with tsx: validate-chapters and validate-campaign check the authored chapters, and playthrough plays them headlessly; given a chapter JSON captured from /api/chapter (fixtures/generated-chapter-02.json, -03.json) it holds a generated chapter to the same standard.",
+                  "es": "Scripts locales con tsx: validate-chapters y validate-campaign revisan los capítulos autorales, y playthrough los juega sin interfaz; dado un JSON de capítulo capturado de /api/chapter (fixtures/generated-chapter-02.json, -03.json) somete un capítulo generado al mismo estándar."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Fails loudly when a chapter stops satisfying the contract",
+                    "es": "Falla de forma explícita cuando un capítulo deja de cumplir el contrato"
+                  },
+                  {
+                    "en": "Uses the same validateChapter as the generation route",
+                    "es": "Usa el mismo validateChapter que la ruta de generación"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e10",
+              "from": "ui",
+              "to": "chapclient",
+              "label": {
+                "en": "prefetch when a chapter ends",
+                "es": "precarga al terminar un capítulo"
+              },
+              "async": false
+            },
+            {
+              "id": "e15",
+              "from": "chapclient",
+              "to": "chapapi",
+              "label": {
+                "en": "POST /api/chapter",
+                "es": "POST /api/chapter"
+              },
+              "async": false
+            },
+            {
+              "id": "e16",
+              "from": "chapapi",
+              "to": "cache",
+              "label": {
+                "en": "lookup and store by request hash",
+                "es": "consulta y guarda por hash de la petición"
+              },
+              "async": false
+            },
+            {
+              "id": "e11",
+              "from": "chapapi",
+              "to": "llm",
+              "label": {
+                "en": "outline, drafts, repair (streamed)",
+                "es": "esquema, borradores, reparación (streaming)"
+              },
+              "async": false
+            },
+            {
+              "id": "e12",
+              "from": "chapapi",
+              "to": "validator",
+              "label": {
+                "en": "schema and reachability check",
+                "es": "verificación de esquema y alcanzabilidad"
+              },
+              "async": false
+            },
+            {
+              "id": "e17",
+              "from": "chapclient",
+              "to": "engine",
+              "label": {
+                "en": "validated chapter loaded on Continue",
+                "es": "capítulo validado se carga al continuar"
+              },
+              "async": false
+            },
+            {
+              "id": "e18",
+              "from": "scripts",
+              "to": "validator",
+              "label": {
+                "en": "validateChapter on authored and captured chapters",
+                "es": "validateChapter sobre capítulos autorales y capturados"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f3",
+              "name": {
+                "en": "LLM chapter generation (as built)",
+                "es": "Generación de capítulos con LLM (según se construyó)"
+              },
+              "description": {
+                "en": "While the player finishes a chapter the client prefetches the next one: the route asks the LLM for an outline, drafts the full bilingual chapter, validates it against the schema and reachability rules, repairs it once and returns it; the engine loads it when the player continues.",
+                "es": "Mientras el jugador termina un capítulo, el cliente precarga el siguiente: la ruta pide al LLM un esquema, redacta el capítulo bilingüe completo, lo valida contra el esquema y las reglas de alcanzabilidad, lo repara una vez y lo devuelve; el motor lo carga cuando el jugador continúa."
+              },
+              "edges": [
+                "e10",
+                "e15",
+                "e16",
+                "e11",
+                "e12",
+                "e17"
+              ]
+            },
+            {
+              "id": "f4",
+              "name": {
+                "en": "Validating chapters offline",
+                "es": "Validar capítulos sin conexión"
+              },
+              "description": {
+                "en": "The scripts run the same validator over authored chapters and over chapters captured from the route.",
+                "es": "Los scripts ejecutan el mismo validador sobre capítulos autorales y sobre capítulos capturados de la ruta."
+              },
+              "edges": [
+                "e18"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "Outline pass, then full chapter",
+              "es": "Paso de esquema y luego capítulo completo"
+            },
+            {
+              "en": "3 parallel drafts, first valid wins",
+              "es": "3 borradores en paralelo, gana el primero válido"
+            },
+            {
+              "en": "Repair round with a fallback model",
+              "es": "Ronda de reparación con modelo de respaldo"
+            },
+            {
+              "en": "Graph check: always finishable",
+              "es": "Verificación de grafo: siempre terminable"
+            },
+            {
+              "en": "Route removed in current tree; fixtures remain",
+              "es": "Ruta retirada del árbol actual; los fixtures siguen"
+            }
+          ],
+          "groups": [
+            {
+              "id": "client",
+              "label": {
+                "en": "Browser",
+                "es": "Navegador"
+              }
+            },
+            {
+              "id": "server",
+              "label": {
+                "en": "Server",
+                "es": "Servidor"
+              }
+            },
+            {
+              "id": "external",
+              "label": {
+                "en": "External",
+                "es": "Externo"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "rooms",
+        "name": {
+          "en": "Rooms and assets",
+          "es": "Salas y recursos"
+        },
+        "description": {
+          "en": "Optional multiplayer rooms on a separate WebSocket server and the asset route.",
+          "es": "Salas multijugador opcionales en un servidor WebSocket aparte y la ruta de recursos."
+        },
+        "architecture": {
+          "nodes": [
+            {
+              "id": "ui",
+              "label": {
+                "en": "Game interface",
+                "es": "Interfaz del juego"
+              },
+              "sublabel": {
+                "en": "Terminal, combat, character views",
+                "es": "Terminal, combate y personaje"
+              },
+              "kind": "client",
+              "group": "client",
+              "tech": "React 19 · Next.js",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The browser UI where the player types actions and sees narration, combat, character sheet and inventory.",
+                  "es": "La interfaz en el navegador donde el jugador escribe acciones y ve narración, combate, hoja de personaje e inventario."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Terminal-style narrative with a free-text action bar",
+                    "es": "Narrativa tipo terminal con barra de acciones de texto libre"
+                  },
+                  {
+                    "en": "Combat, character, inventory panels, character creation and chapter transitions",
+                    "es": "Paneles de combate, personaje e inventario, creación de personaje y transiciones de capítulo"
+                  },
+                  {
+                    "en": "useGame hook owns the engine instance and autosaves",
+                    "es": "El hook useGame posee la instancia del motor y autoguarda"
+                  },
+                  {
+                    "en": "Bilingual strings (en/es)",
+                    "es": "Textos bilingües (en/es)"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "ws",
+              "label": {
+                "en": "Multiplayer rooms",
+                "es": "Salas multijugador"
+              },
+              "sublabel": {
+                "en": "Optional room server",
+                "es": "Servidor de salas opcional"
+              },
+              "kind": "service",
+              "group": "server",
+              "tech": "WebSocket (ws)",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "src/server/ws-server.ts, a standalone Node WebSocket server (pnpm ws, ws://localhost:3001 by default) that keeps rooms in memory with 6-character codes, relays messages to the players in a room and holds a gameState per room.",
+                  "es": "src/server/ws-server.ts, un servidor WebSocket de Node independiente (pnpm ws, ws://localhost:3001 por defecto) que mantiene salas en memoria con códigos de 6 caracteres, retransmite mensajes a los jugadores de la sala y guarda un gameState por sala."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Create and join rooms by code; broadcast to the room",
+                    "es": "Crear y unirse a salas por código; difusión a la sala"
+                  },
+                  {
+                    "en": "Runs apart from Next.js; client side is useMultiplayer in src/lib/multiplayer.ts",
+                    "es": "Corre aparte de Next.js; el cliente es useMultiplayer en src/lib/multiplayer.ts"
+                  },
+                  {
+                    "en": "Rooms live in memory only",
+                    "es": "Las salas viven solo en memoria"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "asset",
+              "label": {
+                "en": "Asset server",
+                "es": "Servidor de recursos"
+              },
+              "sublabel": {
+                "en": "Game art and audio",
+                "es": "Arte y audio del juego"
+              },
+              "kind": "service",
+              "group": "server",
+              "tech": "Next.js route",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "GET /api/asset/[...path] serves images and other files from the repo-root Assests/ directory, which lives outside /public. It rejects '..', absolute paths and null bytes, and sets hard cache headers because assets are immutable.",
+                  "es": "GET /api/asset/[...path] sirve imágenes y otros archivos del directorio Assests/ en la raíz del repo, que vive fuera de /public. Rechaza '..', rutas absolutas y bytes nulos, y fija caché fuerte porque los recursos son inmutables."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Maps file extensions to MIME types",
+                    "es": "Asocia extensiones con tipos MIME"
+                  },
+                  {
+                    "en": "Path traversal is refused with 403",
+                    "es": "El path traversal se rechaza con 403"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e9",
+              "from": "ui",
+              "to": "ws",
+              "label": {
+                "en": "join room",
+                "es": "unirse a una sala"
+              },
+              "async": true
+            },
+            {
+              "id": "e8",
+              "from": "ui",
+              "to": "asset",
+              "label": {
+                "en": "loads images",
+                "es": "carga imágenes"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f2",
+              "name": {
+                "en": "Multiplayer room",
+                "es": "Sala multijugador"
+              },
+              "description": {
+                "en": "A client joins a room on the WebSocket server for shared state and chat.",
+                "es": "Un cliente se une a una sala del servidor WebSocket para compartir estado y chat."
+              },
+              "edges": [
+                "e9"
+              ]
+            },
+            {
+              "id": "f5",
+              "name": {
+                "en": "Loading game assets",
+                "es": "Carga de recursos"
+              },
+              "description": {
+                "en": "The browser requests images through the asset route, which reads the Assests/ directory.",
+                "es": "El navegador pide imágenes a la ruta de recursos, que lee el directorio Assests/."
+              },
+              "edges": [
+                "e8"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "Optional WebSocket rooms",
+              "es": "Salas WebSocket opcionales"
+            },
+            {
+              "en": "Assets served from outside /public",
+              "es": "Recursos servidos desde fuera de /public"
+            }
+          ],
+          "groups": [
+            {
+              "id": "client",
+              "label": {
+                "en": "Browser",
+                "es": "Navegador"
+              }
+            },
+            {
+              "id": "server",
+              "label": {
+                "en": "Server",
+                "es": "Servidor"
+              }
+            }
+          ]
+        }
       }
     ]
   }

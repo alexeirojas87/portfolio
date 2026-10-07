@@ -1,8 +1,14 @@
 {
   "slug": "cerberus",
   "category": "personal",
-  "title": { "en": "Cerberus", "es": "Cerberus" },
-  "tagline": { "en": "Local DLP firewall that blocks secrets and PII from reaching LLM providers", "es": "Firewall DLP local que bloquea secretos y PII antes de llegar a proveedores LLM" },
+  "title": {
+    "en": "Cerberus",
+    "es": "Cerberus"
+  },
+  "tagline": {
+    "en": "Local DLP firewall that blocks secrets and PII from reaching LLM providers",
+    "es": "Firewall DLP local que bloquea secretos y PII antes de llegar a proveedores LLM"
+  },
   "summary": {
     "en": "A Rust reverse proxy that sits between AI coding agents (Claude Code, Codex, opencode) and LLM APIs. It scans every request in under a millisecond, then blocks, redacts or warns on secrets and personal data, recording only keyed hashes in a local audit store.",
     "es": "Un reverse proxy en Rust que se coloca entre agentes de código con IA (Claude Code, Codex, opencode) y las APIs LLM. Escanea cada petición en menos de un milisegundo y bloquea, redacta o advierte sobre secretos y datos personales, guardando solo hashes con clave en un almacén de auditoría local."
@@ -11,81 +17,823 @@
     "en": "AI coding agents ship code, prompts and context to external APIs. A stray API key, .env dump or PEM key in that payload leaves the machine, and there is no standard control point to stop it.",
     "es": "Los agentes de código con IA envían código, prompts y contexto a APIs externas. Una clave de API, un volcado de .env o una clave PEM en esa carga sale de la máquina y no existe un punto de control estándar para impedirlo."
   },
-  "role": { "en": "Solo: architecture, Rust implementation, security design, packaging and release automation", "es": "En solitario: arquitectura, implementación en Rust, diseño de seguridad, empaquetado y automatización de releases" },
+  "role": {
+    "en": "Solo: architecture, Rust implementation, security design, packaging and release automation",
+    "es": "En solitario: arquitectura, implementación en Rust, diseño de seguridad, empaquetado y automatización de releases"
+  },
   "status": "live",
   "year": "2026",
-  "links": { "live": null, "github": "https://github.com/alexeirojas87/cerberus" },
+  "links": {
+    "live": null,
+    "github": "https://github.com/alexeirojas87/cerberus"
+  },
   "stack": [
-    { "name": "Rust", "category": "language" },
-    { "name": "Cargo workspace (multi-crate)", "category": "backend" },
-    { "name": "regex (linear-time engine)", "category": "backend" },
-    { "name": "SQLite", "category": "data" },
-    { "name": "HMAC-SHA256", "category": "other" },
-    { "name": "Ed25519 signed rule packs", "category": "other" },
-    { "name": "Docker / Docker Compose", "category": "devops" },
-    { "name": "Helm", "category": "devops" },
-    { "name": "GitHub Actions + Homebrew tap", "category": "devops" },
-    { "name": "Fuzz, load and fail-safe tests", "category": "testing" }
+    {
+      "name": "Rust",
+      "category": "language"
+    },
+    {
+      "name": "Cargo workspace (multi-crate)",
+      "category": "backend"
+    },
+    {
+      "name": "regex (linear-time engine)",
+      "category": "backend"
+    },
+    {
+      "name": "SQLite",
+      "category": "data"
+    },
+    {
+      "name": "HMAC-SHA256",
+      "category": "other"
+    },
+    {
+      "name": "Ed25519 signed rule packs",
+      "category": "other"
+    },
+    {
+      "name": "Docker / Docker Compose",
+      "category": "devops"
+    },
+    {
+      "name": "Helm",
+      "category": "devops"
+    },
+    {
+      "name": "GitHub Actions + Homebrew tap",
+      "category": "devops"
+    },
+    {
+      "name": "Fuzz, load and fail-safe tests",
+      "category": "testing"
+    }
   ],
   "highlights": [
-    { "en": "Modular Rust workspace with separate crates for engine, proxy, store, packs and CLI, with unsafe code forbidden and pedantic clippy denied.", "es": "Workspace de Rust modular con crates separados para motor, proxy, almacén, packs y CLI, con código unsafe prohibido y clippy pedantic en modo deny." },
-    { "en": "Detection on a linear-time regex engine with a 13-rule default pack, ReDoS fuzz tests and a measured p99 scan latency under 1 ms.", "es": "Detección sobre un motor regex de tiempo lineal con un pack de 13 reglas, pruebas de fuzzing contra ReDoS y latencia p99 de escaneo medida bajo 1 ms." },
-    { "en": "Zero-leak audit design: raw secrets are never persisted; only per-installation keyed HMAC hashes, flags and counts reach SQLite.", "es": "Diseño de auditoría sin fugas: los secretos en crudo nunca se persisten; solo hashes HMAC con clave por instalación, flags y conteos llegan a SQLite." },
-    { "en": "Fail-closed by default, signed Ed25519 rule packs verified at boot, and opt-in MITM interception restricted to an allowlist of exact hosts.", "es": "Fail-closed por defecto, packs de reglas firmados con Ed25519 verificados al arrancar e intercepción MITM opcional restringida a una lista de hosts exactos." },
-    { "en": "Control plane with hot-swappable config, a CSP-protected dashboard, admin-token enforcement on non-loopback binds, and a break-glass allow-once command with recorded reason.", "es": "Plano de control con configuración intercambiable en caliente, dashboard protegido con CSP, token de administración obligatorio en binds no loopback y comando allow-once de emergencia con motivo registrado." },
-    { "en": "Distribution via Homebrew, install script, Windows zip, Docker and a Helm chart, with release and version-bump workflows.", "es": "Distribución por Homebrew, script de instalación, zip para Windows, Docker y un chart de Helm, con workflows de release y de subida de versión." }
+    {
+      "en": "Modular Rust workspace with separate crates for engine, proxy, store, packs and CLI, with unsafe code forbidden and pedantic clippy denied.",
+      "es": "Workspace de Rust modular con crates separados para motor, proxy, almacén, packs y CLI, con código unsafe prohibido y clippy pedantic en modo deny."
+    },
+    {
+      "en": "Detection on a linear-time regex engine with a 13-rule default pack, ReDoS fuzz tests and a measured p99 scan latency under 1 ms.",
+      "es": "Detección sobre un motor regex de tiempo lineal con un pack de 13 reglas, pruebas de fuzzing contra ReDoS y latencia p99 de escaneo medida bajo 1 ms."
+    },
+    {
+      "en": "Zero-leak audit design: raw secrets are never persisted; only per-installation keyed HMAC hashes, flags and counts reach SQLite.",
+      "es": "Diseño de auditoría sin fugas: los secretos en crudo nunca se persisten; solo hashes HMAC con clave por instalación, flags y conteos llegan a SQLite."
+    },
+    {
+      "en": "Fail-closed by default, signed Ed25519 rule packs verified at boot, and opt-in MITM interception restricted to an allowlist of exact hosts.",
+      "es": "Fail-closed por defecto, packs de reglas firmados con Ed25519 verificados al arrancar e intercepción MITM opcional restringida a una lista de hosts exactos."
+    },
+    {
+      "en": "Control plane with hot-swappable config, a CSP-protected dashboard, admin-token enforcement on non-loopback binds, and a break-glass allow-once command with recorded reason.",
+      "es": "Plano de control con configuración intercambiable en caliente, dashboard protegido con CSP, token de administración obligatorio en binds no loopback y comando allow-once de emergencia con motivo registrado."
+    },
+    {
+      "en": "Distribution via Homebrew, install script, Windows zip, Docker and a Helm chart, with release and version-bump workflows.",
+      "es": "Distribución por Homebrew, script de instalación, zip para Windows, Docker y un chart de Helm, con workflows de release y de subida de versión."
+    }
   ],
   "decisions": [
     {
-      "title": { "en": "Reverse proxy via *_BASE_URL, MITM only as opt-in", "es": "Reverse proxy vía *_BASE_URL, MITM solo opcional" },
-      "why": { "en": "Pointing agents at a local base URL needs no certificate trust and is the least invasive route; TLS interception is available for stubborn clients but off by default and fail-closed.", "es": "Apuntar los agentes a una URL base local no requiere confiar en certificados y es la vía menos invasiva; la intercepción TLS existe para clientes difíciles pero está desactivada por defecto y es fail-closed." }
+      "title": {
+        "en": "Reverse proxy via *_BASE_URL, MITM only as opt-in",
+        "es": "Reverse proxy vía *_BASE_URL, MITM solo opcional"
+      },
+      "why": {
+        "en": "Pointing agents at a local base URL needs no certificate trust and is the least invasive route; TLS interception is available for stubborn clients but off by default and fail-closed.",
+        "es": "Apuntar los agentes a una URL base local no requiere confiar en certificados y es la vía menos invasiva; la intercepción TLS existe para clientes difíciles pero está desactivada por defecto y es fail-closed."
+      }
     },
     {
-      "title": { "en": "Regex with a linear-time engine", "es": "Regex con motor de tiempo lineal" },
-      "why": { "en": "Scanning sits on the request path, so predictable latency and immunity to catastrophic backtracking matter more than exotic pattern features.", "es": "El escaneo está en la ruta de la petición, así que una latencia predecible y la inmunidad al backtracking catastrófico importan más que funciones de patrón exóticas." }
+      "title": {
+        "en": "Regex with a linear-time engine",
+        "es": "Regex con motor de tiempo lineal"
+      },
+      "why": {
+        "en": "Scanning sits on the request path, so predictable latency and immunity to catastrophic backtracking matter more than exotic pattern features.",
+        "es": "El escaneo está en la ruta de la petición, así que una latencia predecible y la inmunidad al backtracking catastrófico importan más que funciones de patrón exóticas."
+      }
     },
     {
-      "title": { "en": "Store hashes, never values", "es": "Guardar hashes, nunca valores" },
-      "why": { "en": "An audit trail is useful for triage and deduplication without becoming a second place where secrets live. Keyed per-install HMACs prevent cross-install correlation.", "es": "Una traza de auditoría sirve para triage y deduplicación sin convertirse en otro lugar donde viven los secretos. Los HMAC con clave por instalación evitan la correlación entre instalaciones." }
+      "title": {
+        "en": "Store hashes, never values",
+        "es": "Guardar hashes, nunca valores"
+      },
+      "why": {
+        "en": "An audit trail is useful for triage and deduplication without becoming a second place where secrets live. Keyed per-install HMACs prevent cross-install correlation.",
+        "es": "Una traza de auditoría sirve para triage y deduplicación sin convertirse en otro lugar donde viven los secretos. Los HMAC con clave por instalación evitan la correlación entre instalaciones."
+      }
     },
     {
-      "title": { "en": "Fail closed and chain-able", "es": "Fail closed y encadenable" },
-      "why": { "en": "If the engine breaks, blocking is safer than leaking. A chain option lets Cerberus scan plaintext first and hand the sanitized request to another proxy such as a token compressor.", "es": "Si el motor falla, bloquear es más seguro que filtrar. Una opción de encadenamiento permite que Cerberus escanee el texto plano primero y entregue la petición sanitizada a otro proxy, como un compresor de tokens." }
+      "title": {
+        "en": "Fail closed and chain-able",
+        "es": "Fail closed y encadenable"
+      },
+      "why": {
+        "en": "If the engine breaks, blocking is safer than leaking. A chain option lets Cerberus scan plaintext first and hand the sanitized request to another proxy such as a token compressor.",
+        "es": "Si el motor falla, bloquear es más seguro que filtrar. Una opción de encadenamiento permite que Cerberus escanee el texto plano primero y entregue la petición sanitizada a otro proxy, como un compresor de tokens."
+      }
     }
   ],
   "architecture": {
     "groups": [
-      { "id": "client", "label": { "en": "Local client", "es": "Cliente local" } },
-      { "id": "daemon", "label": { "en": "Cerberus daemon", "es": "Demonio Cerberus" } },
-      { "id": "data", "label": { "en": "Local data", "es": "Datos locales" } },
-      { "id": "upstream", "label": { "en": "Upstream", "es": "Upstream" } }
+      {
+        "id": "client",
+        "label": {
+          "en": "Local client",
+          "es": "Cliente local"
+        }
+      },
+      {
+        "id": "daemon",
+        "label": {
+          "en": "Cerberus daemon",
+          "es": "Demonio Cerberus"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Local data",
+          "es": "Datos locales"
+        }
+      },
+      {
+        "id": "upstream",
+        "label": {
+          "en": "Upstream",
+          "es": "Upstream"
+        }
+      }
     ],
     "nodes": [
-      { "id": "agent", "label": "AI coding agent", "sublabel": { "en": "Claude Code, Codex, opencode", "es": "Claude Code, Codex, opencode" }, "kind": "client", "group": "client" },
-      { "id": "cli", "label": "cerberus CLI", "sublabel": { "en": "init, start, scan, mode, mitm", "es": "init, start, scan, mode, mitm" }, "kind": "client", "group": "client" },
-      { "id": "proxy", "label": "cerberus-proxy", "sublabel": { "en": "Decode, policy, forward, control API", "es": "Decodifica, política, reenvío, API de control" }, "kind": "gateway", "group": "daemon" },
-      { "id": "engine", "label": "cerberus-engine", "sublabel": { "en": "Regex detection and redaction", "es": "Detección regex y redacción" }, "kind": "service", "group": "daemon" },
-      { "id": "packs", "label": "cerberus-packs", "sublabel": { "en": "Ed25519-signed rule packs, licensing", "es": "Packs de reglas firmados con Ed25519, licencias" }, "kind": "service", "group": "daemon" },
-      { "id": "store", "label": "cerberus-store", "sublabel": { "en": "Async audit writer, retention", "es": "Escritor de auditoría asíncrono, retención" }, "kind": "service", "group": "daemon" },
-      { "id": "sqlite", "label": "SQLite audit DB", "sublabel": { "en": "Flags, hashes, counts only", "es": "Solo flags, hashes y conteos" }, "kind": "db", "group": "data" },
-      { "id": "dash", "label": "Dashboard", "sublabel": { "en": "CSP-protected local web UI", "es": "UI web local protegida con CSP" }, "kind": "client", "group": "daemon" },
-      { "id": "llm", "label": "LLM provider", "sublabel": { "en": "OpenAI, Anthropic, or chained proxy", "es": "OpenAI, Anthropic o proxy encadenado" }, "kind": "external", "group": "upstream" }
+      {
+        "id": "agent",
+        "label": {
+          "en": "AI coding agent",
+          "es": "Agente de código con IA"
+        },
+        "sublabel": {
+          "en": "Sends prompts to an LLM",
+          "es": "Envía prompts a un LLM"
+        },
+        "kind": "client",
+        "group": "client",
+        "tech": "Claude Code · Codex",
+        "owned": false,
+        "pos": {
+          "col": -1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The developer tool whose outbound requests Cerberus inspects (Claude Code, Codex, opencode, pi). It only needs its *_BASE_URL pointed at the local proxy; cerberus init detects installed agents and writes that configuration.",
+            "es": "La herramienta de desarrollo cuyas peticiones salientes inspecciona Cerberus (Claude Code, Codex, opencode, pi). Solo necesita su *_BASE_URL apuntando al proxy local; cerberus init detecta los agentes instalados y escribe esa configuración."
+          },
+          "responsibilities": [
+            {
+              "en": "Sends requests to http://localhost:8787 under a per-provider path prefix",
+              "es": "Envía peticiones a http://localhost:8787 con un prefijo de ruta por proveedor"
+            },
+            {
+              "en": "Receives an x-cerberus-feedback header when something was redacted or blocked",
+              "es": "Recibe un header x-cerberus-feedback cuando algo fue redactado o bloqueado"
+            }
+          ]
+        }
+      },
+      {
+        "id": "cli",
+        "label": {
+          "en": "Command line",
+          "es": "Línea de comandos"
+        },
+        "sublabel": {
+          "en": "init, start, scan, mode, mitm",
+          "es": "init, start, scan, mode, mitm"
+        },
+        "kind": "client",
+        "group": "client",
+        "tech": "Rust",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "The cerberus binary. Local-only commands (init, scan, test, doctor, validate) run without the daemon; the rest are clients of the daemon's control-plane HTTP API, which is the only writer of state.",
+            "es": "El binario cerberus. Los comandos solo locales (init, scan, test, doctor, validate) corren sin el demonio; el resto son clientes de la API HTTP de control del demonio, que es el único que escribe estado."
+          },
+          "responsibilities": [
+            {
+              "en": "init generates the admin token and per-install HMAC key and points agents at the proxy",
+              "es": "init genera el token de admin y la clave HMAC por instalación y apunta a los agentes al proxy"
+            },
+            {
+              "en": "Starts and stops the daemon, switches shadow/enforce mode, manages upstreams",
+              "es": "Inicia y detiene el demonio, cambia entre modo shadow y enforce, administra upstreams"
+            },
+            {
+              "en": "pack install sends the signed pack bytes, never a path",
+              "es": "pack install envía los bytes del pack firmado, nunca una ruta"
+            },
+            {
+              "en": "Sets up the opt-in MITM CA and listener but never touches the system trust store",
+              "es": "Configura la CA y el listener MITM opcionales pero nunca toca el almacén de confianza del sistema"
+            }
+          ]
+        }
+      },
+      {
+        "id": "dash",
+        "label": {
+          "en": "Local dashboard",
+          "es": "Dashboard local"
+        },
+        "sublabel": {
+          "en": "Protected local web UI",
+          "es": "UI web local protegida"
+        },
+        "kind": "client",
+        "group": "daemon",
+        "tech": "Web UI · CSP",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "A single HTML page (dashboard.html) served by the daemon at /api/dashboard, with /ui redirecting to it. The server emits a Content-Security-Policy header; the page calls /api/stats, /api/events, /api/config, /api/policy and /api/packs with the admin token.",
+            "es": "Una sola página HTML (dashboard.html) servida por el demonio en /api/dashboard, con /ui redirigiendo a ella. El servidor emite un header Content-Security-Policy; la página llama a /api/stats, /api/events, /api/config, /api/policy y /api/packs con el token de admin."
+          },
+          "responsibilities": [
+            {
+              "en": "Shows audit statistics and events (flags and hashes only)",
+              "es": "Muestra estadísticas y eventos de auditoría (solo flags y hashes)"
+            },
+            {
+              "en": "Edits policy, categories, custom rules and allowlist; hot-swaps without restart",
+              "es": "Edita política, categorías, reglas propias y allowlist; cambio en caliente sin reiniciar"
+            },
+            {
+              "en": "Admin token required; the control plane checks Host and Origin against an exact allowlist to resist DNS rebinding",
+              "es": "Requiere token de admin; el plano de control verifica Host y Origin contra una allowlist exacta para resistir DNS rebinding"
+            }
+          ]
+        }
+      },
+      {
+        "id": "proxy",
+        "label": {
+          "en": "Egress proxy",
+          "es": "Proxy de salida"
+        },
+        "sublabel": {
+          "en": "Decode, policy, forward",
+          "es": "Decodifica, aplica política y reenvía"
+        },
+        "kind": "gateway",
+        "group": "daemon",
+        "tech": "Rust · cerberus-proxy",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "A provider-agnostic reverse proxy (cerberus-proxy) listening on 127.0.0.1:8787 by default. It routes by path prefix to configured upstreams, decodes JSON, text and multipart bodies, scans them, redacts matching JSON string leaves in place, forwards over TLS and buffers the response up to the body limit. The same listener serves the control API.",
+            "es": "Un proxy inverso agnóstico del proveedor (cerberus-proxy) que escucha por defecto en 127.0.0.1:8787. Enruta por prefijo de ruta a los upstreams configurados, decodifica cuerpos JSON, texto y multipart, los escanea, redacta en sitio las cadenas JSON que coinciden, reenvía por TLS y almacena la respuesta hasta el límite de cuerpo. El mismo listener sirve la API de control."
+          },
+          "responsibilities": [
+            {
+              "en": "Shadow mode records only; enforce mode redacts or blocks, per upstream or global",
+              "es": "El modo shadow solo registra; el modo enforce redacta o bloquea, por upstream o global"
+            },
+            {
+              "en": "Failure policy defaults to closed-on-critical: fail closed only when critical rules are involved",
+              "es": "La política de fallo por defecto es closed-on-critical: falla cerrado solo si hay reglas críticas"
+            },
+            {
+              "en": "Body size limit on request and response; hop-by-hop headers filtered",
+              "es": "Límite de tamaño en petición y respuesta; se filtran los headers hop-by-hop"
+            },
+            {
+              "en": "Optional reversible redaction: a request-scoped vault restores tokens in the response, then is zeroized",
+              "es": "Redacción reversible opcional: una bóveda por petición restaura los tokens en la respuesta y luego se borra"
+            },
+            {
+              "en": "Break-glass: one-shot bypass tokens issued through the admin API and audited",
+              "es": "Break-glass: tokens de bypass de un solo uso emitidos por la API de admin y auditados"
+            },
+            {
+              "en": "Desktop notification and feedback header on redactions or blocks",
+              "es": "Notificación de escritorio y header de feedback ante redacciones o bloqueos"
+            }
+          ],
+          "why": {
+            "en": "Fail-closed on critical findings: if scanning cannot run on a critical rule, the request does not leave.",
+            "es": "Fail-closed ante hallazgos críticos: si el escaneo no puede correr sobre una regla crítica, la petición no sale."
+          }
+        }
+      },
+      {
+        "id": "fwd",
+        "label": {
+          "en": "Opt-in forward proxy",
+          "es": "Proxy directo opcional"
+        },
+        "sublabel": {
+          "en": "CONNECT with local CA",
+          "es": "CONNECT con CA local"
+        },
+        "kind": "gateway",
+        "group": "daemon",
+        "tech": "Rust · rustls",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "An opt-in forward proxy listener (default 127.0.0.1:8788) started only when mitm.json enables it. It accepts CONNECT host:443 solely for exact allowlisted hosts and issues certificates for those hosts from a local CA the user created and trusted. Decrypted requests go through the same proxy handler and context.",
+            "es": "Un listener de proxy directo opcional (por defecto 127.0.0.1:8788) que solo arranca si mitm.json lo habilita. Acepta CONNECT host:443 únicamente para hosts exactos de la allowlist y emite certificados para esos hosts desde una CA local que el usuario creó y confió. Las peticiones descifradas pasan por el mismo handler y contexto del proxy."
+          },
+          "responsibilities": [
+            {
+              "en": "Loopback only; no wildcard hosts",
+              "es": "Solo loopback; sin hosts con comodín"
+            },
+            {
+              "en": "The CA must exist before startup; Cerberus never installs it in the trust store",
+              "es": "La CA debe existir antes de arrancar; Cerberus nunca la instala en el almacén de confianza"
+            },
+            {
+              "en": "Absence of mitm.json means disabled",
+              "es": "La ausencia de mitm.json significa deshabilitado"
+            }
+          ],
+          "why": {
+            "en": "Lets agents that cannot change their base URL still be inspected, without making interception the default.",
+            "es": "Permite inspeccionar agentes que no pueden cambiar su base URL, sin hacer de la intercepción el comportamiento por defecto."
+          }
+        }
+      },
+      {
+        "id": "engine",
+        "label": {
+          "en": "Detection engine",
+          "es": "Motor de detección"
+        },
+        "sublabel": {
+          "en": "Scan and redact secrets",
+          "es": "Escanea y redacta secretos"
+        },
+        "kind": "service",
+        "group": "daemon",
+        "tech": "Rust · linear regex",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "cerberus-engine, a pure library with no network or persistence. It compiles rules into a hybrid Aho-Corasick plus regex matcher, applies constraints and checks, and returns findings with an action. Matched values are stored only as keyed hashes.",
+            "es": "cerberus-engine, una biblioteca pura sin red ni persistencia. Compila las reglas en un matcher híbrido Aho-Corasick más regex, aplica restricciones y validaciones, y devuelve hallazgos con una acción. Los valores coincidentes solo se guardan como hashes con clave."
+          },
+          "responsibilities": [
+            {
+              "en": "Rust regex engine: linear time, no backtracking, so no ReDoS",
+              "es": "Motor regex de Rust: tiempo lineal, sin backtracking, por tanto sin ReDoS"
+            },
+            {
+              "en": "Constraints (min/max length, context keywords, allowed examples), validators and a built-in Shannon-entropy detector",
+              "es": "Restricciones (longitud mínima/máxima, palabras de contexto, ejemplos permitidos), validadores y un detector de entropía de Shannon incorporado"
+            },
+            {
+              "en": "Multiline scanning and a reversible vault, both opt-in",
+              "es": "Escaneo multilínea y una bóveda reversible, ambos opcionales"
+            },
+            {
+              "en": "README reports p50 about 0.1 ms and p99 under 1 ms per scan",
+              "es": "El README reporta p50 de unos 0,1 ms y p99 bajo 1 ms por escaneo"
+            }
+          ]
+        }
+      },
+      {
+        "id": "packs",
+        "label": {
+          "en": "Rule packs",
+          "es": "Packs de reglas"
+        },
+        "sublabel": {
+          "en": "Signed rules, licensing",
+          "es": "Reglas firmadas y licencias"
+        },
+        "kind": "service",
+        "group": "daemon",
+        "tech": "Ed25519 signed",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "cerberus-packs: the PackManager loads versioned, Ed25519-signed rule packs from ~/.cerberus/packs against a trust root before the proxy starts, tracks installed and active versions in a manifest and supports rollback. The default 15-rule pack is built in. Pack operations and the trust root are gated to the Pro license tier.",
+            "es": "cerberus-packs: el PackManager carga packs de reglas versionados y firmados con Ed25519 desde ~/.cerberus/packs contra una raíz de confianza antes de iniciar el proxy, registra las versiones instaladas y activas en un manifiesto y permite rollback. El pack por defecto de 15 reglas está incorporado. Las operaciones de packs y la raíz de confianza requieren la licencia Pro."
+          },
+          "responsibilities": [
+            {
+              "en": "A pack that fails signature verification is deactivated in the manifest",
+              "es": "Un pack que falla la verificación de firma se desactiva en el manifiesto"
+            },
+            {
+              "en": "Install and rollback hot-swap the live engine and re-apply the operator's policy on top",
+              "es": "Instalar y revertir cambia el motor en caliente y reaplica encima la política del operador"
+            },
+            {
+              "en": "packs update re-verifies signatures; fetching from a registry is not implemented",
+              "es": "packs update reverifica firmas; descargar desde un registro no está implementado"
+            },
+            {
+              "en": "License file decides Free or Pro; verification failure falls back to Free",
+              "es": "El archivo de licencia decide Free o Pro; si la verificación falla se cae a Free"
+            }
+          ]
+        }
+      },
+      {
+        "id": "store",
+        "label": {
+          "en": "Audit writer",
+          "es": "Escritor de auditoría"
+        },
+        "sublabel": {
+          "en": "Async hash-only audit events",
+          "es": "Eventos de auditoría asíncronos"
+        },
+        "kind": "service",
+        "group": "daemon",
+        "tech": "Rust · cerberus-store",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "cerberus-store: an AuditStore whose SQLite writer and reader run on dedicated OS threads, fed by channels so the async request path never blocks. Each event holds flags, categories, counts and keyed HMAC-SHA-256 hashes, never the raw value.",
+            "es": "cerberus-store: un AuditStore cuyo escritor y lector SQLite corren en hilos del SO dedicados, alimentados por canales para que la ruta asíncrona de la petición nunca se bloquee. Cada evento guarda flags, categorías, conteos y hashes HMAC-SHA-256 con clave, nunca el valor crudo."
+          },
+          "responsibilities": [
+            {
+              "en": "Per-installation HMAC key: env override or a 0600 key file generated on first boot",
+              "es": "Clave HMAC por instalación: variable de entorno o archivo de clave 0600 generado en el primer arranque"
+            },
+            {
+              "en": "Retention purge, default 90 days (CERBERUS_RETENTION_DAYS)",
+              "es": "Purga por retención, 90 días por defecto (CERBERUS_RETENTION_DAYS)"
+            },
+            {
+              "en": "If the store cannot open, events stay in memory only",
+              "es": "Si el almacén no puede abrirse, los eventos quedan solo en memoria"
+            }
+          ],
+          "why": {
+            "en": "A leaked audit log reveals nothing usable.",
+            "es": "Un log de auditoría filtrado no revela nada utilizable."
+          }
+        }
+      },
+      {
+        "id": "sqlite",
+        "label": {
+          "en": "Audit database",
+          "es": "Base de auditoría"
+        },
+        "sublabel": {
+          "en": "Flags, hashes, counts only",
+          "es": "Solo flags, hashes y conteos"
+        },
+        "kind": "db",
+        "group": "data",
+        "tech": "SQLite",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "cerberus.db in the config directory (~/.cerberus), a local SQLite file holding the audit trail.",
+            "es": "cerberus.db en el directorio de configuración (~/.cerberus), un archivo SQLite local con la pista de auditoría."
+          },
+          "responsibilities": [
+            {
+              "en": "Local only, no cloud",
+              "es": "Solo local, sin nube"
+            },
+            {
+              "en": "Contains no raw secrets",
+              "es": "No contiene secretos crudos"
+            },
+            {
+              "en": "Read back through the stats and events API",
+              "es": "Se lee de vuelta mediante la API de estadísticas y eventos"
+            }
+          ]
+        }
+      },
+      {
+        "id": "llm",
+        "label": {
+          "en": "LLM provider",
+          "es": "Proveedor LLM"
+        },
+        "sublabel": {
+          "en": "Receives only redacted requests",
+          "es": "Solo recibe peticiones redactadas"
+        },
+        "kind": "external",
+        "group": "upstream",
+        "tech": "OpenAI-style API",
+        "owned": false,
+        "pos": {
+          "col": 4,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The upstream LLM API (for example api.openai.com) that the agent actually wants to reach, configured as a named upstream with a path prefix.",
+            "es": "La API LLM upstream (por ejemplo api.openai.com) que el agente realmente quiere alcanzar, configurada como upstream con nombre y prefijo de ruta."
+          },
+          "responsibilities": [
+            {
+              "en": "Receives only redacted content",
+              "es": "Recibe solo contenido redactado"
+            },
+            {
+              "en": "Its response is buffered and returned to the agent",
+              "es": "Su respuesta se almacena y se devuelve al agente"
+            }
+          ]
+        }
+      }
     ],
     "edges": [
-      { "id": "e1", "from": "agent", "to": "proxy", "label": { "en": "request to local base URL", "es": "petición a la URL base local" }, "async": false },
-      { "id": "e2", "from": "proxy", "to": "engine", "label": { "en": "scan decoded body", "es": "escanea el cuerpo decodificado" }, "async": false },
-      { "id": "e3", "from": "packs", "to": "engine", "label": { "en": "verified rules at boot", "es": "reglas verificadas al arrancar" }, "async": false },
-      { "id": "e4", "from": "engine", "to": "proxy", "label": { "en": "findings and action", "es": "hallazgos y acción" }, "async": false },
-      { "id": "e5", "from": "proxy", "to": "store", "label": { "en": "audit event (hash only)", "es": "evento de auditoría (solo hash)" }, "async": true },
-      { "id": "e6", "from": "store", "to": "sqlite", "label": { "en": "non-blocking write", "es": "escritura no bloqueante" }, "async": true },
-      { "id": "e7", "from": "proxy", "to": "llm", "label": { "en": "forward redacted request", "es": "reenvía la petición redactada" }, "async": false },
-      { "id": "e8", "from": "cli", "to": "proxy", "label": { "en": "start, mode, config", "es": "start, modo, config" }, "async": false },
-      { "id": "e9", "from": "dash", "to": "proxy", "label": { "en": "admin-token API calls", "es": "llamadas API con token de admin" }, "async": false }
+      {
+        "id": "e1",
+        "from": "agent",
+        "to": "proxy",
+        "label": {
+          "en": "request to local base URL",
+          "es": "petición a la base URL local"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "proxy",
+        "to": "engine",
+        "label": {
+          "en": "scan decoded body",
+          "es": "escanea el cuerpo decodificado"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "packs",
+        "to": "engine",
+        "label": {
+          "en": "signed rules at boot and on hot swap",
+          "es": "reglas firmadas al arrancar y en cambio en caliente"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "engine",
+        "to": "proxy",
+        "label": {
+          "en": "findings and action",
+          "es": "hallazgos y acción"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "proxy",
+        "to": "store",
+        "label": {
+          "en": "audit event (hashes only)",
+          "es": "evento de auditoría (solo hashes)"
+        },
+        "async": true
+      },
+      {
+        "id": "e6",
+        "from": "store",
+        "to": "sqlite",
+        "label": {
+          "en": "writer thread to SQLite",
+          "es": "hilo escritor a SQLite"
+        },
+        "async": true
+      },
+      {
+        "id": "e7",
+        "from": "proxy",
+        "to": "llm",
+        "label": {
+          "en": "forward redacted request over TLS",
+          "es": "reenvía la petición redactada por TLS"
+        },
+        "async": false
+      },
+      {
+        "id": "e10",
+        "from": "llm",
+        "to": "proxy",
+        "label": {
+          "en": "response (buffered)",
+          "es": "respuesta (almacenada)"
+        },
+        "async": false
+      },
+      {
+        "id": "e15",
+        "from": "proxy",
+        "to": "agent",
+        "label": {
+          "en": "response and feedback header",
+          "es": "respuesta y header de feedback"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "cli",
+        "to": "proxy",
+        "label": {
+          "en": "start, mode, config, pack calls",
+          "es": "inicio, modo, config, llamadas de packs"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "dash",
+        "to": "proxy",
+        "label": {
+          "en": "admin-token API calls",
+          "es": "llamadas a la API con token de admin"
+        },
+        "async": false
+      },
+      {
+        "id": "e11",
+        "from": "agent",
+        "to": "fwd",
+        "label": {
+          "en": "CONNECT host:443 (opt-in)",
+          "es": "CONNECT host:443 (opcional)"
+        },
+        "async": false
+      },
+      {
+        "id": "e12",
+        "from": "fwd",
+        "to": "proxy",
+        "label": {
+          "en": "same handler and context",
+          "es": "mismo handler y contexto"
+        },
+        "async": false
+      },
+      {
+        "id": "e13",
+        "from": "proxy",
+        "to": "packs",
+        "label": {
+          "en": "pack install and rollback (signed bytes)",
+          "es": "instalar y revertir packs (bytes firmados)"
+        },
+        "async": false
+      },
+      {
+        "id": "e14",
+        "from": "cli",
+        "to": "agent",
+        "label": {
+          "en": "init writes *_BASE_URL",
+          "es": "init escribe *_BASE_URL"
+        },
+        "async": false
+      }
     ],
     "flows": [
-      { "id": "f1", "name": { "en": "A scanned request", "es": "Una petición escaneada" }, "description": { "en": "The agent sends a prompt; the engine detects findings, policy blocks or redacts, only a hash is audited, and the clean request goes upstream.", "es": "El agente envía un prompt; el motor detecta hallazgos, la política bloquea o redacta, solo se audita un hash y la petición limpia sigue a upstream." }, "edges": ["e1", "e2", "e4", "e5", "e6", "e7"] },
-      { "id": "f2", "name": { "en": "Boot with signed rules", "es": "Arranque con reglas firmadas" }, "description": { "en": "Rule packs are verified against a trust root before the engine uses them; tampered packs are deactivated.", "es": "Los packs de reglas se verifican contra una raíz de confianza antes de que el motor los use; los packs alterados se desactivan." }, "edges": ["e3", "e2"] },
-      { "id": "f3", "name": { "en": "Operator control", "es": "Control del operador" }, "description": { "en": "The CLI and dashboard manage mode, upstreams and policy through the authenticated control API with hot-swap config.", "es": "La CLI y el dashboard gestionan modo, upstreams y política mediante la API de control autenticada con configuración en caliente." }, "edges": ["e8", "e9"] }
+      {
+        "id": "f1",
+        "name": {
+          "en": "A scanned request",
+          "es": "Una petición escaneada"
+        },
+        "description": {
+          "en": "The agent calls the local proxy, which scans the body with the engine, applies the policy, records an audit event asynchronously, forwards the redacted request upstream and returns the response with a feedback header.",
+          "es": "El agente llama al proxy local, que escanea el cuerpo con el motor, aplica la política, registra un evento de auditoría de forma asíncrona, reenvía la petición redactada al upstream y devuelve la respuesta con un header de feedback."
+        },
+        "edges": [
+          "e1",
+          "e2",
+          "e4",
+          "e5",
+          "e6",
+          "e7",
+          "e10",
+          "e15"
+        ]
+      },
+      {
+        "id": "f2",
+        "name": {
+          "en": "Install a signed rule pack",
+          "es": "Instalar un pack de reglas firmado"
+        },
+        "description": {
+          "en": "The CLI sends signed pack bytes to the control API; the packs worker verifies them, and the live engine is hot-swapped without a restart.",
+          "es": "La CLI envía los bytes del pack firmado a la API de control; el worker de packs los verifica y el motor activo se cambia en caliente sin reiniciar."
+        },
+        "edges": [
+          "e8",
+          "e13",
+          "e3"
+        ]
+      },
+      {
+        "id": "f3",
+        "name": {
+          "en": "Operator setup and control",
+          "es": "Configuración y control del operador"
+        },
+        "description": {
+          "en": "cerberus init points agents at the proxy; the CLI and the dashboard then drive the daemon through the same admin API.",
+          "es": "cerberus init apunta a los agentes al proxy; luego la CLI y el panel manejan el demonio con la misma API de admin."
+        },
+        "edges": [
+          "e14",
+          "e8",
+          "e9"
+        ]
+      },
+      {
+        "id": "f4",
+        "name": {
+          "en": "Opt-in MITM interception",
+          "es": "Intercepción MITM opcional"
+        },
+        "description": {
+          "en": "For agents that cannot change their base URL, an allowlisted CONNECT is decrypted with a local CA and sent through the same scan path.",
+          "es": "Para agentes que no pueden cambiar su base URL, un CONNECT en la allowlist se descifra con una CA local y pasa por la misma ruta de escaneo."
+        },
+        "edges": [
+          "e11",
+          "e12",
+          "e2",
+          "e4",
+          "e7"
+        ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Local Rust proxy, per-request scan",
+        "es": "Proxy local en Rust, escaneo por petición"
+      },
+      {
+        "en": "Fail-closed on critical findings",
+        "es": "Fail-closed ante hallazgos críticos"
+      },
+      {
+        "en": "Signed Ed25519 rule packs (Pro)",
+        "es": "Packs de reglas firmados con Ed25519 (Pro)"
+      },
+      {
+        "en": "Zero-leak audit log",
+        "es": "Auditoría sin filtrar secretos"
+      },
+      {
+        "en": "p99 scan under 1 ms",
+        "es": "Escaneo p99 bajo 1 ms"
+      }
     ]
   }
 }

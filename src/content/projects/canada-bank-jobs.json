@@ -1,71 +1,1067 @@
 {
-"slug":"canada-bank-jobs","category":"personal",
-"title":{"en":"Job Bank Alert Service","es":"Servicio de Alertas de Job Bank"},
-"tagline":{"en":"Local-first job matcher: polls Job Bank, scores offers against your CV with an LLM","es":"Buscador local de empleos: consulta Job Bank y puntúa ofertas contra tu CV con un LLM"},
-"summary":{"en":"A local-first service that polls Canada's Job Bank, filters offers for international-candidate eligibility, and scores them against an uploaded CV using an LLM. It alerts by email and dashboard and prepares tailored cover letters and emails strictly as drafts. A React dashboard manages filters, offers, CV, drafts and settings.","es":"Servicio local que consulta Job Bank de Canadá, filtra ofertas según elegibilidad para candidatos internacionales y las puntúa contra un CV subido usando un LLM. Alerta por correo y panel, y prepara cartas y correos personalizados estrictamente como borradores. Un panel React gestiona filtros, ofertas, CV, borradores y ajustes."},
-"problem":{"en":"Finding postings that an international candidate can actually be hired for is slow: many require work authorization, and generic matching ignores that. The service automates discovery and fit scoring while never applying on the user's behalf.","es":"Encontrar ofertas para las que un candidato internacional puede ser contratado es lento: muchas exigen autorización de trabajo y el matching genérico lo ignora. El servicio automatiza el descubrimiento y la puntuación sin postular nunca en nombre del usuario."},
-"role":{"en":"Solo: architecture, Python backend, React frontend, LLM integration, testing","es":"Individual: arquitectura, backend Python, frontend React, integración con LLM, testing"},
-"status":"in-progress","year":"2026",
-"links":{"live":null,"github":null},
-"stack":[
-{"name":"Python 3.12","category":"language"},
-{"name":"FastAPI","category":"backend"},
-{"name":"SQLAlchemy + SQLite","category":"data"},
-{"name":"APScheduler","category":"backend"},
-{"name":"httpx","category":"backend"},
-{"name":"Pydantic","category":"backend"},
-{"name":"aiosmtplib (SMTP)","category":"messaging"},
-{"name":"pypdf / python-docx / ReportLab","category":"other"},
-{"name":"OpenAI-compatible LLM API","category":"ai"},
-{"name":"React 18 + Vite + TypeScript","category":"frontend"},
-{"name":"TanStack Query","category":"frontend"},
-{"name":"openapi-typescript","category":"frontend"},
-{"name":"pytest + respx","category":"testing"},
-{"name":"Vitest + MSW","category":"testing"},
-{"name":"ruff + mypy","category":"devops"}],
-"highlights":[
-{"en":"Deterministic pre-gate pipeline (authorization, location, keyword) runs before the LLM, so restrictive postings are rejected fail-closed with no model call and cost stays low.","es":"Un pipeline determinista de pre-filtros (autorización, ubicación, palabras clave) corre antes del LLM, de modo que las ofertas restrictivas se rechazan sin llamar al modelo y el costo se mantiene bajo."},
-{"en":"Robust LLM contract: Pydantic-validated JSON, one repair re-prompt with the validation error, bounded retries on 429/5xx, and job identity and prompt version injected server-side, never trusted from the model.","es":"Contrato robusto con el LLM: JSON validado con Pydantic, un re-prompt de reparación con el error, reintentos acotados en 429/5xx e identidad del empleo y versión de prompt inyectadas por el servidor."},
-{"en":"Fact-locked drafting: letters and emails are written from a numbered fact sheet of CV and posting facts, then verified so the model cannot invent claims; each paragraph shows its provenance in the UI.","es":"Redacción con hechos bloqueados: cartas y correos se escriben a partir de una hoja numerada de hechos del CV y la oferta y luego se verifican para que el modelo no invente; cada párrafo muestra su procedencia en la UI."},
-{"en":"Polite ingestion: descriptive User-Agent, durable ETag / Last-Modified conditional GET persisted in SQLite, jittered pacing, capped backoff, and a single-flight scheduler lock.","es":"Ingesta respetuosa: User-Agent descriptivo, GET condicional con ETag / Last-Modified persistido en SQLite, ritmo con jitter, backoff acotado y un lock de ejecución única en el scheduler."},
-{"en":"Hard invariant that no application-send path exists: drafts are mailto links and copy-to-clipboard only, with the contract checked through the OpenAPI schema.","es":"Invariante estricta de que no existe ruta de envío de postulaciones: los borradores son solo enlaces mailto y copiar al portapapeles, con el contrato revisado en el esquema OpenAPI."},
-{"en":"OpenAPI-first contract: the frontend client types are generated from the backend schema, and the project was delivered in tagged slices with the test suite green at each step.","es":"Contrato OpenAPI-first: los tipos del cliente se generan desde el esquema del backend, y el proyecto se entregó en cortes etiquetados con la suite de tests en verde en cada paso."}],
-"decisions":[
-{"title":{"en":"Local-first with SQLite","es":"Local-first con SQLite"},"why":{"en":"Single-user data (CV, matches) stays on the machine, with no hosting cost or third-party data exposure; retention and delete-on-demand are built in.","es":"Los datos de un solo usuario (CV, matches) permanecen en la máquina, sin costo de hosting ni exposición a terceros; retención y borrado bajo demanda están incluidos."}},
-{"title":{"en":"Cheap-to-expensive gate ordering","es":"Orden de filtros de barato a caro"},"why":{"en":"Deterministic checks go first and the LLM only sees survivors, which saves cost and makes eligibility decisions auditable and fail-closed.","es":"Las verificaciones deterministas van primero y el LLM solo ve a las supervivientes, lo que ahorra costo y hace auditables y fail-closed las decisiones de elegibilidad."}},
-{"title":{"en":"Draft-only delivery","es":"Entrega solo como borrador"},"why":{"en":"Auto-applying could misrepresent the candidate; keeping a human in the loop for every application is a deliberate safety boundary.","es":"Postular automáticamente podría tergiversar al candidato; mantener a una persona en cada postulación es un límite de seguridad deliberado."}},
-{"title":{"en":"Fact-locked prose generation","es":"Generación de prosa con hechos bloqueados"},"why":{"en":"Natural writing without hallucination: the model only reorganizes numbered facts and a verifier rejects unsupported statements.","es":"Escritura natural sin alucinaciones: el modelo solo reorganiza hechos numerados y un verificador rechaza afirmaciones sin soporte."}},
-{"title":{"en":"Layered backend with repositories and an OpenAPI contract","es":"Backend por capas con repositorios y contrato OpenAPI"},"why":{"en":"Separate api, services, repositories and models keep logic testable, and the exported schema keeps the typed frontend in sync.","es":"Capas api, services, repositories y models mantienen la lógica testeable, y el esquema exportado mantiene sincronizado el frontend tipado."}}],
-"architecture":{
-"groups":[{"id":"client","label":{"en":"Client","es":"Cliente"}},{"id":"core","label":{"en":"FastAPI service","es":"Servicio FastAPI"}},{"id":"data","label":{"en":"Local data","es":"Datos locales"}},{"id":"external","label":{"en":"External services","es":"Servicios externos"}}],
-"nodes":[
-{"id":"ui","label":"React dashboard","sublabel":{"en":"Offers, filters, CV, drafts, settings","es":"Ofertas, filtros, CV, borradores, ajustes"},"kind":"client","group":"client"},
-{"id":"api","label":"FastAPI REST API","sublabel":{"en":"Typed OpenAPI endpoints","es":"Endpoints OpenAPI tipados"},"kind":"gateway","group":"core"},
-{"id":"sched","label":"APScheduler","sublabel":{"en":"Interval poll, single-flight lock","es":"Sondeo por intervalo, lock de ejecución única"},"kind":"scheduler","group":"core"},
-{"id":"ingest","label":"Ingestion + parsing","sublabel":{"en":"Polite fetcher, posting and audience parsers","es":"Fetcher respetuoso, parsers de oferta y audiencia"},"kind":"worker","group":"core"},
-{"id":"match","label":"Matching pipeline","sublabel":{"en":"Pre-gates, LLM evaluator, thresholds","es":"Pre-filtros, evaluador LLM, umbrales"},"kind":"service","group":"core"},
-{"id":"compose","label":"Composition + documents","sublabel":{"en":"Fact-locked drafts, CV tailoring, PDF","es":"Borradores con hechos bloqueados, ajuste de CV, PDF"},"kind":"service","group":"core"},
-{"id":"alerts","label":"Alert service","sublabel":{"en":"Threshold-gated email digest","es":"Resumen por correo según umbral"},"kind":"service","group":"core"},
-{"id":"db","label":"SQLite","sublabel":{"en":"Postings, matches, CV, HTTP cache, settings","es":"Ofertas, matches, CV, caché HTTP, ajustes"},"kind":"db","group":"data"},
-{"id":"files","label":"Local files","sublabel":{"en":"Uploaded CVs and generated documents","es":"CVs subidos y documentos generados"},"kind":"storage","group":"data"},
-{"id":"jb","label":"Canada Job Bank","sublabel":{"en":"Job feed and posting pages","es":"Feed de empleos y páginas de ofertas"},"kind":"external","group":"external"},
-{"id":"llm","label":"LLM API","sublabel":{"en":"OpenAI-compatible chat completions","es":"Chat completions compatible con OpenAI"},"kind":"ai","group":"external"},
-{"id":"smtp","label":"SMTP server","sublabel":{"en":"Alert email delivery","es":"Envío de correos de alerta"},"kind":"external","group":"external"}],
-"edges":[
-{"id":"e1","from":"ui","to":"api","label":{"en":"REST (generated types)","es":"REST (tipos generados)"},"async":false},
-{"id":"e2","from":"sched","to":"ingest","label":{"en":"poll run","es":"ejecución de sondeo"},"async":false},
-{"id":"e3","from":"ingest","to":"jb","label":{"en":"conditional GET","es":"GET condicional"},"async":false},
-{"id":"e4","from":"ingest","to":"db","label":{"en":"store postings + ETag cache","es":"guarda ofertas + caché ETag"},"async":false},
-{"id":"e5","from":"sched","to":"match","label":{"en":"evaluate pending","es":"evalúa pendientes"},"async":false},
-{"id":"e6","from":"match","to":"llm","label":{"en":"score survivors","es":"puntúa supervivientes"},"async":false},
-{"id":"e7","from":"match","to":"db","label":{"en":"persist match + raw response","es":"guarda match + respuesta cruda"},"async":false},
-{"id":"e8","from":"sched","to":"alerts","label":{"en":"notify run","es":"notifica ejecución"},"async":false},
-{"id":"e9","from":"alerts","to":"smtp","label":{"en":"email digest","es":"resumen por correo"},"async":true},
-{"id":"e10","from":"api","to":"compose","label":{"en":"generate draft","es":"genera borrador"},"async":false},
-{"id":"e11","from":"compose","to":"llm","label":{"en":"fact-locked prose","es":"prosa con hechos bloqueados"},"async":false},
-{"id":"e12","from":"api","to":"db","label":{"en":"query offers and filters","es":"consulta ofertas y filtros"},"async":false},
-{"id":"e13","from":"api","to":"files","label":{"en":"CV upload and documents","es":"subida de CV y documentos"},"async":false}],
-"flows":[
-{"id":"f1","name":{"en":"Poll, match and alert","es":"Sondeo, matching y alerta"},"description":{"en":"The scheduler ingests postings, runs pre-gates and the LLM on survivors, stores results, then sends a threshold-gated digest.","es":"El scheduler ingiere ofertas, aplica pre-filtros y el LLM a las supervivientes, guarda resultados y envía un resumen según umbral."},"edges":["e2","e3","e4","e5","e6","e7","e8","e9"]},
-{"id":"f2","name":{"en":"Draft an application","es":"Redactar una postulación"},"description":{"en":"The user opens a match; the API loads it and composes a fact-locked draft the user sends manually.","es":"El usuario abre un match; la API lo carga y compone un borrador con hechos bloqueados que el usuario envía manualmente."},"edges":["e1","e12","e10","e11"]}]}
+  "slug": "canada-bank-jobs",
+  "category": "personal",
+  "title": {
+    "en": "Job Bank Alert Service",
+    "es": "Servicio de Alertas de Job Bank"
+  },
+  "tagline": {
+    "en": "Local-first job matcher: polls Job Bank, scores offers against your CV with an LLM",
+    "es": "Buscador local de empleos: consulta Job Bank y puntúa ofertas contra tu CV con un LLM"
+  },
+  "summary": {
+    "en": "A local-first service that polls Canada's Job Bank, filters offers for international-candidate eligibility, and scores them against an uploaded CV using an LLM. It alerts by email and dashboard and prepares tailored cover letters and emails strictly as drafts. A React dashboard manages filters, offers, CV, drafts and settings.",
+    "es": "Servicio local que consulta Job Bank de Canadá, filtra ofertas según elegibilidad para candidatos internacionales y las puntúa contra un CV subido usando un LLM. Alerta por correo y panel, y prepara cartas y correos personalizados estrictamente como borradores. Un panel React gestiona filtros, ofertas, CV, borradores y ajustes."
+  },
+  "problem": {
+    "en": "Finding postings that an international candidate can actually be hired for is slow: many require work authorization, and generic matching ignores that. The service automates discovery and fit scoring while never applying on the user's behalf.",
+    "es": "Encontrar ofertas para las que un candidato internacional puede ser contratado es lento: muchas exigen autorización de trabajo y el matching genérico lo ignora. El servicio automatiza el descubrimiento y la puntuación sin postular nunca en nombre del usuario."
+  },
+  "role": {
+    "en": "Solo: architecture, Python backend, React frontend, LLM integration, testing",
+    "es": "Individual: arquitectura, backend Python, frontend React, integración con LLM, testing"
+  },
+  "status": "in-progress",
+  "year": "2026",
+  "links": {
+    "live": null,
+    "github": null
+  },
+  "stack": [
+    {
+      "name": "Python 3.12",
+      "category": "language"
+    },
+    {
+      "name": "FastAPI",
+      "category": "backend"
+    },
+    {
+      "name": "SQLAlchemy + SQLite",
+      "category": "data"
+    },
+    {
+      "name": "APScheduler",
+      "category": "backend"
+    },
+    {
+      "name": "httpx",
+      "category": "backend"
+    },
+    {
+      "name": "Pydantic",
+      "category": "backend"
+    },
+    {
+      "name": "aiosmtplib (SMTP)",
+      "category": "messaging"
+    },
+    {
+      "name": "pypdf / python-docx / ReportLab",
+      "category": "other"
+    },
+    {
+      "name": "OpenAI-compatible LLM API",
+      "category": "ai"
+    },
+    {
+      "name": "React 18 + Vite + TypeScript",
+      "category": "frontend"
+    },
+    {
+      "name": "TanStack Query",
+      "category": "frontend"
+    },
+    {
+      "name": "openapi-typescript",
+      "category": "frontend"
+    },
+    {
+      "name": "pytest + respx",
+      "category": "testing"
+    },
+    {
+      "name": "Vitest + MSW",
+      "category": "testing"
+    },
+    {
+      "name": "ruff + mypy",
+      "category": "devops"
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Deterministic pre-gate pipeline (authorization, location, keyword) runs before the LLM, so restrictive postings are rejected fail-closed with no model call and cost stays low.",
+      "es": "Un pipeline determinista de pre-filtros (autorización, ubicación, palabras clave) corre antes del LLM, de modo que las ofertas restrictivas se rechazan sin llamar al modelo y el costo se mantiene bajo."
+    },
+    {
+      "en": "Robust LLM contract: Pydantic-validated JSON, one repair re-prompt with the validation error, bounded retries on 429/5xx, and job identity and prompt version injected server-side, never trusted from the model.",
+      "es": "Contrato robusto con el LLM: JSON validado con Pydantic, un re-prompt de reparación con el error, reintentos acotados en 429/5xx e identidad del empleo y versión de prompt inyectadas por el servidor."
+    },
+    {
+      "en": "Fact-locked drafting: letters and emails are written from a numbered fact sheet of CV and posting facts, then verified so the model cannot invent claims; each paragraph shows its provenance in the UI.",
+      "es": "Redacción con hechos bloqueados: cartas y correos se escriben a partir de una hoja numerada de hechos del CV y la oferta y luego se verifican para que el modelo no invente; cada párrafo muestra su procedencia en la UI."
+    },
+    {
+      "en": "Polite ingestion: descriptive User-Agent, durable ETag / Last-Modified conditional GET persisted in SQLite, jittered pacing, capped backoff, and a single-flight scheduler lock.",
+      "es": "Ingesta respetuosa: User-Agent descriptivo, GET condicional con ETag / Last-Modified persistido en SQLite, ritmo con jitter, backoff acotado y un lock de ejecución única en el scheduler."
+    },
+    {
+      "en": "Hard invariant that no application-send path exists: drafts are mailto links and copy-to-clipboard only, with the contract checked through the OpenAPI schema.",
+      "es": "Invariante estricta de que no existe ruta de envío de postulaciones: los borradores son solo enlaces mailto y copiar al portapapeles, con el contrato revisado en el esquema OpenAPI."
+    },
+    {
+      "en": "OpenAPI-first contract: the frontend client types are generated from the backend schema, and the project was delivered in tagged slices with the test suite green at each step.",
+      "es": "Contrato OpenAPI-first: los tipos del cliente se generan desde el esquema del backend, y el proyecto se entregó en cortes etiquetados con la suite de tests en verde en cada paso."
+    }
+  ],
+  "decisions": [
+    {
+      "title": {
+        "en": "Local-first with SQLite",
+        "es": "Local-first con SQLite"
+      },
+      "why": {
+        "en": "Single-user data (CV, matches) stays on the machine, with no hosting cost or third-party data exposure; retention and delete-on-demand are built in.",
+        "es": "Los datos de un solo usuario (CV, matches) permanecen en la máquina, sin costo de hosting ni exposición a terceros; retención y borrado bajo demanda están incluidos."
+      }
+    },
+    {
+      "title": {
+        "en": "Cheap-to-expensive gate ordering",
+        "es": "Orden de filtros de barato a caro"
+      },
+      "why": {
+        "en": "Deterministic checks go first and the LLM only sees survivors, which saves cost and makes eligibility decisions auditable and fail-closed.",
+        "es": "Las verificaciones deterministas van primero y el LLM solo ve a las supervivientes, lo que ahorra costo y hace auditables y fail-closed las decisiones de elegibilidad."
+      }
+    },
+    {
+      "title": {
+        "en": "Draft-only delivery",
+        "es": "Entrega solo como borrador"
+      },
+      "why": {
+        "en": "Auto-applying could misrepresent the candidate; keeping a human in the loop for every application is a deliberate safety boundary.",
+        "es": "Postular automáticamente podría tergiversar al candidato; mantener a una persona en cada postulación es un límite de seguridad deliberado."
+      }
+    },
+    {
+      "title": {
+        "en": "Fact-locked prose generation",
+        "es": "Generación de prosa con hechos bloqueados"
+      },
+      "why": {
+        "en": "Natural writing without hallucination: the model only reorganizes numbered facts and a verifier rejects unsupported statements.",
+        "es": "Escritura natural sin alucinaciones: el modelo solo reorganiza hechos numerados y un verificador rechaza afirmaciones sin soporte."
+      }
+    },
+    {
+      "title": {
+        "en": "Layered backend with repositories and an OpenAPI contract",
+        "es": "Backend por capas con repositorios y contrato OpenAPI"
+      },
+      "why": {
+        "en": "Separate api, services, repositories and models keep logic testable, and the exported schema keeps the typed frontend in sync.",
+        "es": "Capas api, services, repositories y models mantienen la lógica testeable, y el esquema exportado mantiene sincronizado el frontend tipado."
+      }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      {
+        "id": "core",
+        "label": {
+          "en": "FastAPI service",
+          "es": "Servicio FastAPI"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Local data",
+          "es": "Datos locales"
+        }
+      },
+      {
+        "id": "external",
+        "label": {
+          "en": "External services",
+          "es": "Servicios externos"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "sched",
+        "label": {
+          "en": "Poll scheduler",
+          "es": "Programador de sondeo"
+        },
+        "sublabel": {
+          "en": "Interval job + manual run, single-flight lock",
+          "es": "Job por intervalo + corrida manual, lock único"
+        },
+        "kind": "scheduler",
+        "group": "core",
+        "tech": "APScheduler",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "APScheduler job inside the FastAPI process that orchestrates one cycle by calling each stage in turn: ingestion, evaluation of pending postings, alert digest, optional purge. POST /api/filters/{id}/run reuses the same cycle.",
+            "es": "Job de APScheduler dentro del proceso FastAPI que orquesta un ciclo llamando a cada etapa en orden: ingesta, evaluación de ofertas pendientes, resumen de alertas y purga opcional. POST /api/filters/{id}/run reutiliza el mismo ciclo."
+          },
+          "responsibilities": [
+            {
+              "en": "Interval, jitter and max_instances=1 with coalescing; interval re-read from settings",
+              "es": "Intervalo, jitter y max_instances=1 con coalescencia; el intervalo se relee de los ajustes"
+            },
+            {
+              "en": "Shared asyncio lock: a scheduled run and a manual run never overlap",
+              "es": "Lock asyncio compartido: una corrida programada y una manual nunca se solapan"
+            },
+            {
+              "en": "Calls ingestion, then match evaluation (up to 25 pending postings), then the alert service with the new match ids",
+              "es": "Llama a la ingesta, luego a la evaluación (hasta 25 ofertas pendientes) y luego al servicio de alertas con los ids de matches nuevos"
+            },
+            {
+              "en": "Runs the retention purge, a no-op unless auto-purge is enabled",
+              "es": "Ejecuta la purga de retención, sin efecto salvo que la auto-purga esté activada"
+            }
+          ],
+          "why": {
+            "en": "Keeping orchestration in one place means the scheduled and manual paths behave identically and a manual run never ingests without evaluating.",
+            "es": "Orquestar en un solo lugar hace que el camino programado y el manual se comporten igual y que una corrida manual nunca ingeste sin evaluar."
+          }
+        }
+      },
+      {
+        "id": "ingest",
+        "label": {
+          "en": "Ingestion and parsing",
+          "es": "Ingesta y parsing"
+        },
+        "sublabel": {
+          "en": "Polite fetcher, posting parsers",
+          "es": "Fetcher respetuoso, parsers de ofertas"
+        },
+        "kind": "worker",
+        "group": "core",
+        "tech": "httpx + parsers",
+        "owned": true,
+        "pos": {
+          "col": 0,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Fetches the Job Bank feed and posting pages, then parses each posting and its audience restrictions into structured rows.",
+            "es": "Obtiene el feed del Job Bank y las páginas de ofertas, y convierte cada oferta y sus restricciones de audiencia en filas estructuradas."
+          },
+          "responsibilities": [
+            {
+              "en": "Conditional GET using persisted ETag and Last-Modified",
+              "es": "GET condicional con ETag y Last-Modified persistidos"
+            },
+            {
+              "en": "Descriptive User-Agent, jittered pacing and capped backoff",
+              "es": "User-Agent descriptivo, pausas con jitter y backoff acotado"
+            },
+            {
+              "en": "Parses posting details and audience rules",
+              "es": "Parsea detalles de la oferta y reglas de audiencia"
+            },
+            {
+              "en": "Stores postings and the HTTP cache in SQLite",
+              "es": "Guarda ofertas y la caché HTTP en SQLite"
+            }
+          ]
+        }
+      },
+      {
+        "id": "match",
+        "label": {
+          "en": "Matching pipeline",
+          "es": "Pipeline de matching"
+        },
+        "sublabel": {
+          "en": "Pre-gates, LLM scoring, thresholds",
+          "es": "Pre-filtros, scoring LLM, umbrales"
+        },
+        "kind": "service",
+        "group": "core",
+        "tech": "Python + LLM",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Decides which postings fit the CV. Cheap deterministic gates run first and only survivors are scored by the language model.",
+            "es": "Decide qué ofertas encajan con el CV. Primero corren filtros deterministas baratos y solo las sobrevivientes las puntúa el modelo de lenguaje."
+          },
+          "responsibilities": [
+            {
+              "en": "Pre-gates for authorization, location and keywords, fail-closed",
+              "es": "Pre-filtros de autorización, ubicación y palabras clave, fail-closed"
+            },
+            {
+              "en": "LLM scoring with Pydantic-validated JSON",
+              "es": "Scoring LLM con JSON validado por Pydantic"
+            },
+            {
+              "en": "One repair re-prompt and bounded retries on 429/5xx",
+              "es": "Un re-prompt de reparación y reintentos acotados en 429/5xx"
+            },
+            {
+              "en": "Persists the match and the raw model response",
+              "es": "Persiste el match y la respuesta cruda del modelo"
+            }
+          ],
+          "why": {
+            "en": "Rejecting restrictive postings before the model keeps cost low and avoids false positives.",
+            "es": "Rechazar ofertas restrictivas antes del modelo mantiene el costo bajo y evita falsos positivos."
+          }
+        }
+      },
+      {
+        "id": "alerts",
+        "label": {
+          "en": "Alert service",
+          "es": "Servicio de alertas"
+        },
+        "sublabel": {
+          "en": "Threshold-gated email digest",
+          "es": "Resumen por correo según umbral"
+        },
+        "kind": "service",
+        "group": "core",
+        "tech": "aiosmtplib",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Builds and sends an email digest of matches that clear the user's threshold.",
+            "es": "Arma y envía un resumen por correo de los matches que superan el umbral del usuario."
+          },
+          "responsibilities": [
+            {
+              "en": "Selects matches above the alert threshold",
+              "es": "Selecciona matches por encima del umbral de alerta"
+            },
+            {
+              "en": "Builds a digest email",
+              "es": "Arma un correo de resumen"
+            },
+            {
+              "en": "Sends it through the configured SMTP server",
+              "es": "Lo envía por el servidor SMTP configurado"
+            }
+          ]
+        }
+      },
+      {
+        "id": "jb",
+        "label": {
+          "en": "Canada Job Bank",
+          "es": "Canada Job Bank"
+        },
+        "sublabel": {
+          "en": "Job feed and posting pages",
+          "es": "Feed de empleos y páginas de ofertas"
+        },
+        "kind": "external",
+        "group": "external",
+        "tech": "Public job feed",
+        "owned": false,
+        "pos": {
+          "col": 3,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "The public Government of Canada job source the system reads from.",
+            "es": "La fuente pública de empleos del Gobierno de Canadá desde la que lee el sistema."
+          },
+          "responsibilities": [
+            {
+              "en": "Provides the job feed",
+              "es": "Provee el feed de empleos"
+            },
+            {
+              "en": "Serves individual posting pages",
+              "es": "Sirve las páginas de cada oferta"
+            },
+            {
+              "en": "Queried only with polite, conditional requests",
+              "es": "Se consulta solo con solicitudes respetuosas y condicionales"
+            }
+          ]
+        }
+      },
+      {
+        "id": "llm",
+        "label": {
+          "en": "Language model",
+          "es": "Modelo de lenguaje"
+        },
+        "sublabel": {
+          "en": "Scores matches, writes drafts",
+          "es": "Puntúa matches y redacta borradores"
+        },
+        "kind": "ai",
+        "group": "external",
+        "tech": "OpenAI-compatible API",
+        "owned": false,
+        "pos": {
+          "col": 3,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "An external OpenAI-compatible chat model used for scoring and drafting.",
+            "es": "Un modelo de chat externo compatible con OpenAI usado para puntuar y redactar."
+          },
+          "responsibilities": [
+            {
+              "en": "Scores postings that pass the pre-gates",
+              "es": "Puntúa las ofertas que pasan los pre-filtros"
+            },
+            {
+              "en": "Writes fact-locked application prose",
+              "es": "Redacta prosa de postulación con hechos bloqueados"
+            },
+            {
+              "en": "Job identity and prompt version are injected server-side",
+              "es": "La identidad de la oferta y la versión del prompt se inyectan en el servidor"
+            }
+          ]
+        }
+      },
+      {
+        "id": "db",
+        "label": {
+          "en": "Application database",
+          "es": "Base de datos de la aplicación"
+        },
+        "sublabel": {
+          "en": "Postings, matches, CV, cache, settings",
+          "es": "Ofertas, matches, CV, caché, ajustes"
+        },
+        "kind": "db",
+        "group": "data",
+        "tech": "SQLite",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "A local SQLite file via SQLAlchemy. It is the single store for the whole application.",
+            "es": "Un archivo SQLite local vía SQLAlchemy. Es el único almacén de toda la aplicación."
+          },
+          "responsibilities": [
+            {
+              "en": "Postings, matches and raw LLM responses",
+              "es": "Ofertas, matches y respuestas crudas del LLM"
+            },
+            {
+              "en": "The parsed CV and user settings",
+              "es": "El CV parseado y los ajustes del usuario"
+            },
+            {
+              "en": "Durable HTTP cache with ETag and Last-Modified",
+              "es": "Caché HTTP durable con ETag y Last-Modified"
+            }
+          ]
+        }
+      },
+      {
+        "id": "smtp",
+        "label": {
+          "en": "SMTP server",
+          "es": "Servidor SMTP"
+        },
+        "sublabel": {
+          "en": "Alert email delivery",
+          "es": "Entrega de correos de alerta"
+        },
+        "kind": "external",
+        "group": "external",
+        "tech": "SMTP",
+        "owned": false,
+        "pos": {
+          "col": 3,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The outgoing mail server that delivers the alert digest.",
+            "es": "El servidor de correo saliente que entrega el resumen de alertas."
+          },
+          "responsibilities": [
+            {
+              "en": "Receives the digest from the alert service",
+              "es": "Recibe el resumen desde el servicio de alertas"
+            },
+            {
+              "en": "Delivers it to the user's inbox",
+              "es": "Lo entrega a la bandeja del usuario"
+            },
+            {
+              "en": "Only used for alerts, never for sending applications",
+              "es": "Solo se usa para alertas, nunca para enviar postulaciones"
+            }
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "sched",
+        "to": "ingest",
+        "label": {
+          "en": "1. run ingestion",
+          "es": "1. ejecuta la ingesta"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "ingest",
+        "to": "jb",
+        "label": {
+          "en": "search pages + feed + detail pages (conditional GET)",
+          "es": "páginas de búsqueda + feed + detalle (GET condicional)"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "ingest",
+        "to": "db",
+        "label": {
+          "en": "upsert postings + HTTP cache",
+          "es": "upsert de ofertas + caché HTTP"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "sched",
+        "to": "match",
+        "label": {
+          "en": "2. evaluate pending postings",
+          "es": "2. evalúa ofertas pendientes"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "match",
+        "to": "llm",
+        "label": {
+          "en": "score gate survivors",
+          "es": "puntúa las que pasan los filtros"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "match",
+        "to": "db",
+        "label": {
+          "en": "read posting + CV, persist match + raw response",
+          "es": "lee oferta + CV, persiste match + respuesta cruda"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "sched",
+        "to": "alerts",
+        "label": {
+          "en": "3. notify new match ids",
+          "es": "3. notifica los ids de matches nuevos"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "alerts",
+        "to": "db",
+        "label": {
+          "en": "read matches, log alerts",
+          "es": "lee matches, registra alertas"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "alerts",
+        "to": "smtp",
+        "label": {
+          "en": "send digest (max one per run)",
+          "es": "envía el resumen (máx. uno por corrida)"
+        },
+        "async": false
+      }
+    ],
+    "flows": [
+      {
+        "id": "f1",
+        "name": {
+          "en": "Poll, match and alert",
+          "es": "Sondear, evaluar y alertar"
+        },
+        "description": {
+          "en": "The scheduler drives each stage in order: ingest from Job Bank, score pending postings, then email a digest of matches over threshold.",
+          "es": "El programador conduce cada etapa en orden: ingesta desde Job Bank, puntuación de ofertas pendientes y envío de un resumen de matches sobre el umbral."
+        },
+        "edges": [
+          "e1",
+          "e2",
+          "e3",
+          "e4",
+          "e5",
+          "e6",
+          "e7",
+          "e8",
+          "e9"
+        ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Scheduled job-posting ingestion",
+        "es": "Ingesta programada de ofertas"
+      },
+      {
+        "en": "Deterministic gates before the LLM",
+        "es": "Filtros deterministas antes del LLM"
+      },
+      {
+        "en": "Fact-locked application drafts",
+        "es": "Borradores con hechos bloqueados"
+      },
+      {
+        "en": "No auto-send path, by design",
+        "es": "Sin envío automático, por diseño"
+      },
+      {
+        "en": "Local-first: SQLite + FastAPI",
+        "es": "Local-first: SQLite + FastAPI"
+      }
+    ],
+    "viewName": {
+      "en": "Ingest, match and alert",
+      "es": "Ingesta, matching y alertas"
+    },
+    "additionalViews": [
+      {
+        "id": "dashboard",
+        "name": {
+          "en": "Dashboard and drafts",
+          "es": "Panel y borradores"
+        },
+        "description": {
+          "en": "How the React dashboard browses offers and generates fact-locked application drafts.",
+          "es": "Cómo el panel React explora ofertas y genera borradores de postulación con hechos bloqueados."
+        },
+        "architecture": {
+          "groups": [
+            {
+              "id": "client",
+              "label": {
+                "en": "Client",
+                "es": "Cliente"
+              }
+            },
+            {
+              "id": "core",
+              "label": {
+                "en": "FastAPI service",
+                "es": "Servicio FastAPI"
+              }
+            },
+            {
+              "id": "data",
+              "label": {
+                "en": "Local data",
+                "es": "Datos locales"
+              }
+            },
+            {
+              "id": "external",
+              "label": {
+                "en": "External services",
+                "es": "Servicios externos"
+              }
+            }
+          ],
+          "nodes": [
+            {
+              "id": "ui",
+              "label": {
+                "en": "Web dashboard",
+                "es": "Panel web"
+              },
+              "sublabel": {
+                "en": "Offers, filters, CV, drafts, settings",
+                "es": "Ofertas, filtros, CV, borradores, ajustes"
+              },
+              "kind": "client",
+              "group": "client",
+              "tech": "React + Vite",
+              "owned": false,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The React dashboard where the user reviews matched offers, manages the CV and settings, and generates drafts.",
+                  "es": "El panel React donde el usuario revisa ofertas con match, gestiona el CV y los ajustes, y genera borradores."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Lists offers with filters",
+                    "es": "Lista ofertas con filtros"
+                  },
+                  {
+                    "en": "Uploads and edits the CV",
+                    "es": "Sube y edita el CV"
+                  },
+                  {
+                    "en": "Shows each draft paragraph with its provenance",
+                    "es": "Muestra cada párrafo del borrador con su procedencia"
+                  },
+                  {
+                    "en": "Uses a client generated from the OpenAPI schema",
+                    "es": "Usa un cliente generado desde el esquema OpenAPI"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "api",
+              "label": {
+                "en": "REST API",
+                "es": "API REST"
+              },
+              "sublabel": {
+                "en": "Typed OpenAPI endpoints",
+                "es": "Endpoints OpenAPI tipados"
+              },
+              "kind": "gateway",
+              "group": "core",
+              "tech": "FastAPI",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "The HTTP entry point for the dashboard. Its OpenAPI schema is the contract the frontend types are generated from.",
+                  "es": "El punto de entrada HTTP del panel. Su esquema OpenAPI es el contrato del que se generan los tipos del frontend."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Serves offers, filters, settings and CV endpoints",
+                    "es": "Sirve endpoints de ofertas, filtros, ajustes y CV"
+                  },
+                  {
+                    "en": "Handles CV upload and generated documents",
+                    "es": "Gestiona la subida de CV y los documentos generados"
+                  },
+                  {
+                    "en": "Requests draft generation from the composer",
+                    "es": "Solicita la generación de borradores al compositor"
+                  },
+                  {
+                    "en": "Exposes no application-send path, checked via the schema",
+                    "es": "No expone ruta de envío de postulaciones, verificado vía el esquema"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "compose",
+              "label": {
+                "en": "Draft composer",
+                "es": "Compositor de borradores"
+              },
+              "sublabel": {
+                "en": "Fact-locked drafts, CV tailoring, PDF",
+                "es": "Borradores con hechos bloqueados, CV, PDF"
+              },
+              "kind": "service",
+              "group": "core",
+              "tech": "Python + LLM",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Generates cover letters and emails from a numbered fact sheet of CV and posting facts, then verifies them so claims cannot be invented.",
+                  "es": "Genera cartas y correos a partir de una hoja numerada de hechos del CV y la oferta, y luego los verifica para que no se inventen afirmaciones."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Builds a numbered fact sheet from CV and posting",
+                    "es": "Construye una hoja numerada de hechos del CV y la oferta"
+                  },
+                  {
+                    "en": "Asks the model for prose and verifies it against the facts",
+                    "es": "Pide prosa al modelo y la verifica contra los hechos"
+                  },
+                  {
+                    "en": "Tailors the CV and renders PDF/DOCX documents",
+                    "es": "Ajusta el CV y genera documentos PDF/DOCX"
+                  },
+                  {
+                    "en": "Output is mailto or copy-to-clipboard only",
+                    "es": "La salida es solo mailto o copiar al portapapeles"
+                  }
+                ],
+                "why": {
+                  "en": "The model can only restate verified facts, which keeps applications honest.",
+                  "es": "El modelo solo puede reformular hechos verificados, lo que mantiene las postulaciones honestas."
+                }
+              }
+            },
+            {
+              "id": "llm",
+              "label": {
+                "en": "Language model",
+                "es": "Modelo de lenguaje"
+              },
+              "sublabel": {
+                "en": "Scores matches, writes drafts",
+                "es": "Puntúa matches y redacta borradores"
+              },
+              "kind": "ai",
+              "group": "external",
+              "tech": "OpenAI-compatible API",
+              "owned": false,
+              "pos": {
+                "col": 3,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "An external OpenAI-compatible chat model used for scoring and drafting.",
+                  "es": "Un modelo de chat externo compatible con OpenAI usado para puntuar y redactar."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Scores postings that pass the pre-gates",
+                    "es": "Puntúa las ofertas que pasan los pre-filtros"
+                  },
+                  {
+                    "en": "Writes fact-locked application prose",
+                    "es": "Redacta prosa de postulación con hechos bloqueados"
+                  },
+                  {
+                    "en": "Job identity and prompt version are injected server-side",
+                    "es": "La identidad de la oferta y la versión del prompt se inyectan en el servidor"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "db",
+              "label": {
+                "en": "Application database",
+                "es": "Base de datos de la aplicación"
+              },
+              "sublabel": {
+                "en": "Postings, matches, CV, cache, settings",
+                "es": "Ofertas, matches, CV, caché, ajustes"
+              },
+              "kind": "db",
+              "group": "data",
+              "tech": "SQLite",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "A local SQLite file via SQLAlchemy. It is the single store for the whole application.",
+                  "es": "Un archivo SQLite local vía SQLAlchemy. Es el único almacén de toda la aplicación."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Postings, matches and raw LLM responses",
+                    "es": "Ofertas, matches y respuestas crudas del LLM"
+                  },
+                  {
+                    "en": "The parsed CV and user settings",
+                    "es": "El CV parseado y los ajustes del usuario"
+                  },
+                  {
+                    "en": "Durable HTTP cache with ETag and Last-Modified",
+                    "es": "Caché HTTP durable con ETag y Last-Modified"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "files",
+              "label": {
+                "en": "Document storage",
+                "es": "Almacenamiento de documentos"
+              },
+              "sublabel": {
+                "en": "Uploaded CVs and generated documents",
+                "es": "CVs subidos y documentos generados"
+              },
+              "kind": "storage",
+              "group": "data",
+              "tech": "Local filesystem",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "Local files holding uploaded CVs and the documents generated from them.",
+                  "es": "Archivos locales con los CVs subidos y los documentos generados a partir de ellos."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Stores uploaded CV files",
+                    "es": "Guarda los archivos de CV subidos"
+                  },
+                  {
+                    "en": "Stores generated PDF and DOCX documents",
+                    "es": "Guarda los documentos PDF y DOCX generados"
+                  },
+                  {
+                    "en": "Read through the API only",
+                    "es": "Se accede solo a través de la API"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e1",
+              "from": "ui",
+              "to": "api",
+              "label": {
+                "en": "REST (generated types)",
+                "es": "REST (tipos generados)"
+              },
+              "async": false
+            },
+            {
+              "id": "e2",
+              "from": "api",
+              "to": "db",
+              "label": {
+                "en": "query offers and filters",
+                "es": "consulta ofertas y filtros"
+              },
+              "async": false
+            },
+            {
+              "id": "e3",
+              "from": "api",
+              "to": "files",
+              "label": {
+                "en": "CV upload and documents",
+                "es": "subida de CV y documentos"
+              },
+              "async": false
+            },
+            {
+              "id": "e4",
+              "from": "api",
+              "to": "compose",
+              "label": {
+                "en": "generate draft",
+                "es": "genera borrador"
+              },
+              "async": false
+            },
+            {
+              "id": "e5",
+              "from": "compose",
+              "to": "llm",
+              "label": {
+                "en": "fact-locked prose",
+                "es": "prosa con hechos bloqueados"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f1",
+              "name": {
+                "en": "Draft an application",
+                "es": "Redactar una postulación"
+              },
+              "description": {
+                "en": "The dashboard asks the API for a draft; the composer builds a fact sheet, gets prose from the model and returns a verified draft with provenance.",
+                "es": "El panel pide un borrador a la API; el compositor arma la hoja de hechos, obtiene la prosa del modelo y devuelve un borrador verificado con procedencia."
+              },
+              "edges": [
+                "e1",
+                "e4",
+                "e5"
+              ]
+            },
+            {
+              "id": "f2",
+              "name": {
+                "en": "Browse offers",
+                "es": "Explorar ofertas"
+              },
+              "description": {
+                "en": "The dashboard queries matched offers with filters through the API.",
+                "es": "El panel consulta ofertas con match y filtros a través de la API."
+              },
+              "edges": [
+                "e1",
+                "e2"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "OpenAPI-first contract",
+              "es": "Contrato OpenAPI primero"
+            },
+            {
+              "en": "Provenance shown per paragraph",
+              "es": "Procedencia visible por párrafo"
+            },
+            {
+              "en": "mailto / copy only, never sends",
+              "es": "Solo mailto o copiar, nunca envía"
+            }
+          ]
+        }
+      }
+    ]
+  }
 }

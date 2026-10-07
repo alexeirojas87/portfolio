@@ -1,8 +1,14 @@
 {
   "slug": "apagones-habana",
   "category": "personal",
-  "title": { "en": "Apagones Habana", "es": "Apagones Habana" },
-  "tagline": { "en": "Near-real-time Havana blackout map built from a Telegram channel", "es": "Mapa de apagones de La Habana casi en tiempo real, hecho desde un canal de Telegram" },
+  "title": {
+    "en": "Apagones Habana",
+    "es": "Apagones Habana"
+  },
+  "tagline": {
+    "en": "Near-real-time Havana blackout map built from a Telegram channel",
+    "es": "Mapa de apagones de La Habana casi en tiempo real, hecho desde un canal de Telegram"
+  },
   "summary": {
     "en": "A public map and Telegram bot that tells Havana residents which blocks and circuits have power. It ingests the utility's Telegram channel and its comment group, extracts outage events with rules plus LLM enrichment, and publishes a static, Cuba-reachable site with analytics, circuit pages and a conversational assistant.",
     "es": "Un mapa público y un bot de Telegram que indican a los habaneros qué bloques y circuitos tienen corriente. Ingiere el canal de Telegram de la empresa eléctrica y su grupo de comentarios, extrae eventos de apagón con reglas más enriquecimiento con LLM, y publica un sitio estático accesible desde Cuba con analítica, páginas por circuito y un asistente conversacional."
@@ -11,107 +17,2107 @@
     "en": "Outage information in Havana is scattered across free-text posts and comments on a Telegram channel. Residents have no structured, searchable view of current state, hours without power per circuit, or history.",
     "es": "La información de apagones en La Habana está dispersa en publicaciones y comentarios de texto libre en un canal de Telegram. Los vecinos no tienen una vista estructurada y consultable del estado actual, las horas sin corriente por circuito ni el histórico."
   },
-  "role": { "en": "Solo: architecture, data pipeline, LLM integration, frontend, bot, deployment and ops", "es": "En solitario: arquitectura, pipeline de datos, integración LLM, frontend, bot, despliegue y operación" },
+  "role": {
+    "en": "Solo: architecture, data pipeline, LLM integration, frontend, bot, deployment and ops",
+    "es": "En solitario: arquitectura, pipeline de datos, integración LLM, frontend, bot, despliegue y operación"
+  },
   "status": "live",
   "year": "2026",
-  "links": { "live": "https://apagoneshabana.lat/", "github": "https://github.com/alexeirojas87/apagones-habana" },
+  "links": {
+    "live": "https://apagoneshabana.lat/",
+    "github": "https://github.com/alexeirojas87/apagones-habana"
+  },
   "stack": [
-    { "name": "Python 3.12", "category": "language" },
-    { "name": "JavaScript", "category": "language" },
-    { "name": "Leaflet + GeoJSON", "category": "frontend" },
-    { "name": "Cloudflare Pages", "category": "cloud" },
-    { "name": "Cloudflare Workers", "category": "cloud" },
-    { "name": "Supabase (PostgreSQL)", "category": "data" },
-    { "name": "pgvector", "category": "data" },
-    { "name": "Telethon (MTProto)", "category": "messaging" },
-    { "name": "Telegram Bot API", "category": "messaging" },
-    { "name": "NaN Builders / NVIDIA NIM / Cloudflare Workers AI", "category": "ai" },
-    { "name": "Whisper transcription", "category": "ai" },
-    { "name": "GitHub Actions", "category": "devops" },
-    { "name": "unittest regression suite", "category": "testing" }
+    {
+      "name": "Python 3.12",
+      "category": "language"
+    },
+    {
+      "name": "JavaScript",
+      "category": "language"
+    },
+    {
+      "name": "Leaflet + GeoJSON",
+      "category": "frontend"
+    },
+    {
+      "name": "Cloudflare Pages",
+      "category": "cloud"
+    },
+    {
+      "name": "Cloudflare Workers",
+      "category": "cloud"
+    },
+    {
+      "name": "Supabase (PostgreSQL)",
+      "category": "data"
+    },
+    {
+      "name": "pgvector",
+      "category": "data"
+    },
+    {
+      "name": "Telethon (MTProto)",
+      "category": "messaging"
+    },
+    {
+      "name": "Telegram Bot API",
+      "category": "messaging"
+    },
+    {
+      "name": "NaN Builders / NVIDIA NIM / Cloudflare Workers AI",
+      "category": "ai"
+    },
+    {
+      "name": "Whisper transcription",
+      "category": "ai"
+    },
+    {
+      "name": "GitHub Actions",
+      "category": "devops"
+    },
+    {
+      "name": "unittest regression suite",
+      "category": "testing"
+    }
   ],
   "highlights": [
-    { "en": "End-to-end pipeline from raw Telegram posts to a published static site, run by GitHub Actions and deployed to Cloudflare Pages with no always-on server.", "es": "Pipeline completo desde publicaciones crudas de Telegram hasta un sitio estático publicado, ejecutado por GitHub Actions y desplegado en Cloudflare Pages sin servidor encendido." },
-    { "en": "Independent watchdog Worker detects stale published data, cancels zombie CI runs, re-triggers ingestion and opens an alert issue after a real 18-hour stall.", "es": "Un Worker guardián independiente detecta datos publicados viejos, cancela corridas zombi de CI, relanza la ingesta y abre un issue de alerta tras un atasco real de 18 horas." },
-    { "en": "Multi-provider LLM client with preference order, fallback and per-provider daily quota tracking; the LLM enriches free text but never replaces deterministic rules.", "es": "Cliente LLM multi-proveedor con orden de preferencia, respaldo y control de cuota diaria por proveedor; el LLM enriquece texto libre pero nunca reemplaza las reglas deterministas." },
-    { "en": "Telegram assistant uses tool-calling over precomputed data and a pgvector RAG fallback, so every figure comes from deterministic tools rather than model arithmetic.", "es": "El asistente de Telegram usa tool-calling sobre datos precalculados y un RAG con pgvector de respaldo, de modo que cada cifra sale de herramientas deterministas y no de aritmética del modelo." },
-    { "en": "Extensive regression suite (about 37 test modules) gates every publish: a failing test stops deployment instead of shipping wrong state.", "es": "Suite de regresión extensa (unas 37 módulos de prueba) que bloquea cada publicación: si una prueba falla, no se despliega en lugar de publicar un estado erróneo." },
-    { "en": "Privacy-aware neighbor reports: IPs are salted and hashed, rate-limited per IP, and location is bounded to Havana.", "es": "Reportes vecinales con privacidad: las IP se hashean con sal, se limitan por IP y la ubicación se acota a La Habana." }
+    {
+      "en": "End-to-end pipeline from raw Telegram posts to a published static site, run by GitHub Actions and deployed to Cloudflare Pages with no always-on server.",
+      "es": "Pipeline completo desde publicaciones crudas de Telegram hasta un sitio estático publicado, ejecutado por GitHub Actions y desplegado en Cloudflare Pages sin servidor encendido."
+    },
+    {
+      "en": "Independent watchdog Worker detects stale published data, cancels zombie CI runs, re-triggers ingestion and opens an alert issue after a real 18-hour stall.",
+      "es": "Un Worker guardián independiente detecta datos publicados viejos, cancela corridas zombi de CI, relanza la ingesta y abre un issue de alerta tras un atasco real de 18 horas."
+    },
+    {
+      "en": "Multi-provider LLM client with preference order, fallback and per-provider daily quota tracking; the LLM enriches free text but never replaces deterministic rules.",
+      "es": "Cliente LLM multi-proveedor con orden de preferencia, respaldo y control de cuota diaria por proveedor; el LLM enriquece texto libre pero nunca reemplaza las reglas deterministas."
+    },
+    {
+      "en": "Telegram assistant uses tool-calling over precomputed data and a pgvector RAG fallback, so every figure comes from deterministic tools rather than model arithmetic.",
+      "es": "El asistente de Telegram usa tool-calling sobre datos precalculados y un RAG con pgvector de respaldo, de modo que cada cifra sale de herramientas deterministas y no de aritmética del modelo."
+    },
+    {
+      "en": "Extensive regression suite (about 37 test modules) gates every publish: a failing test stops deployment instead of shipping wrong state.",
+      "es": "Suite de regresión extensa (unas 37 módulos de prueba) que bloquea cada publicación: si una prueba falla, no se despliega en lugar de publicar un estado erróneo."
+    },
+    {
+      "en": "Privacy-aware neighbor reports: IPs are salted and hashed, rate-limited per IP, and location is bounded to Havana.",
+      "es": "Reportes vecinales con privacidad: las IP se hashean con sal, se limitan por IP y la ubicación se acota a La Habana."
+    }
   ],
   "decisions": [
     {
-      "title": { "en": "Cloudflare for hosting instead of Vercel/AWS", "es": "Cloudflare como hosting en vez de Vercel/AWS" },
-      "why": { "en": "Cloudflare is generally reachable from Cuban IPs, which matters because the users are in Cuba. Tiles and data are served from the same origin so nothing depends on blocked third parties.", "es": "Cloudflare normalmente es accesible desde IPs cubanas, y los usuarios están en Cuba. Los tiles y datos se sirven desde el mismo origen para no depender de terceros bloqueados." }
+      "title": {
+        "en": "Cloudflare for hosting instead of Vercel/AWS",
+        "es": "Cloudflare como hosting en vez de Vercel/AWS"
+      },
+      "why": {
+        "en": "Cloudflare is generally reachable from Cuban IPs, which matters because the users are in Cuba. Tiles and data are served from the same origin so nothing depends on blocked third parties.",
+        "es": "Cloudflare normalmente es accesible desde IPs cubanas, y los usuarios están en Cuba. Los tiles y datos se sirven desde el mismo origen para no depender de terceros bloqueados."
+      }
     },
     {
-      "title": { "en": "Pull-based ingestion via CI cron, not a persistent connection", "es": "Ingesta por pull con cron de CI, no una conexión persistente" },
-      "why": { "en": "Telethon fetches messages since the last stored id on each run, avoiding a paid always-on server. A user MTProto account is required because a bot cannot read the channel.", "es": "Telethon trae los mensajes desde el último id guardado en cada corrida, evitando un servidor pago siempre encendido. Hace falta una cuenta de usuario MTProto porque un bot no puede leer el canal." }
+      "title": {
+        "en": "Pull-based ingestion via CI cron, not a persistent connection",
+        "es": "Ingesta por pull con cron de CI, no una conexión persistente"
+      },
+      "why": {
+        "en": "Telethon fetches messages since the last stored id on each run, avoiding a paid always-on server. A user MTProto account is required because a bot cannot read the channel.",
+        "es": "Telethon trae los mensajes desde el último id guardado en cada corrida, evitando un servidor pago siempre encendido. Hace falta una cuenta de usuario MTProto porque un bot no puede leer el canal."
+      }
     },
     {
-      "title": { "en": "A Cloudflare Worker as the only trigger and watchdog", "es": "Un Worker de Cloudflare como único disparador y guardián" },
-      "why": { "en": "GitHub's own scheduler arrived late on average and overlapping triggers cancelled each other. A component outside GitHub fires workflow_dispatch and monitors freshness, so a GitHub stall cannot hide itself.", "es": "El scheduler de GitHub llegaba tarde de media y los disparos solapados se cancelaban entre sí. Un componente fuera de GitHub dispara workflow_dispatch y vigila la frescura, así un atasco de GitHub no puede ocultarse." }
+      "title": {
+        "en": "A Cloudflare Worker as the only trigger and watchdog",
+        "es": "Un Worker de Cloudflare como único disparador y guardián"
+      },
+      "why": {
+        "en": "GitHub's own scheduler arrived late on average and overlapping triggers cancelled each other. A component outside GitHub fires workflow_dispatch and monitors freshness, so a GitHub stall cannot hide itself.",
+        "es": "El scheduler de GitHub llegaba tarde de media y los disparos solapados se cancelaban entre sí. Un componente fuera de GitHub dispara workflow_dispatch y vigila la frescura, así un atasco de GitHub no puede ocultarse."
+      }
     },
     {
-      "title": { "en": "Rules first, LLM as best-effort enrichment", "es": "Reglas primero, LLM como enriquecimiento best-effort" },
-      "why": { "en": "Official posts are highly regular, so regex rules handle most of them cheaply and predictably. LLM steps are non-blocking and state ages to unknown when there is no news, avoiding confident wrong answers.", "es": "Los partes oficiales son muy regulares, así que las reglas regex resuelven la mayoría de forma barata y predecible. Los pasos LLM no bloquean y el estado envejece a desconocido sin noticias, evitando respuestas erróneas con falsa confianza." }
+      "title": {
+        "en": "Rules first, LLM as best-effort enrichment",
+        "es": "Reglas primero, LLM como enriquecimiento best-effort"
+      },
+      "why": {
+        "en": "Official posts are highly regular, so regex rules handle most of them cheaply and predictably. LLM steps are non-blocking and state ages to unknown when there is no news, avoiding confident wrong answers.",
+        "es": "Los partes oficiales son muy regulares, así que las reglas regex resuelven la mayoría de forma barata y predecible. Los pasos LLM no bloquean y el estado envejece a desconocido sin noticias, evitando respuestas erróneas con falsa confianza."
+      }
     },
     {
-      "title": { "en": "Embeddings in Supabase pgvector instead of a static JSON", "es": "Embeddings en pgvector de Supabase en vez de un JSON estático" },
-      "why": { "en": "The vector index was too large to ship as a static file. Keeping it in the database means vectors never leave the server; the worker sends the query and receives only the top-k fragments, using 1024-dim Matryoshka embeddings to fit ivfflat limits.", "es": "El índice vectorial era demasiado grande para servirlo como archivo estático. Mantenerlo en la base evita que los vectores salgan del servidor; el worker envía la consulta y recibe solo los k fragmentos más relevantes, con embeddings Matryoshka de 1024 dimensiones para respetar los límites de ivfflat." }
+      "title": {
+        "en": "Embeddings in Supabase pgvector instead of a static JSON",
+        "es": "Embeddings en pgvector de Supabase en vez de un JSON estático"
+      },
+      "why": {
+        "en": "The vector index was too large to ship as a static file. Keeping it in the database means vectors never leave the server; the worker sends the query and receives only the top-k fragments, using 1024-dim Matryoshka embeddings to fit ivfflat limits.",
+        "es": "El índice vectorial era demasiado grande para servirlo como archivo estático. Mantenerlo en la base evita que los vectores salgan del servidor; el worker envía la consulta y recibe solo los k fragmentos más relevantes, con embeddings Matryoshka de 1024 dimensiones para respetar los límites de ivfflat."
+      }
     }
   ],
   "architecture": {
     "groups": [
-      { "id": "sources", "label": { "en": "Sources and users", "es": "Fuentes y usuarios" } },
-      { "id": "pipeline", "label": { "en": "Ingestion pipeline", "es": "Pipeline de ingesta" } },
-      { "id": "data", "label": { "en": "Data", "es": "Datos" } },
-      { "id": "edge", "label": { "en": "Edge and delivery", "es": "Edge y entrega" } },
-      { "id": "external", "label": { "en": "External services", "es": "Servicios externos" } }
+      {
+        "id": "sources",
+        "label": {
+          "en": "Sources and users",
+          "es": "Fuentes y usuarios"
+        }
+      },
+      {
+        "id": "pipeline",
+        "label": {
+          "en": "Pipeline",
+          "es": "Pipeline"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Data",
+          "es": "Datos"
+        }
+      },
+      {
+        "id": "edge",
+        "label": {
+          "en": "Edge and delivery",
+          "es": "Edge y entrega"
+        }
+      },
+      {
+        "id": "external",
+        "label": {
+          "en": "External services",
+          "es": "Servicios externos"
+        }
+      }
     ],
     "nodes": [
-      { "id": "tg", "label": "Telegram channel + comments", "sublabel": { "en": "Utility's official posts and discussion group", "es": "Partes oficiales y grupo de discusión" }, "kind": "external", "group": "sources" },
-      { "id": "users", "label": "Residents", "sublabel": { "en": "Web visitors and Telegram users", "es": "Visitantes web y usuarios de Telegram" }, "kind": "client", "group": "sources" },
-      { "id": "cron", "label": "Cloudflare Worker cron", "sublabel": { "en": "Trigger and freshness watchdog", "es": "Disparador y guardián de frescura" }, "kind": "scheduler", "group": "pipeline" },
-      { "id": "gha", "label": "GitHub Actions", "sublabel": { "en": "Test gate, ingest, build, deploy", "es": "Pruebas, ingesta, build y deploy" }, "kind": "worker", "group": "pipeline" },
-      { "id": "ingest", "label": "Telethon ingestor", "sublabel": { "en": "Pulls new messages and voice notes", "es": "Trae mensajes nuevos y audios" }, "kind": "service", "group": "pipeline" },
-      { "id": "extract", "label": "Rule extractor", "sublabel": { "en": "Regex events by block, circuit, zone", "es": "Eventos por regex: bloque, circuito, zona" }, "kind": "service", "group": "pipeline" },
-      { "id": "llm", "label": "LLM provider chain", "sublabel": { "en": "NaN, NVIDIA NIM, Workers AI, Whisper", "es": "NaN, NVIDIA NIM, Workers AI, Whisper" }, "kind": "ai", "group": "external" },
-      { "id": "build", "label": "Static data builders", "sublabel": { "en": "estado.json, circuits, analytics, SEO", "es": "estado.json, circuitos, analítica, SEO" }, "kind": "service", "group": "pipeline" },
-      { "id": "db", "label": "Supabase PostgreSQL", "sublabel": { "en": "Messages, events, reports, pgvector index", "es": "Mensajes, eventos, reportes, índice pgvector" }, "kind": "db", "group": "data" },
-      { "id": "pages", "label": "Cloudflare Pages + Worker API", "sublabel": { "en": "Static site, /api/reporte, /api/reportes", "es": "Sitio estático, /api/reporte, /api/reportes" }, "kind": "gateway", "group": "edge" },
-      { "id": "web", "label": "Leaflet web map", "sublabel": { "en": "Map, circuits, analytics, FAQ", "es": "Mapa, circuitos, analítica, FAQ" }, "kind": "client", "group": "edge" },
-      { "id": "bot", "label": "Telegram bot Worker", "sublabel": { "en": "Tool-calling agent plus RAG", "es": "Agente con tool-calling y RAG" }, "kind": "service", "group": "edge" },
-      { "id": "gh", "label": "GitHub Issues", "sublabel": { "en": "Suggestions inbox and guardian alerts", "es": "Buzón de sugerencias y alertas del guardián" }, "kind": "external", "group": "external" },
-      { "id": "mail", "label": "Mailtrap", "sublabel": { "en": "Weekly summary email", "es": "Resumen semanal por email" }, "kind": "external", "group": "external" }
+      {
+        "id": "tg",
+        "label": {
+          "en": "Outage source",
+          "es": "Fuente de apagones"
+        },
+        "sublabel": {
+          "en": "Official channel and discussion group",
+          "es": "Canal oficial y grupo de discusión"
+        },
+        "kind": "external",
+        "group": "sources",
+        "tech": "Telegram",
+        "owned": false,
+        "pos": {
+          "col": 0,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The utility publishes outage notices as posts and neighbor comments (text and voice notes) in a public Telegram channel and its linked discussion group. It is the only raw source the pipeline reads.",
+            "es": "La empresa eléctrica publica los avisos de apagón como posts y comentarios vecinales (texto y notas de voz) en un canal público de Telegram y su grupo de discusión. Es la única fuente cruda que lee el pipeline."
+          },
+          "responsibilities": [
+            {
+              "en": "Posts follow regular templates; comments are free text",
+              "es": "Los posts siguen plantillas regulares; los comentarios son texto libre"
+            },
+            {
+              "en": "A bot cannot read the channel, so a dedicated user account is used over MTProto",
+              "es": "Un bot no puede leer el canal, por eso se usa una cuenta de usuario dedicada por MTProto"
+            },
+            {
+              "en": "Read-only for this project",
+              "es": "Solo lectura para este proyecto"
+            }
+          ]
+        }
+      },
+      {
+        "id": "ingest",
+        "label": {
+          "en": "Message ingestion",
+          "es": "Ingesta de mensajes"
+        },
+        "sublabel": {
+          "en": "Incremental pull of posts and comments",
+          "es": "Descarga incremental de posts y comentarios"
+        },
+        "kind": "service",
+        "group": "pipeline",
+        "tech": "Python · Telethon",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "ingestor/ingest.py connects to Telegram with a stored StringSession, reads only messages newer than the last stored message_id per chat and upserts them into the mensajes table, then exits.",
+            "es": "ingestor/ingest.py se conecta a Telegram con una StringSession guardada, lee solo los mensajes posteriores al último message_id guardado por chat y los inserta (upsert) en la tabla mensajes; luego termina."
+          },
+          "responsibilities": [
+            {
+              "en": "Caps each run at 1,000 messages per chat; first run backfills only the latest 2,000",
+              "es": "Limita cada corrida a 1.000 mensajes por chat; la primera corrida solo rellena los 2.000 más recientes"
+            },
+            {
+              "en": "Upserts in batches of 100 on (chat, message_id)",
+              "es": "Hace upsert en lotes de 100 sobre (chat, message_id)"
+            },
+            {
+              "en": "Re-reads the utility's weekly rotation post so edited versions are kept",
+              "es": "Relee la publicación semanal de rotación de la empresa para conservar sus ediciones"
+            },
+            {
+              "en": "Stores only text, date and reply id, not the full Telethon object, to fit the free database tier",
+              "es": "Guarda solo texto, fecha e id de respuesta, no el objeto completo de Telethon, para caber en el plan gratuito de la base"
+            }
+          ],
+          "why": {
+            "en": "Pull on a schedule avoids a paid always-on connection; dropping the raw payload cut about 180 MB/month of storage.",
+            "es": "El pull programado evita una conexión permanente de pago; descartar el payload crudo ahorró unos 180 MB/mes de almacenamiento."
+          }
+        }
+      },
+      {
+        "id": "extract",
+        "label": {
+          "en": "Outage extraction",
+          "es": "Extracción de apagones"
+        },
+        "sublabel": {
+          "en": "Rules by block, circuit and zone",
+          "es": "Reglas por bloque, circuito y zona"
+        },
+        "kind": "service",
+        "group": "pipeline",
+        "tech": "Python · regex",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "extractor/extract.py reads unprocessed rows of mensajes in batches of 500 and turns official posts and neighbor comments into typed events: afectacion, restablecimiento, reporte_sin_servicio, reporte_con_servicio.",
+            "es": "extractor/extract.py lee en lotes de 500 las filas sin procesar de mensajes y convierte posts oficiales y comentarios vecinales en eventos tipados: afectacion, restablecimiento, reporte_sin_servicio, reporte_con_servicio."
+          },
+          "responsibilities": [
+            {
+              "en": "Official posts parsed with regex templates (DAF, deficit, faults, overload)",
+              "es": "Posts oficiales analizados con plantillas regex (DAF, déficit, averías, sobrecarga)"
+            },
+            {
+              "en": "Comments are handled conservatively: an event only when the text is unambiguous",
+              "es": "Los comentarios se tratan con cautela: solo hay evento si el texto es inequívoco"
+            },
+            {
+              "en": "Inserts into eventos and flags the source rows as procesado, even when nothing matched, so a better parser can reprocess later",
+              "es": "Inserta en eventos y marca las filas origen como procesado, incluso si nada coincidió, para poder reprocesar con un mejor parser"
+            }
+          ],
+          "why": {
+            "en": "Deterministic rules first: predictable and unit-testable; the LLM only adds what rules cannot read.",
+            "es": "Reglas deterministas primero: predecibles y con pruebas unitarias; el LLM solo agrega lo que las reglas no pueden leer."
+          }
+        }
+      },
+      {
+        "id": "enrich",
+        "label": {
+          "en": "LLM enrichment jobs",
+          "es": "Jobs de enriquecimiento LLM"
+        },
+        "sublabel": {
+          "en": "Partes, comments, voice notes, embeddings",
+          "es": "Partes, comentarios, notas de voz, embeddings"
+        },
+        "kind": "service",
+        "group": "pipeline",
+        "tech": "Python scripts",
+        "owned": true,
+        "pos": {
+          "col": 3,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Best-effort steps of the ingest workflow: audio_a_texto.py transcribes voice notes, partes_llm.py extracts structured data from official posts, comentarios_llm.py extracts located neighbor reports, and chatbot/embeddings.py indexes fragments for semantic search.",
+            "es": "Pasos best-effort del workflow de ingesta: audio_a_texto.py transcribe notas de voz, partes_llm.py extrae datos estructurados de los partes oficiales, comentarios_llm.py extrae reportes vecinales ubicables y chatbot/embeddings.py indexa fragmentos para la búsqueda semántica."
+          },
+          "responsibilities": [
+            {
+              "en": "Voice notes: downloads up to 20 per run from Telegram and stores the Whisper transcript in mensajes",
+              "es": "Notas de voz: baja hasta 20 por corrida desde Telegram y guarda la transcripción de Whisper en mensajes"
+            },
+            {
+              "en": "Partes: result cached by message_id (data/partes_llm.json); broadcast repeats are pre-filtered and hashed to avoid paying twice",
+              "es": "Partes: resultado en caché por message_id (data/partes_llm.json); las difusiones repetidas se prefiltran y se hashean para no pagar dos veces"
+            },
+            {
+              "en": "Comments: upserts place, hours and power state into comentarios_llm, re-processing a 48 h window",
+              "es": "Comentarios: hace upsert de lugar, horas y estado de corriente en comentarios_llm, reprocesando una ventana de 48 h"
+            },
+            {
+              "en": "A failure never stops the job: each step runs with '|| echo' and the deploy continues",
+              "es": "Un fallo no detiene el job: cada paso corre con '|| echo' y el deploy continúa"
+            }
+          ],
+          "why": {
+            "en": "The LLM enriches but never gates publishing, so a provider outage degrades quality, not availability.",
+            "es": "El LLM enriquece pero nunca bloquea la publicación: una caída del proveedor degrada la calidad, no la disponibilidad."
+          }
+        }
+      },
+      {
+        "id": "build",
+        "label": {
+          "en": "Static data builder",
+          "es": "Generador de datos estáticos"
+        },
+        "sublabel": {
+          "en": "estado.json, circuits, analytics, SEO",
+          "es": "estado.json, circuitos, analítica, SEO"
+        },
+        "kind": "service",
+        "group": "pipeline",
+        "tech": "Python scripts",
+        "owned": true,
+        "pos": {
+          "col": 4,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Scripts run in order after enrichment read mensajes, eventos, comentarios_llm and reportes and write the JSON the site and bot consume under web/data: estado, barrios, analitica, circuitos, partes, bot_datos, plus SEO pages.",
+            "es": "Scripts que corren en orden tras el enriquecimiento leen mensajes, eventos, comentarios_llm y reportes y escriben el JSON que consumen el sitio y el bot en web/data: estado, barrios, analitica, circuitos, partes, bot_datos, además de páginas SEO."
+          },
+          "responsibilities": [
+            {
+              "en": "estado.py geocodes outage places (cached) and writes estado.json",
+              "es": "estado.py geocodifica los lugares de apagón (con caché) y escribe estado.json"
+            },
+            {
+              "en": "build_circuitos.py builds the circuit catalog first; build_serie24h, coherencia_catalogo and build_bot_datos follow",
+              "es": "build_circuitos.py construye primero el catálogo de circuitos; después siguen build_serie24h, coherencia_catalogo y build_bot_datos"
+            },
+            {
+              "en": "build_seo.py is best-effort: on failure the last good HTML is deployed",
+              "es": "build_seo.py es best-effort: si falla, se despliega el último HTML bueno"
+            },
+            {
+              "en": "Deploys web/ with wrangler pages deploy, then purga.py deletes old rows by retention",
+              "es": "Despliega web/ con wrangler pages deploy y luego purga.py borra filas viejas según su retención"
+            }
+          ],
+          "why": {
+            "en": "Precomputing keeps the site and bot fast and free: they read files, not the database.",
+            "es": "Precalcular mantiene el sitio y el bot rápidos y gratis: leen archivos, no la base."
+          }
+        }
+      },
+      {
+        "id": "pages",
+        "label": {
+          "en": "Site and API edge",
+          "es": "Sitio y API en el edge"
+        },
+        "sublabel": {
+          "en": "Static site plus /api endpoints",
+          "es": "Sitio estático y endpoints /api"
+        },
+        "kind": "gateway",
+        "group": "edge",
+        "tech": "Cloudflare Pages · Workers",
+        "owned": true,
+        "pos": {
+          "col": 5,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Cloudflare Pages serves web/ and its _worker.js handles POST /api/reporte, GET /api/reportes, POST /api/sugerencia and POST /api/chat; everything else falls through to static assets.",
+            "es": "Cloudflare Pages sirve web/ y su _worker.js atiende POST /api/reporte, GET /api/reportes, POST /api/sugerencia y POST /api/chat; todo lo demás va a los assets estáticos."
+          },
+          "responsibilities": [
+            {
+              "en": "Reports: validates Havana bounding box, hashes IP with a salt, max 3 per IP per 2 h; aggregates the last 6 h into ~110 m cells",
+              "es": "Reportes: valida el área de La Habana, hashea la IP con sal, máximo 3 por IP cada 2 h; agrega las últimas 6 h en celdas de ~110 m"
+            },
+            {
+              "en": "Suggestions: max 5 per IP per 24 h, fails closed if the rate-limit table is unavailable, then opens a GitHub issue",
+              "es": "Sugerencias: máximo 5 por IP al día, falla en cerrado si la tabla de límites no está disponible, y abre un issue en GitHub"
+            },
+            {
+              "en": "Chat: tool-calling loop of up to 4 steps over the published JSON",
+              "es": "Chat: bucle de tool-calling de hasta 4 pasos sobre el JSON publicado"
+            }
+          ],
+          "why": {
+            "en": "A single edge Worker keeps the only public entry point free and reachable from Cuba.",
+            "es": "Un solo Worker en el edge mantiene gratis y accesible desde Cuba el único punto de entrada público."
+          }
+        }
+      },
+      {
+        "id": "web",
+        "label": {
+          "en": "Outage map",
+          "es": "Mapa de apagones"
+        },
+        "sublabel": {
+          "en": "Map, circuits, analytics, FAQ",
+          "es": "Mapa, circuitos, analítica, preguntas frecuentes"
+        },
+        "kind": "client",
+        "group": "edge",
+        "tech": "MapLibre · JS",
+        "owned": true,
+        "pos": {
+          "col": 6,
+          "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The public static web app: outage map, circuit pages, analytics, FAQ, suggestion form and chat widget (chatbot.js). Map tiles are .pbf files served from the same origin.",
+            "es": "La aplicación web estática pública: mapa de apagones, páginas por circuito, analítica, preguntas frecuentes, formulario de sugerencias y widget de chat (chatbot.js). Los tiles del mapa son archivos .pbf servidos desde el mismo origen."
+          },
+          "responsibilities": [
+            {
+              "en": "Reads published JSON from data/",
+              "es": "Lee el JSON publicado en data/"
+            },
+            {
+              "en": "Posts neighbor reports, suggestions and chat questions to /api/*",
+              "es": "Envía reportes vecinales, sugerencias y preguntas de chat a /api/*"
+            }
+          ]
+        }
+      },
+      {
+        "id": "db",
+        "label": {
+          "en": "Messages and events store",
+          "es": "Almacén de mensajes y eventos"
+        },
+        "sublabel": {
+          "en": "mensajes, eventos, comentarios_llm, reportes, vectors",
+          "es": "mensajes, eventos, comentarios_llm, reportes, vectores"
+        },
+        "kind": "db",
+        "group": "data",
+        "tech": "Supabase · PostgreSQL",
+        "owned": true,
+        "pos": {
+          "col": 2,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "Supabase Postgres, accessed with the service key from CI jobs and Workers. Tables: mensajes, eventos, comentarios_llm, reportes, sugerencias (rate-limit log) and chatbot_fragmentos with a pgvector search function (buscar_fragmentos).",
+            "es": "Postgres de Supabase, accedido con la service key desde los jobs de CI y los Workers. Tablas: mensajes, eventos, comentarios_llm, reportes, sugerencias (registro para el límite de envíos) y chatbot_fragmentos con una función de búsqueda pgvector (buscar_fragmentos)."
+          },
+          "responsibilities": [
+            {
+              "en": "Raw messages kept so extraction can be re-run",
+              "es": "Los mensajes crudos se conservan para poder repetir la extracción"
+            },
+            {
+              "en": "purga.py enforces retention: comments 60 d, channel 365 d, events 365 d, LLM comments 120 d, reports 30 d, fragments 30 d, suggestions 14 d",
+              "es": "purga.py aplica retención: comentarios 60 d, canal 365 d, eventos 365 d, comentarios LLM 120 d, reportes 30 d, fragmentos 30 d, sugerencias 14 d"
+            },
+            {
+              "en": "Purge disables itself if local caches are older than 48 h, since they hold the history being deleted",
+              "es": "La purga se desactiva sola si las cachés locales tienen más de 48 h, porque guardan el histórico que se borra"
+            }
+          ],
+          "why": {
+            "en": "Free tier limits drive the retention design.",
+            "es": "Los límites del plan gratuito condicionan el diseño de retención."
+          }
+        }
+      },
+      {
+        "id": "llm",
+        "label": {
+          "en": "LLM providers",
+          "es": "Proveedores LLM"
+        },
+        "sublabel": {
+          "en": "NaN Builders, NVIDIA NIM, Workers AI",
+          "es": "NaN Builders, NVIDIA NIM, Workers AI"
+        },
+        "kind": "ai",
+        "group": "external",
+        "tech": "NaN · NIM · Workers AI",
+        "owned": false,
+        "pos": {
+          "col": 7,
+          "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "External model APIs. Pipeline jobs call them through scripts/llm_provider.py, which tries NaN, then NVIDIA NIM, then Cloudflare Workers AI. Whisper (NaN) transcribes voice notes and an embedding model indexes fragments. The bot and the web chat call NaN directly.",
+            "es": "APIs externas de modelos. Los jobs del pipeline las llaman mediante scripts/llm_provider.py, que prueba NaN, luego NVIDIA NIM y luego Cloudflare Workers AI. Whisper (NaN) transcribe notas de voz y un modelo de embeddings indexa fragmentos. El bot y el chat web llaman a NaN directamente."
+          },
+          "responsibilities": [
+            {
+              "en": "Up to 2 attempts per provider; a 429 waits 10 s and marks the provider exhausted",
+              "es": "Hasta 2 intentos por proveedor; un 429 espera 10 s y marca al proveedor como agotado"
+            },
+            {
+              "en": "Daily quota tracked per provider (data/llm_cuota.json) except NaN",
+              "es": "Cuota diaria por proveedor (data/llm_cuota.json), salvo NaN"
+            },
+            {
+              "en": "Extracts JSON from noisy output; invalid JSON moves to the next provider",
+              "es": "Extrae JSON de salidas ruidosas; un JSON inválido pasa al siguiente proveedor"
+            }
+          ]
+        }
+      },
+      {
+        "id": "gha",
+        "label": {
+          "en": "Pipeline runner",
+          "es": "Ejecutor del pipeline"
+        },
+        "sublabel": {
+          "en": "Tests, ingest, build, deploy",
+          "es": "Pruebas, ingesta, build, deploy"
+        },
+        "kind": "worker",
+        "group": "pipeline",
+        "tech": "GitHub Actions",
+        "owned": true,
+        "pos": {
+          "col": 1,
+          "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "ingest.yml runs on workflow_dispatch only: regression tests first, then ingest, enrichment, builds, cache commit, SEO, Pages deploy and purge. Two more workflows are scheduled: verificacion.yml (daily) and resumen_semanal.yml (weekly).",
+            "es": "ingest.yml corre solo por workflow_dispatch: primero pruebas de regresión, luego ingesta, enriquecimiento, builds, commit de cachés, SEO, deploy a Pages y purga. Otros dos workflows son programados: verificacion.yml (diario) y resumen_semanal.yml (semanal)."
+          },
+          "responsibilities": [
+            {
+              "en": "Concurrency group 'ingesta' with cancel-in-progress: the newest run kills the older one",
+              "es": "Grupo de concurrencia 'ingesta' con cancel-in-progress: la corrida nueva mata a la vieja"
+            },
+            {
+              "en": "unittest discover blocks the deploy on failure; the learning canary is advisory only",
+              "es": "unittest discover bloquea el deploy si falla; el canario de aprendizaje es solo advertencia"
+            },
+            {
+              "en": "25-minute timeout around a ~18-minute run",
+              "es": "Timeout de 25 minutos para una corrida de ~18 minutos"
+            },
+            {
+              "en": "Commits the geocoding and LLM caches back to the repo with if: always()",
+              "es": "Hace commit de las cachés de geocodificación y LLM al repo con if: always()"
+            }
+          ],
+          "why": {
+            "en": "Failing tests block the deploy: better not to update than to publish a wrong state.",
+            "es": "Si las pruebas fallan se bloquea el deploy: mejor no actualizar que publicar un estado equivocado."
+          }
+        }
+      }
     ],
     "edges": [
-      { "id": "e1", "from": "cron", "to": "gha", "label": { "en": "workflow_dispatch", "es": "workflow_dispatch" }, "async": true },
-      { "id": "e2", "from": "gha", "to": "ingest", "label": { "en": "runs after tests pass", "es": "corre tras pasar las pruebas" }, "async": false },
-      { "id": "e3", "from": "tg", "to": "ingest", "label": { "en": "MTProto pull since last id", "es": "Pull MTProto desde el último id" }, "async": false },
-      { "id": "e4", "from": "ingest", "to": "db", "label": { "en": "raw messages", "es": "mensajes crudos" }, "async": false },
-      { "id": "e5", "from": "db", "to": "extract", "label": { "en": "unprocessed messages", "es": "mensajes sin procesar" }, "async": false },
-      { "id": "e6", "from": "extract", "to": "db", "label": { "en": "outage events", "es": "eventos de apagón" }, "async": false },
-      { "id": "e7", "from": "db", "to": "llm", "label": { "en": "free-text partes and comments", "es": "partes y comentarios en texto libre" }, "async": false },
-      { "id": "e8", "from": "llm", "to": "db", "label": { "en": "structured enrichment", "es": "enriquecimiento estructurado" }, "async": false },
-      { "id": "e9", "from": "db", "to": "build", "label": { "en": "aggregate current state", "es": "agrega el estado actual" }, "async": false },
-      { "id": "e10", "from": "build", "to": "pages", "label": { "en": "wrangler pages deploy", "es": "wrangler pages deploy" }, "async": false },
-      { "id": "e11", "from": "pages", "to": "web", "label": { "en": "static assets and JSON", "es": "assets estáticos y JSON" }, "async": false },
-      { "id": "e12", "from": "web", "to": "pages", "label": { "en": "POST /api/reporte", "es": "POST /api/reporte" }, "async": false },
-      { "id": "e13", "from": "pages", "to": "db", "label": { "en": "hashed-IP report insert", "es": "inserta reporte con IP hasheada" }, "async": false },
-      { "id": "e14", "from": "users", "to": "bot", "label": { "en": "Telegram webhook", "es": "webhook de Telegram" }, "async": false },
-      { "id": "e15", "from": "bot", "to": "llm", "label": { "en": "tool-calling chat completion", "es": "chat completion con tool-calling" }, "async": false },
-      { "id": "e16", "from": "bot", "to": "db", "label": { "en": "pgvector semantic search", "es": "búsqueda semántica pgvector" }, "async": false },
-      { "id": "e17", "from": "bot", "to": "pages", "label": { "en": "reads precomputed JSON", "es": "lee JSON precalculado" }, "async": false },
-      { "id": "e18", "from": "cron", "to": "pages", "label": { "en": "checks estado.json age", "es": "revisa la edad de estado.json" }, "async": false },
-      { "id": "e19", "from": "cron", "to": "gh", "label": { "en": "cancels zombie runs, opens alert", "es": "cancela corridas zombi, abre alerta" }, "async": true },
-      { "id": "e20", "from": "pages", "to": "gh", "label": { "en": "suggestions become issues", "es": "las sugerencias se vuelven issues" }, "async": true },
-      { "id": "e21", "from": "build", "to": "mail", "label": { "en": "weekly digest", "es": "resumen semanal" }, "async": true }
+      {
+        "id": "e2",
+        "from": "gha",
+        "to": "ingest",
+        "label": {
+          "en": "runs ingest.py after tests pass",
+          "es": "ejecuta ingest.py tras pasar las pruebas"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "tg",
+        "to": "ingest",
+        "label": {
+          "en": "MTProto pull since last message_id",
+          "es": "Descarga MTProto desde el último message_id"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "ingest",
+        "to": "db",
+        "label": {
+          "en": "upsert mensajes",
+          "es": "upsert en mensajes"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "db",
+        "to": "extract",
+        "label": {
+          "en": "unprocessed messages",
+          "es": "mensajes sin procesar"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "extract",
+        "to": "db",
+        "label": {
+          "en": "insert eventos, mark procesado",
+          "es": "inserta eventos, marca procesado"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "db",
+        "to": "enrich",
+        "label": {
+          "en": "channel posts and comments",
+          "es": "posts del canal y comentarios"
+        },
+        "async": false
+      },
+      {
+        "id": "e21",
+        "from": "tg",
+        "to": "enrich",
+        "label": {
+          "en": "voice notes download",
+          "es": "descarga de notas de voz"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "enrich",
+        "to": "llm",
+        "label": {
+          "en": "chat completions and Whisper",
+          "es": "chat completions y Whisper"
+        },
+        "async": false
+      },
+      {
+        "id": "e22",
+        "from": "enrich",
+        "to": "db",
+        "label": {
+          "en": "comentarios_llm, transcripts, embeddings",
+          "es": "comentarios_llm, transcripciones, embeddings"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "db",
+        "to": "build",
+        "label": {
+          "en": "events and reports for current state",
+          "es": "eventos y reportes del estado actual"
+        },
+        "async": false
+      },
+      {
+        "id": "e10",
+        "from": "build",
+        "to": "pages",
+        "label": {
+          "en": "wrangler pages deploy web/",
+          "es": "wrangler pages deploy web/"
+        },
+        "async": false
+      },
+      {
+        "id": "e11",
+        "from": "pages",
+        "to": "web",
+        "label": {
+          "en": "static assets and JSON",
+          "es": "assets estáticos y JSON"
+        },
+        "async": false
+      }
     ],
     "flows": [
-      { "id": "f1", "name": { "en": "From Telegram post to published map", "es": "De publicación de Telegram a mapa publicado" }, "description": { "en": "The cron Worker dispatches the pipeline, the ingestor pulls new posts, rules and the LLM turn them into events, and builders publish fresh static data to Pages.", "es": "El Worker cron dispara el pipeline, el ingestor trae las publicaciones nuevas, las reglas y el LLM las convierten en eventos y los builders publican datos estáticos frescos en Pages." }, "edges": ["e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "e10", "e11"] },
-      { "id": "f2", "name": { "en": "Self-healing watchdog", "es": "Guardián autorreparable" }, "description": { "en": "When the published state looks stale, the Worker clears stuck CI runs, re-dispatches ingestion and raises an issue if it stays stale.", "es": "Cuando el estado publicado parece viejo, el Worker limpia corridas de CI atascadas, relanza la ingesta y abre un issue si sigue viejo." }, "edges": ["e18", "e19", "e1"] },
-      { "id": "f3", "name": { "en": "Asking the Telegram bot", "es": "Preguntar al bot de Telegram" }, "description": { "en": "A user question reaches the bot webhook; the LLM calls deterministic tools over published data and falls back to vector search over raw partes.", "es": "La pregunta llega al webhook del bot; el LLM llama herramientas deterministas sobre datos publicados y recurre a búsqueda vectorial sobre partes crudos." }, "edges": ["e14", "e15", "e17", "e16"] },
-      { "id": "f4", "name": { "en": "Neighbor outage report", "es": "Reporte vecinal de apagón" }, "description": { "en": "A visitor reports no power from the map; the Worker validates, rate-limits by hashed IP and stores it.", "es": "Un visitante reporta que no hay corriente desde el mapa; el Worker valida, limita por IP hasheada y lo guarda." }, "edges": ["e12", "e13"] }
+      {
+        "id": "f1",
+        "name": {
+          "en": "From Telegram post to published map",
+          "es": "De publicación de Telegram a mapa publicado"
+        },
+        "description": {
+          "en": "gha runs the tests, then the ingestor pulls new posts, rules and LLM jobs turn them into events and enrichment, and builders publish fresh static data to Pages.",
+          "es": "gha corre las pruebas, el ingestor trae las publicaciones nuevas, las reglas y los jobs LLM las convierten en eventos y enriquecimiento, y los builders publican datos estáticos frescos en Pages."
+        },
+        "edges": [
+          "e2",
+          "e3",
+          "e4",
+          "e5",
+          "e6",
+          "e7",
+          "e8",
+          "e22",
+          "e9",
+          "e10",
+          "e11"
+        ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Triggered by an external watchdog every 30 min",
+        "es": "Disparado por un guardián externo cada 30 min"
+      },
+      {
+        "en": "Serverless on Cloudflare + GitHub Actions",
+        "es": "Serverless en Cloudflare + GitHub Actions"
+      },
+      {
+        "en": "Rules first, LLM enrichment second",
+        "es": "Reglas primero, LLM después"
+      },
+      {
+        "en": "Tests gate every publish",
+        "es": "Las pruebas bloquean cada publicación"
+      },
+      {
+        "en": "Supabase PostgreSQL",
+        "es": "Supabase PostgreSQL"
+      }
+    ],
+    "viewName": {
+      "en": "Ingestion pipeline",
+      "es": "Pipeline de ingesta"
+    },
+    "additionalViews": [
+      {
+        "id": "watchdog",
+        "name": {
+          "en": "Self-healing watchdog",
+          "es": "Vigilante autorreparable"
+        },
+        "description": {
+          "en": "An independent Worker detects stale data, clears stuck CI runs and raises an alert.",
+          "es": "Un Worker independiente detecta datos viejos, limpia corridas de CI atascadas y levanta una alerta."
+        },
+        "architecture": {
+          "nodes": [
+            {
+              "id": "cron",
+              "label": {
+                "en": "Watchdog scheduler",
+                "es": "Planificador guardián"
+              },
+              "sublabel": {
+                "en": "Triggers ingest, checks freshness",
+                "es": "Dispara la ingesta, vigila la frescura"
+              },
+              "kind": "scheduler",
+              "group": "pipeline",
+              "tech": "Cloudflare Worker",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "A Cloudflare Worker with a cron trigger (every 30 min per wrangler.toml) that lives outside GitHub on purpose. Each tick it checks data age, clears stuck runs, dispatches ingest.yml and, if very stale, files an alert.",
+                  "es": "Un Worker de Cloudflare con cron (cada 30 min según wrangler.toml) que vive fuera de GitHub a propósito. En cada tick revisa la edad de los datos, limpia corridas atascadas, dispara ingest.yml y, si está muy viejo, abre una alerta."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Fetches published estado.json and computes its age",
+                    "es": "Descarga estado.json publicado y calcula su edad"
+                  },
+                  {
+                    "en": "Over 45 min: cancels queued/pending runs older than 15 min and in-progress runs older than 22 min",
+                    "es": "Más de 45 min: cancela corridas en cola/pendientes de más de 15 min y en curso de más de 22 min"
+                  },
+                  {
+                    "en": "Over 120 min: opens or comments on a single 'guardian' issue",
+                    "es": "Más de 120 min: abre o comenta un único issue 'guardian'"
+                  },
+                  {
+                    "en": "GitHub token kept as a Worker secret; no public URL (workers_dev = false)",
+                    "es": "Token de GitHub como secret del Worker; sin URL pública (workers_dev = false)"
+                  }
+                ],
+                "why": {
+                  "en": "Born from a real 18-hour stall: anything inside GitHub stalls with GitHub.",
+                  "es": "Nació de un atasco real de 18 horas: todo lo que vive dentro de GitHub se atasca con GitHub."
+                }
+              }
+            },
+            {
+              "id": "gha",
+              "label": {
+                "en": "Pipeline runner",
+                "es": "Ejecutor del pipeline"
+              },
+              "sublabel": {
+                "en": "Tests, ingest, build, deploy",
+                "es": "Pruebas, ingesta, build, deploy"
+              },
+              "kind": "worker",
+              "group": "pipeline",
+              "tech": "GitHub Actions",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "ingest.yml runs on workflow_dispatch only: regression tests first, then ingest, enrichment, builds, cache commit, SEO, Pages deploy and purge. Two more workflows are scheduled: verificacion.yml (daily) and resumen_semanal.yml (weekly).",
+                  "es": "ingest.yml corre solo por workflow_dispatch: primero pruebas de regresión, luego ingesta, enriquecimiento, builds, commit de cachés, SEO, deploy a Pages y purga. Otros dos workflows son programados: verificacion.yml (diario) y resumen_semanal.yml (semanal)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Concurrency group 'ingesta' with cancel-in-progress: the newest run kills the older one",
+                    "es": "Grupo de concurrencia 'ingesta' con cancel-in-progress: la corrida nueva mata a la vieja"
+                  },
+                  {
+                    "en": "unittest discover blocks the deploy on failure; the learning canary is advisory only",
+                    "es": "unittest discover bloquea el deploy si falla; el canario de aprendizaje es solo advertencia"
+                  },
+                  {
+                    "en": "25-minute timeout around a ~18-minute run",
+                    "es": "Timeout de 25 minutos para una corrida de ~18 minutos"
+                  },
+                  {
+                    "en": "Commits the geocoding and LLM caches back to the repo with if: always()",
+                    "es": "Hace commit de las cachés de geocodificación y LLM al repo con if: always()"
+                  }
+                ],
+                "why": {
+                  "en": "Failing tests block the deploy: better not to update than to publish a wrong state.",
+                  "es": "Si las pruebas fallan se bloquea el deploy: mejor no actualizar que publicar un estado equivocado."
+                }
+              }
+            },
+            {
+              "id": "pages",
+              "label": {
+                "en": "Site and API edge",
+                "es": "Sitio y API en el edge"
+              },
+              "sublabel": {
+                "en": "Static site plus /api endpoints",
+                "es": "Sitio estático y endpoints /api"
+              },
+              "kind": "gateway",
+              "group": "edge",
+              "tech": "Cloudflare Pages · Workers",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "Cloudflare Pages serves web/ and its _worker.js handles POST /api/reporte, GET /api/reportes, POST /api/sugerencia and POST /api/chat; everything else falls through to static assets.",
+                  "es": "Cloudflare Pages sirve web/ y su _worker.js atiende POST /api/reporte, GET /api/reportes, POST /api/sugerencia y POST /api/chat; todo lo demás va a los assets estáticos."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Reports: validates Havana bounding box, hashes IP with a salt, max 3 per IP per 2 h; aggregates the last 6 h into ~110 m cells",
+                    "es": "Reportes: valida el área de La Habana, hashea la IP con sal, máximo 3 por IP cada 2 h; agrega las últimas 6 h en celdas de ~110 m"
+                  },
+                  {
+                    "en": "Suggestions: max 5 per IP per 24 h, fails closed if the rate-limit table is unavailable, then opens a GitHub issue",
+                    "es": "Sugerencias: máximo 5 por IP al día, falla en cerrado si la tabla de límites no está disponible, y abre un issue en GitHub"
+                  },
+                  {
+                    "en": "Chat: tool-calling loop of up to 4 steps over the published JSON",
+                    "es": "Chat: bucle de tool-calling de hasta 4 pasos sobre el JSON publicado"
+                  }
+                ],
+                "why": {
+                  "en": "A single edge Worker keeps the only public entry point free and reachable from Cuba.",
+                  "es": "Un solo Worker en el edge mantiene gratis y accesible desde Cuba el único punto de entrada público."
+                }
+              }
+            },
+            {
+              "id": "gh",
+              "label": {
+                "en": "Issues and alerts",
+                "es": "Issues y alertas"
+              },
+              "sublabel": {
+                "en": "Guardian, verification and suggestion issues",
+                "es": "Issues del guardián, verificación y sugerencias"
+              },
+              "kind": "external",
+              "group": "external",
+              "tech": "GitHub Issues",
+              "owned": false,
+              "pos": {
+                "col": 2,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "GitHub Issues used as a free inbox with three writers: the watchdog (label guardian), the daily verification job (label verificacion) and the site suggestion form (label desde-web).",
+                  "es": "GitHub Issues usado como bandeja gratuita con tres escritores: el guardián (etiqueta guardian), el job de verificación diaria (etiqueta verificacion) y el formulario de sugerencias del sitio (etiqueta desde-web)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Only one open issue per alert type: comment if open, create otherwise",
+                    "es": "Un solo issue abierto por tipo de alerta: se comenta si existe y se crea si no"
+                  },
+                  {
+                    "en": "Verification issue is closed automatically when a run finds no problems",
+                    "es": "El issue de verificación se cierra solo cuando una corrida no encuentra problemas"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e18",
+              "from": "cron",
+              "to": "pages",
+              "label": {
+                "en": "GET estado.json (age check)",
+                "es": "GET estado.json (revisa su edad)"
+              },
+              "async": false
+            },
+            {
+              "id": "e19",
+              "from": "cron",
+              "to": "gha",
+              "label": {
+                "en": "cancel zombie runs",
+                "es": "cancela corridas zombi"
+              },
+              "async": true
+            },
+            {
+              "id": "e23",
+              "from": "cron",
+              "to": "gh",
+              "label": {
+                "en": "open or comment guardian issue",
+                "es": "abre o comenta issue guardian"
+              },
+              "async": true
+            },
+            {
+              "id": "e1",
+              "from": "cron",
+              "to": "gha",
+              "label": {
+                "en": "workflow_dispatch of ingest.yml",
+                "es": "workflow_dispatch de ingest.yml"
+              },
+              "async": true
+            }
+          ],
+          "flows": [
+            {
+              "id": "f2",
+              "name": {
+                "en": "Self-healing watchdog",
+                "es": "Guardián autorreparable"
+              },
+              "description": {
+                "en": "Each tick the Worker reads the age of the published estado.json; when stale it cancels stuck runs, past 2 h it files an alert, and it always re-dispatches ingestion.",
+                "es": "En cada tick el Worker lee la edad del estado.json publicado; si está viejo cancela corridas atascadas, pasadas 2 h abre una alerta y siempre relanza la ingesta."
+              },
+              "edges": [
+                "e18",
+                "e19",
+                "e23",
+                "e1"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "Independent of GitHub",
+              "es": "Independiente de GitHub"
+            },
+            {
+              "en": "Stale after 45 min",
+              "es": "Datos viejos tras 45 min"
+            },
+            {
+              "en": "Alert issue after 2 h",
+              "es": "Issue de alerta tras 2 h"
+            }
+          ],
+          "groups": [
+            {
+              "id": "pipeline",
+              "label": {
+                "en": "Pipeline",
+                "es": "Pipeline"
+              }
+            },
+            {
+              "id": "edge",
+              "label": {
+                "en": "Edge and delivery",
+                "es": "Edge y entrega"
+              }
+            },
+            {
+              "id": "external",
+              "label": {
+                "en": "External services",
+                "es": "Servicios externos"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "assistant",
+        "name": {
+          "en": "Assistant and reports",
+          "es": "Asistente y reportes"
+        },
+        "description": {
+          "en": "The Telegram bot and the web chat answer from published data; neighbors report outages and send suggestions through the edge API.",
+          "es": "El bot de Telegram y el chat web responden con datos publicados; los vecinos reportan apagones y envían sugerencias por la API del edge."
+        },
+        "architecture": {
+          "nodes": [
+            {
+              "id": "users",
+              "label": {
+                "en": "Residents",
+                "es": "Vecinos"
+              },
+              "sublabel": {
+                "en": "Telegram users and web visitors",
+                "es": "Usuarios de Telegram y visitantes web"
+              },
+              "kind": "client",
+              "group": "sources",
+              "tech": null,
+              "owned": false,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "People in Havana asking whether their block has power.",
+                  "es": "Personas en La Habana que consultan si su bloque tiene corriente."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Ask the bot in natural language",
+                    "es": "Preguntan al bot en lenguaje natural"
+                  },
+                  {
+                    "en": "Use the map, chat widget and report outages",
+                    "es": "Usan el mapa y el chat, y reportan apagones"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "tgapi",
+              "label": {
+                "en": "Telegram Bot API",
+                "es": "API de bots de Telegram"
+              },
+              "sublabel": {
+                "en": "Webhook delivery and replies",
+                "es": "Entrega por webhook y respuestas"
+              },
+              "kind": "external",
+              "group": "external",
+              "tech": "Telegram",
+              "owned": false,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Telegram's bot platform. It delivers user messages to the bot Worker webhook and accepts sendMessage calls back.",
+                  "es": "La plataforma de bots de Telegram. Entrega los mensajes de los usuarios al webhook del Worker del bot y recibe las llamadas sendMessage de vuelta."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Webhook registered once through GET /setup/{secret}",
+                    "es": "Webhook registrado una vez con GET /setup/{secret}"
+                  },
+                  {
+                    "en": "Only text messages are processed",
+                    "es": "Solo se procesan mensajes de texto"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "bot",
+              "label": {
+                "en": "Telegram assistant",
+                "es": "Asistente de Telegram"
+              },
+              "sublabel": {
+                "en": "Tool-calling agent plus vector RAG",
+                "es": "Agente con tool-calling y RAG vectorial"
+              },
+              "kind": "service",
+              "group": "edge",
+              "tech": "Cloudflare Worker · NaN",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "workers/bot-worker.js, a separate Worker. Receives POST /webhook/{secret}, answers /start and /estado directly and sends other text to an LLM agent that calls deterministic tools over the published JSON.",
+                  "es": "workers/bot-worker.js, un Worker aparte. Recibe POST /webhook/{secret}, responde /start y /estado directamente y envía el resto del texto a un agente LLM que llama herramientas deterministas sobre el JSON publicado."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Loads bot_datos, circuitos and estado JSON from Pages, cached 10 min per isolate",
+                    "es": "Carga bot_datos, circuitos y estado desde Pages, con caché de 10 min por isolate"
+                  },
+                  {
+                    "en": "Deterministic tools over precomputed data plus a semantic-search tool of last resort; max 4 tool rounds",
+                    "es": "Herramientas deterministas sobre datos precalculados más una herramienta de búsqueda semántica de último recurso; máximo 4 rondas"
+                  },
+                  {
+                    "en": "Semantic search embeds the query and calls the buscar_fragmentos RPC; /estado reads the last 20 events",
+                    "es": "La búsqueda semántica genera el embedding de la consulta y llama al RPC buscar_fragmentos; /estado lee los últimos 20 eventos"
+                  },
+                  {
+                    "en": "On provider failure replies with a fallback message pointing to /estado",
+                    "es": "Si falla el proveedor responde con un mensaje de respaldo que apunta a /estado"
+                  }
+                ],
+                "why": {
+                  "en": "All figures come from tools, not model arithmetic, so answers stay verifiable.",
+                  "es": "Todas las cifras salen de herramientas, no de aritmética del modelo, así las respuestas son verificables."
+                }
+              }
+            },
+            {
+              "id": "pages",
+              "label": {
+                "en": "Site and API edge",
+                "es": "Sitio y API en el edge"
+              },
+              "sublabel": {
+                "en": "Static site plus /api endpoints",
+                "es": "Sitio estático y endpoints /api"
+              },
+              "kind": "gateway",
+              "group": "edge",
+              "tech": "Cloudflare Pages · Workers",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "Cloudflare Pages serves web/ and its _worker.js handles POST /api/reporte, GET /api/reportes, POST /api/sugerencia and POST /api/chat; everything else falls through to static assets.",
+                  "es": "Cloudflare Pages sirve web/ y su _worker.js atiende POST /api/reporte, GET /api/reportes, POST /api/sugerencia y POST /api/chat; todo lo demás va a los assets estáticos."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Reports: validates Havana bounding box, hashes IP with a salt, max 3 per IP per 2 h; aggregates the last 6 h into ~110 m cells",
+                    "es": "Reportes: valida el área de La Habana, hashea la IP con sal, máximo 3 por IP cada 2 h; agrega las últimas 6 h en celdas de ~110 m"
+                  },
+                  {
+                    "en": "Suggestions: max 5 per IP per 24 h, fails closed if the rate-limit table is unavailable, then opens a GitHub issue",
+                    "es": "Sugerencias: máximo 5 por IP al día, falla en cerrado si la tabla de límites no está disponible, y abre un issue en GitHub"
+                  },
+                  {
+                    "en": "Chat: tool-calling loop of up to 4 steps over the published JSON",
+                    "es": "Chat: bucle de tool-calling de hasta 4 pasos sobre el JSON publicado"
+                  }
+                ],
+                "why": {
+                  "en": "A single edge Worker keeps the only public entry point free and reachable from Cuba.",
+                  "es": "Un solo Worker en el edge mantiene gratis y accesible desde Cuba el único punto de entrada público."
+                }
+              }
+            },
+            {
+              "id": "web",
+              "label": {
+                "en": "Outage map",
+                "es": "Mapa de apagones"
+              },
+              "sublabel": {
+                "en": "Map, circuits, analytics, FAQ",
+                "es": "Mapa, circuitos, analítica, preguntas frecuentes"
+              },
+              "kind": "client",
+              "group": "edge",
+              "tech": "MapLibre · JS",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "The public static web app: outage map, circuit pages, analytics, FAQ, suggestion form and chat widget (chatbot.js). Map tiles are .pbf files served from the same origin.",
+                  "es": "La aplicación web estática pública: mapa de apagones, páginas por circuito, analítica, preguntas frecuentes, formulario de sugerencias y widget de chat (chatbot.js). Los tiles del mapa son archivos .pbf servidos desde el mismo origen."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Reads published JSON from data/",
+                    "es": "Lee el JSON publicado en data/"
+                  },
+                  {
+                    "en": "Posts neighbor reports, suggestions and chat questions to /api/*",
+                    "es": "Envía reportes vecinales, sugerencias y preguntas de chat a /api/*"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "db",
+              "label": {
+                "en": "Messages and events store",
+                "es": "Almacén de mensajes y eventos"
+              },
+              "sublabel": {
+                "en": "mensajes, eventos, comentarios_llm, reportes, vectors",
+                "es": "mensajes, eventos, comentarios_llm, reportes, vectores"
+              },
+              "kind": "db",
+              "group": "data",
+              "tech": "Supabase · PostgreSQL",
+              "owned": true,
+              "pos": {
+                "col": 3,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Supabase Postgres, accessed with the service key from CI jobs and Workers. Tables: mensajes, eventos, comentarios_llm, reportes, sugerencias (rate-limit log) and chatbot_fragmentos with a pgvector search function (buscar_fragmentos).",
+                  "es": "Postgres de Supabase, accedido con la service key desde los jobs de CI y los Workers. Tablas: mensajes, eventos, comentarios_llm, reportes, sugerencias (registro para el límite de envíos) y chatbot_fragmentos con una función de búsqueda pgvector (buscar_fragmentos)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Raw messages kept so extraction can be re-run",
+                    "es": "Los mensajes crudos se conservan para poder repetir la extracción"
+                  },
+                  {
+                    "en": "purga.py enforces retention: comments 60 d, channel 365 d, events 365 d, LLM comments 120 d, reports 30 d, fragments 30 d, suggestions 14 d",
+                    "es": "purga.py aplica retención: comentarios 60 d, canal 365 d, eventos 365 d, comentarios LLM 120 d, reportes 30 d, fragmentos 30 d, sugerencias 14 d"
+                  },
+                  {
+                    "en": "Purge disables itself if local caches are older than 48 h, since they hold the history being deleted",
+                    "es": "La purga se desactiva sola si las cachés locales tienen más de 48 h, porque guardan el histórico que se borra"
+                  }
+                ],
+                "why": {
+                  "en": "Free tier limits drive the retention design.",
+                  "es": "Los límites del plan gratuito condicionan el diseño de retención."
+                }
+              }
+            },
+            {
+              "id": "llm",
+              "label": {
+                "en": "LLM providers",
+                "es": "Proveedores LLM"
+              },
+              "sublabel": {
+                "en": "NaN Builders, NVIDIA NIM, Workers AI",
+                "es": "NaN Builders, NVIDIA NIM, Workers AI"
+              },
+              "kind": "ai",
+              "group": "external",
+              "tech": "NaN · NIM · Workers AI",
+              "owned": false,
+              "pos": {
+                "col": 2,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "External model APIs. Pipeline jobs call them through scripts/llm_provider.py, which tries NaN, then NVIDIA NIM, then Cloudflare Workers AI. Whisper (NaN) transcribes voice notes and an embedding model indexes fragments. The bot and the web chat call NaN directly.",
+                  "es": "APIs externas de modelos. Los jobs del pipeline las llaman mediante scripts/llm_provider.py, que prueba NaN, luego NVIDIA NIM y luego Cloudflare Workers AI. Whisper (NaN) transcribe notas de voz y un modelo de embeddings indexa fragmentos. El bot y el chat web llaman a NaN directamente."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Up to 2 attempts per provider; a 429 waits 10 s and marks the provider exhausted",
+                    "es": "Hasta 2 intentos por proveedor; un 429 espera 10 s y marca al proveedor como agotado"
+                  },
+                  {
+                    "en": "Daily quota tracked per provider (data/llm_cuota.json) except NaN",
+                    "es": "Cuota diaria por proveedor (data/llm_cuota.json), salvo NaN"
+                  },
+                  {
+                    "en": "Extracts JSON from noisy output; invalid JSON moves to the next provider",
+                    "es": "Extrae JSON de salidas ruidosas; un JSON inválido pasa al siguiente proveedor"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "gh",
+              "label": {
+                "en": "Issues and alerts",
+                "es": "Issues y alertas"
+              },
+              "sublabel": {
+                "en": "Guardian, verification and suggestion issues",
+                "es": "Issues del guardián, verificación y sugerencias"
+              },
+              "kind": "external",
+              "group": "external",
+              "tech": "GitHub Issues",
+              "owned": false,
+              "pos": {
+                "col": 4,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "GitHub Issues used as a free inbox with three writers: the watchdog (label guardian), the daily verification job (label verificacion) and the site suggestion form (label desde-web).",
+                  "es": "GitHub Issues usado como bandeja gratuita con tres escritores: el guardián (etiqueta guardian), el job de verificación diaria (etiqueta verificacion) y el formulario de sugerencias del sitio (etiqueta desde-web)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Only one open issue per alert type: comment if open, create otherwise",
+                    "es": "Un solo issue abierto por tipo de alerta: se comenta si existe y se crea si no"
+                  },
+                  {
+                    "en": "Verification issue is closed automatically when a run finds no problems",
+                    "es": "El issue de verificación se cierra solo cuando una corrida no encuentra problemas"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e14",
+              "from": "users",
+              "to": "tgapi",
+              "label": {
+                "en": "message to the bot",
+                "es": "mensaje al bot"
+              },
+              "async": false
+            },
+            {
+              "id": "e24",
+              "from": "tgapi",
+              "to": "bot",
+              "label": {
+                "en": "webhook POST /webhook/{secret}",
+                "es": "webhook POST /webhook/{secret}"
+              },
+              "async": false
+            },
+            {
+              "id": "e17",
+              "from": "bot",
+              "to": "pages",
+              "label": {
+                "en": "reads published JSON",
+                "es": "lee el JSON publicado"
+              },
+              "async": false
+            },
+            {
+              "id": "e15",
+              "from": "bot",
+              "to": "llm",
+              "label": {
+                "en": "tool-calling chat completion",
+                "es": "chat completion con tool-calling"
+              },
+              "async": false
+            },
+            {
+              "id": "e16",
+              "from": "bot",
+              "to": "db",
+              "label": {
+                "en": "pgvector RPC, last events",
+                "es": "RPC pgvector, últimos eventos"
+              },
+              "async": false
+            },
+            {
+              "id": "e25",
+              "from": "bot",
+              "to": "tgapi",
+              "label": {
+                "en": "sendMessage reply",
+                "es": "respuesta sendMessage"
+              },
+              "async": false
+            },
+            {
+              "id": "e26",
+              "from": "users",
+              "to": "web",
+              "label": {
+                "en": "browse map, chat, report",
+                "es": "navegan el mapa, chatean, reportan"
+              },
+              "async": false
+            },
+            {
+              "id": "e12",
+              "from": "web",
+              "to": "pages",
+              "label": {
+                "en": "POST /api/reporte, /api/chat, /api/sugerencia",
+                "es": "POST /api/reporte, /api/chat, /api/sugerencia"
+              },
+              "async": false
+            },
+            {
+              "id": "e13",
+              "from": "pages",
+              "to": "db",
+              "label": {
+                "en": "reports insert, rate limits, vector search",
+                "es": "inserta reportes, límites, búsqueda vectorial"
+              },
+              "async": false
+            },
+            {
+              "id": "e27",
+              "from": "pages",
+              "to": "llm",
+              "label": {
+                "en": "chat completions and embeddings",
+                "es": "chat completions y embeddings"
+              },
+              "async": false
+            },
+            {
+              "id": "e20",
+              "from": "pages",
+              "to": "gh",
+              "label": {
+                "en": "suggestion becomes an issue",
+                "es": "la sugerencia se vuelve issue"
+              },
+              "async": true
+            }
+          ],
+          "flows": [
+            {
+              "id": "f3",
+              "name": {
+                "en": "Asking the Telegram bot",
+                "es": "Preguntar al bot de Telegram"
+              },
+              "description": {
+                "en": "The user's message reaches the bot webhook; the LLM calls deterministic tools over the published JSON, falls back to vector search over raw partes, and the answer returns through sendMessage.",
+                "es": "El mensaje del usuario llega al webhook del bot; el LLM llama herramientas deterministas sobre el JSON publicado, recurre a búsqueda vectorial sobre partes crudos y la respuesta vuelve por sendMessage."
+              },
+              "edges": [
+                "e14",
+                "e24",
+                "e17",
+                "e15",
+                "e16",
+                "e25"
+              ]
+            },
+            {
+              "id": "f4",
+              "name": {
+                "en": "Neighbor outage report",
+                "es": "Reporte vecinal de apagón"
+              },
+              "description": {
+                "en": "A visitor reports no power from the map; the edge Worker validates, rate-limits by hashed IP and stores it.",
+                "es": "Un visitante reporta que no hay corriente desde el mapa; el Worker del edge valida, limita por IP hasheada y lo guarda."
+              },
+              "edges": [
+                "e26",
+                "e12",
+                "e13"
+              ]
+            },
+            {
+              "id": "f5",
+              "name": {
+                "en": "Web chat and suggestions",
+                "es": "Chat web y sugerencias"
+              },
+              "description": {
+                "en": "The chat widget posts to the edge Worker, which runs its own tool loop against the LLM and the vector index; suggestions become GitHub issues.",
+                "es": "El widget de chat envía al Worker del edge, que ejecuta su propio bucle de herramientas contra el LLM y el índice vectorial; las sugerencias se vuelven issues de GitHub."
+              },
+              "edges": [
+                "e12",
+                "e27",
+                "e13",
+                "e20"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "Telegram bot + web chat",
+              "es": "Bot de Telegram + chat web"
+            },
+            {
+              "en": "Tool-calling + pgvector RAG",
+              "es": "Tool-calling + RAG con pgvector"
+            },
+            {
+              "en": "Hashed-IP, rate-limited reports",
+              "es": "Reportes con IP hasheada y límite"
+            }
+          ],
+          "groups": [
+            {
+              "id": "sources",
+              "label": {
+                "en": "Sources and users",
+                "es": "Fuentes y usuarios"
+              }
+            },
+            {
+              "id": "data",
+              "label": {
+                "en": "Data",
+                "es": "Datos"
+              }
+            },
+            {
+              "id": "edge",
+              "label": {
+                "en": "Edge and delivery",
+                "es": "Edge y entrega"
+              }
+            },
+            {
+              "id": "external",
+              "label": {
+                "en": "External services",
+                "es": "Servicios externos"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "operations",
+        "name": {
+          "en": "Digest, verification and geocoding",
+          "es": "Resumen, verificación y geocodificación"
+        },
+        "description": {
+          "en": "Scheduled workflows send the weekly email digest and audit the published data; build steps geocode through public OSM services.",
+          "es": "Workflows programados envían el resumen semanal por email y auditan los datos publicados; los pasos de build geocodifican con servicios públicos de OSM."
+        },
+        "architecture": {
+          "nodes": [
+            {
+              "id": "gha",
+              "label": {
+                "en": "Pipeline runner",
+                "es": "Ejecutor del pipeline"
+              },
+              "sublabel": {
+                "en": "Tests, ingest, build, deploy",
+                "es": "Pruebas, ingesta, build, deploy"
+              },
+              "kind": "worker",
+              "group": "pipeline",
+              "tech": "GitHub Actions",
+              "owned": true,
+              "pos": {
+                "col": 0,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "ingest.yml runs on workflow_dispatch only: regression tests first, then ingest, enrichment, builds, cache commit, SEO, Pages deploy and purge. Two more workflows are scheduled: verificacion.yml (daily) and resumen_semanal.yml (weekly).",
+                  "es": "ingest.yml corre solo por workflow_dispatch: primero pruebas de regresión, luego ingesta, enriquecimiento, builds, commit de cachés, SEO, deploy a Pages y purga. Otros dos workflows son programados: verificacion.yml (diario) y resumen_semanal.yml (semanal)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Concurrency group 'ingesta' with cancel-in-progress: the newest run kills the older one",
+                    "es": "Grupo de concurrencia 'ingesta' con cancel-in-progress: la corrida nueva mata a la vieja"
+                  },
+                  {
+                    "en": "unittest discover blocks the deploy on failure; the learning canary is advisory only",
+                    "es": "unittest discover bloquea el deploy si falla; el canario de aprendizaje es solo advertencia"
+                  },
+                  {
+                    "en": "25-minute timeout around a ~18-minute run",
+                    "es": "Timeout de 25 minutos para una corrida de ~18 minutos"
+                  },
+                  {
+                    "en": "Commits the geocoding and LLM caches back to the repo with if: always()",
+                    "es": "Hace commit de las cachés de geocodificación y LLM al repo con if: always()"
+                  }
+                ],
+                "why": {
+                  "en": "Failing tests block the deploy: better not to update than to publish a wrong state.",
+                  "es": "Si las pruebas fallan se bloquea el deploy: mejor no actualizar que publicar un estado equivocado."
+                }
+              }
+            },
+            {
+              "id": "digest",
+              "label": {
+                "en": "Weekly digest",
+                "es": "Resumen semanal"
+              },
+              "sublabel": {
+                "en": "Aggregates 7 days, sends email",
+                "es": "Agrega 7 días y envía un email"
+              },
+              "kind": "service",
+              "group": "pipeline",
+              "tech": "Python · matplotlib",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "scripts/resumen_semanal.py aggregates the last 7 calendar days from the JSON the pipeline leaves in the tree (circuit catalog, hours history, state, partes, user signals) and sends an HTML plus plain-text email with an inline chart.",
+                  "es": "scripts/resumen_semanal.py agrega los últimos 7 días calendario desde el JSON que el pipeline deja en el árbol (catálogo de circuitos, histórico de horas, estado, partes y señales de usuarios) y envía un email HTML y texto plano con un gráfico incrustado."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Runs Fridays 12:07 UTC; workflow_dispatch accepts a test recipient that prefixes the subject with [PRUEBA]",
+                    "es": "Corre los viernes 12:07 UTC; workflow_dispatch admite un destinatario de prueba que antepone [PRUEBA] al asunto"
+                  },
+                  {
+                    "en": "Calculation is offline and deterministic; the network is used only to send",
+                    "es": "El cálculo es offline y determinista; la red solo se usa para enviar"
+                  },
+                  {
+                    "en": "Reuses build_seo's lifecycle rule so the email and the site never disagree",
+                    "es": "Reusa la regla de ciclo de vida de build_seo para que email y sitio no diverjan"
+                  },
+                  {
+                    "en": "Needs an API key secret; without it, exits with a clear error and sends nothing",
+                    "es": "Requiere un secret con API key; sin él termina con un error claro y no envía nada"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "mail",
+              "label": {
+                "en": "Email provider",
+                "es": "Proveedor de email"
+              },
+              "sublabel": {
+                "en": "Transactional email API",
+                "es": "API de email transaccional"
+              },
+              "kind": "external",
+              "group": "external",
+              "tech": "HTTPS API",
+              "owned": false,
+              "pos": {
+                "col": 2,
+                "row": 1
+              },
+              "details": {
+                "what": {
+                  "en": "External transactional email service that receives the digest through its HTTPS send API (HTML, text and inline PNG attachment).",
+                  "es": "Servicio externo de email transaccional que recibe el resumen por su API HTTPS de envío (HTML, texto y adjunto PNG incrustado)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Sender and recipient come from environment variables, never hard-coded",
+                    "es": "Remitente y destinatario vienen de variables de entorno, nunca fijos en el código"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "verify",
+              "label": {
+                "en": "Data verification",
+                "es": "Verificación de datos"
+              },
+              "sublabel": {
+                "en": "Daily audit of published JSON",
+                "es": "Auditoría diaria del JSON publicado"
+              },
+              "kind": "service",
+              "group": "pipeline",
+              "tech": "Python · gh CLI",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "scripts/verificar_datos.py audits the JSON as published on the live site, auto-repairs by purging badly geocoded points and lines from the caches, and writes a report that the workflow turns into a GitHub issue.",
+                  "es": "scripts/verificar_datos.py audita el JSON tal como está publicado en el sitio, se autorrepara purgando de las cachés los puntos y líneas mal geocodificados y escribe un informe que el workflow convierte en un issue de GitHub."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Runs daily at 11:00 UTC, sharing the 'ingesta' concurrency group",
+                    "es": "Corre a diario a las 11:00 UTC, compartiendo el grupo de concurrencia 'ingesta'"
+                  },
+                  {
+                    "en": "Commits purged cache entries so the next ingest re-geocodes them within the official municipality",
+                    "es": "Hace commit de las entradas purgadas para que la siguiente ingesta las re-geocodifique dentro de su municipio oficial"
+                  },
+                  {
+                    "en": "One open verification issue at a time: comment if open, create otherwise, close when clean",
+                    "es": "Un solo issue de verificación abierto: comenta si existe, crea si no y cierra cuando todo está limpio"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "pages",
+              "label": {
+                "en": "Site and API edge",
+                "es": "Sitio y API en el edge"
+              },
+              "sublabel": {
+                "en": "Static site plus /api endpoints",
+                "es": "Sitio estático y endpoints /api"
+              },
+              "kind": "gateway",
+              "group": "edge",
+              "tech": "Cloudflare Pages · Workers",
+              "owned": true,
+              "pos": {
+                "col": 2,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "Cloudflare Pages serves web/ and its _worker.js handles POST /api/reporte, GET /api/reportes, POST /api/sugerencia and POST /api/chat; everything else falls through to static assets.",
+                  "es": "Cloudflare Pages sirve web/ y su _worker.js atiende POST /api/reporte, GET /api/reportes, POST /api/sugerencia y POST /api/chat; todo lo demás va a los assets estáticos."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Reports: validates Havana bounding box, hashes IP with a salt, max 3 per IP per 2 h; aggregates the last 6 h into ~110 m cells",
+                    "es": "Reportes: valida el área de La Habana, hashea la IP con sal, máximo 3 por IP cada 2 h; agrega las últimas 6 h en celdas de ~110 m"
+                  },
+                  {
+                    "en": "Suggestions: max 5 per IP per 24 h, fails closed if the rate-limit table is unavailable, then opens a GitHub issue",
+                    "es": "Sugerencias: máximo 5 por IP al día, falla en cerrado si la tabla de límites no está disponible, y abre un issue en GitHub"
+                  },
+                  {
+                    "en": "Chat: tool-calling loop of up to 4 steps over the published JSON",
+                    "es": "Chat: bucle de tool-calling de hasta 4 pasos sobre el JSON publicado"
+                  }
+                ],
+                "why": {
+                  "en": "A single edge Worker keeps the only public entry point free and reachable from Cuba.",
+                  "es": "Un solo Worker en el edge mantiene gratis y accesible desde Cuba el único punto de entrada público."
+                }
+              }
+            },
+            {
+              "id": "gh",
+              "label": {
+                "en": "Issues and alerts",
+                "es": "Issues y alertas"
+              },
+              "sublabel": {
+                "en": "Guardian, verification and suggestion issues",
+                "es": "Issues del guardián, verificación y sugerencias"
+              },
+              "kind": "external",
+              "group": "external",
+              "tech": "GitHub Issues",
+              "owned": false,
+              "pos": {
+                "col": 3,
+                "row": 0
+              },
+              "details": {
+                "what": {
+                  "en": "GitHub Issues used as a free inbox with three writers: the watchdog (label guardian), the daily verification job (label verificacion) and the site suggestion form (label desde-web).",
+                  "es": "GitHub Issues usado como bandeja gratuita con tres escritores: el guardián (etiqueta guardian), el job de verificación diaria (etiqueta verificacion) y el formulario de sugerencias del sitio (etiqueta desde-web)."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Only one open issue per alert type: comment if open, create otherwise",
+                    "es": "Un solo issue abierto por tipo de alerta: se comenta si existe y se crea si no"
+                  },
+                  {
+                    "en": "Verification issue is closed automatically when a run finds no problems",
+                    "es": "El issue de verificación se cierra solo cuando una corrida no encuentra problemas"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "build",
+              "label": {
+                "en": "Static data builder",
+                "es": "Generador de datos estáticos"
+              },
+              "sublabel": {
+                "en": "estado.json, circuits, analytics, SEO",
+                "es": "estado.json, circuitos, analítica, SEO"
+              },
+              "kind": "service",
+              "group": "pipeline",
+              "tech": "Python scripts",
+              "owned": true,
+              "pos": {
+                "col": 1,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Scripts run in order after enrichment read mensajes, eventos, comentarios_llm and reportes and write the JSON the site and bot consume under web/data: estado, barrios, analitica, circuitos, partes, bot_datos, plus SEO pages.",
+                  "es": "Scripts que corren en orden tras el enriquecimiento leen mensajes, eventos, comentarios_llm y reportes y escriben el JSON que consumen el sitio y el bot en web/data: estado, barrios, analitica, circuitos, partes, bot_datos, además de páginas SEO."
+                },
+                "responsibilities": [
+                  {
+                    "en": "estado.py geocodes outage places (cached) and writes estado.json",
+                    "es": "estado.py geocodifica los lugares de apagón (con caché) y escribe estado.json"
+                  },
+                  {
+                    "en": "build_circuitos.py builds the circuit catalog first; build_serie24h, coherencia_catalogo and build_bot_datos follow",
+                    "es": "build_circuitos.py construye primero el catálogo de circuitos; después siguen build_serie24h, coherencia_catalogo y build_bot_datos"
+                  },
+                  {
+                    "en": "build_seo.py is best-effort: on failure the last good HTML is deployed",
+                    "es": "build_seo.py es best-effort: si falla, se despliega el último HTML bueno"
+                  },
+                  {
+                    "en": "Deploys web/ with wrangler pages deploy, then purga.py deletes old rows by retention",
+                    "es": "Despliega web/ con wrangler pages deploy y luego purga.py borra filas viejas según su retención"
+                  }
+                ],
+                "why": {
+                  "en": "Precomputing keeps the site and bot fast and free: they read files, not the database.",
+                  "es": "Precalcular mantiene el sitio y el bot rápidos y gratis: leen archivos, no la base."
+                }
+              }
+            },
+            {
+              "id": "geo",
+              "label": {
+                "en": "Geocoders",
+                "es": "Geocodificadores"
+              },
+              "sublabel": {
+                "en": "Place lookup and OSM geometry",
+                "es": "Búsqueda de lugares y geometría OSM"
+              },
+              "kind": "external",
+              "group": "external",
+              "tech": "Nominatim · Overpass",
+              "owned": false,
+              "pos": {
+                "col": 2,
+                "row": 2
+              },
+              "details": {
+                "what": {
+                  "en": "Public OpenStreetMap services: Nominatim to geocode outage places and Overpass to fetch street and polygon geometry for circuits and neighborhoods.",
+                  "es": "Servicios públicos de OpenStreetMap: Nominatim para geocodificar lugares de apagón y Overpass para obtener geometría de calles y polígonos de circuitos y barrios."
+                },
+                "responsibilities": [
+                  {
+                    "en": "Results cached in data/geocache_*.json to avoid repeating queries",
+                    "es": "Resultados en caché en data/geocache_*.json para no repetir consultas"
+                  },
+                  {
+                    "en": "Failed lookups are logged and retried by later runs",
+                    "es": "Las búsquedas fallidas se registran y se reintentan en corridas posteriores"
+                  }
+                ]
+              }
+            }
+          ],
+          "edges": [
+            {
+              "id": "e28",
+              "from": "gha",
+              "to": "digest",
+              "label": {
+                "en": "Friday cron: resumen_semanal.yml",
+                "es": "cron de viernes: resumen_semanal.yml"
+              },
+              "async": true
+            },
+            {
+              "id": "e29",
+              "from": "digest",
+              "to": "mail",
+              "label": {
+                "en": "HTTPS send API",
+                "es": "API HTTPS de envío"
+              },
+              "async": false
+            },
+            {
+              "id": "e30",
+              "from": "gha",
+              "to": "verify",
+              "label": {
+                "en": "daily cron: verificacion.yml",
+                "es": "cron diario: verificacion.yml"
+              },
+              "async": true
+            },
+            {
+              "id": "e31",
+              "from": "verify",
+              "to": "pages",
+              "label": {
+                "en": "fetches published JSON",
+                "es": "descarga el JSON publicado"
+              },
+              "async": false
+            },
+            {
+              "id": "e32",
+              "from": "verify",
+              "to": "gh",
+              "label": {
+                "en": "create, comment or close issue",
+                "es": "crea, comenta o cierra el issue"
+              },
+              "async": true
+            },
+            {
+              "id": "e33",
+              "from": "gha",
+              "to": "build",
+              "label": {
+                "en": "runs the build steps",
+                "es": "ejecuta los pasos de build"
+              },
+              "async": false
+            },
+            {
+              "id": "e34",
+              "from": "build",
+              "to": "geo",
+              "label": {
+                "en": "geocode places, OSM geometry",
+                "es": "geocodifica lugares, geometría OSM"
+              },
+              "async": false
+            }
+          ],
+          "flows": [
+            {
+              "id": "f6",
+              "name": {
+                "en": "Weekly email digest",
+                "es": "Resumen semanal por email"
+              },
+              "description": {
+                "en": "A Friday workflow aggregates seven days of data offline and sends the email through the provider API.",
+                "es": "Un workflow de los viernes agrega siete días de datos offline y envía el email por la API del proveedor."
+              },
+              "edges": [
+                "e28",
+                "e29"
+              ]
+            },
+            {
+              "id": "f7",
+              "name": {
+                "en": "Daily data verification",
+                "es": "Verificación diaria de datos"
+              },
+              "description": {
+                "en": "A daily workflow audits the published JSON, repairs bad geocodes in the caches and files or closes a GitHub issue.",
+                "es": "Un workflow diario audita el JSON publicado, repara geocodificaciones erróneas en las cachés y abre o cierra un issue de GitHub."
+              },
+              "edges": [
+                "e30",
+                "e31",
+                "e32"
+              ]
+            },
+            {
+              "id": "f8",
+              "name": {
+                "en": "Geocoding during build",
+                "es": "Geocodificación durante el build"
+              },
+              "description": {
+                "en": "The build steps in the ingest job geocode places and fetch OSM geometry, caching results in the repo.",
+                "es": "Los pasos de build del job de ingesta geocodifican lugares y traen geometría OSM, guardando resultados en caché en el repo."
+              },
+              "edges": [
+                "e33",
+                "e34"
+              ]
+            }
+          ],
+          "glance": [
+            {
+              "en": "Scheduled workflows run on GitHub Actions",
+              "es": "Workflows programados en GitHub Actions"
+            },
+            {
+              "en": "Offline, deterministic digest",
+              "es": "Resumen offline y determinista"
+            },
+            {
+              "en": "Auto-repair of bad geocodes",
+              "es": "Autorreparación de geocodificaciones erróneas"
+            }
+          ],
+          "groups": [
+            {
+              "id": "pipeline",
+              "label": {
+                "en": "Pipeline",
+                "es": "Pipeline"
+              }
+            },
+            {
+              "id": "edge",
+              "label": {
+                "en": "Edge and delivery",
+                "es": "Edge y entrega"
+              }
+            },
+            {
+              "id": "external",
+              "label": {
+                "en": "External services",
+                "es": "Servicios externos"
+              }
+            }
+          ]
+        }
+      }
     ]
   }
 }

@@ -36,6 +36,8 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T3 Animated architecture diagram component (SVG nodes/edges, flow pulses, groups, legend). Route: delegated writer.
 - [x] T4 Pages: Home, project lists, project detail, About me, language switch. Route: delegated writer.
 - [x] T5 Visual review with user, iterate on design.
+- [x] T5c Integrate code-verified content-v2 (11 projects + agentic details), schema/renderer accept it, layout tests over all projects. Route: delegated writer.
+- [ ] T5d Polish: readable hero diagram, crypto on 3 rows, Spanish sublabel truncation. Route: delegated writer.
 - [ ] T6 (later) Backend design.
 
 ## Acceptance criteria
