@@ -1,0 +1,7 @@
+---
+import { CATEGORY_CLASS, CLASS_COLOR } from './diagram/kinds.ts';
+interface Props { name: string; category: string }
+const { name, category } = Astro.props;
+const color = CLASS_COLOR[CATEGORY_CLASS[category] ?? 'external'];
+---
+<span class="chip" style={`--c:${color}`}><span class="dot" aria-hidden="true"></span>{name}</span>

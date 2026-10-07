@@ -17,25 +17,38 @@ const en = {
   'footer.note': 'Mockup build with sample data.',
   'footer.contact': 'Contact',
 
-  'hero.eyebrow': 'Senior backend engineer · .NET · distributed systems · AI platforms',
-  'hero.title': 'I design and build the systems behind the screen.',
+  'hero.eyebrow':
+    'Senior .NET backend engineer · distributed systems · AI platforms',
+  'hero.title':
+    'I build distributed systems — here is how they work inside.',
   'hero.lead':
-    'Twelve years of .NET services that move money, odds and messages in real time, and lately the gateways and agents that put LLMs into production safely.',
+    'Twelve years of .NET services that handle payments, live odds and real-time messaging, and now the gateways and agents that put LLMs into production safely. Every project below comes with a diagram you can play.',
   'hero.cta.projects': 'See the systems',
   'hero.cta.about': 'About me',
   'hero.trace': 'trace',
   'hero.caption': 'Live view of a real architecture: {title}',
 
   'home.personal.label': 'Personal',
-  'home.corporate.label': 'Corporate',
+  'home.corporate.label':
+    'Client work',
   'home.personal.title': 'Personal projects',
-  'home.corporate.title': 'Corporate projects',
+  'home.corporate.title':
+    'Client projects',
   'home.systems': '{n} systems',
   'home.corporate.note':
-    'Client systems are presented company-agnostic: architecture and decisions only, no code, no names.',
+    'Systems I built for employers, presented company-agnostic: the architecture is shown, names and code are withheld.',
   'home.personal.note': 'Built on my own time, with public repositories and live demos where available.',
 
-  'card.open': 'View architecture',
+  'home.work.eyebrow': 'Selected work',
+  'home.work.title': 'Systems I have built',
+  'home.capabilities': 'What I work with',
+  'hero.now': 'Now showing',
+  'hero.dot': 'Show {title}',
+  'detail.what': 'What it does',
+  'detail.built': 'What I built',
+  'detail.prev': 'Previous project',
+  'detail.next': 'Next project',
+  'card.open': 'View architecture →',
   'card.diagram.alt': 'Architecture preview with {nodes} components and {flows} flows.',
 
   'status.live': 'Live',
@@ -156,26 +169,39 @@ const es: Record<UiKey, string> = {
   'footer.note': 'Maqueta con datos de ejemplo.',
   'footer.contact': 'Contacto',
 
-  'hero.eyebrow': 'Ingeniero backend senior · .NET · sistemas distribuidos · plataformas de IA',
-  'hero.title': 'Diseño y construyo los sistemas detrás de la pantalla.',
+  'hero.eyebrow':
+    'Ingeniero backend .NET senior · sistemas distribuidos · plataformas de IA',
+  'hero.title':
+    'Construyo sistemas distribuidos: así funcionan por dentro.',
   'hero.lead':
-    'Doce años de servicios .NET que mueven dinero, cuotas y mensajes en tiempo real, y últimamente los gateways y agentes que llevan los LLM a producción con seguridad.',
+    'Doce años de servicios .NET que manejan pagos, cuotas en vivo y mensajería en tiempo real, y ahora los gateways y agentes que llevan los LLM a producción con seguridad. Cada proyecto incluye un diagrama que puedes reproducir.',
   'hero.cta.projects': 'Ver los sistemas',
   'hero.cta.about': 'Sobre mí',
   'hero.trace': 'traza',
   'hero.caption': 'Vista en vivo de una arquitectura real: {title}',
 
   'home.personal.label': 'Personal',
-  'home.corporate.label': 'Corporativo',
+  'home.corporate.label':
+    'Trabajo para clientes',
   'home.personal.title': 'Proyectos personales',
-  'home.corporate.title': 'Proyectos corporativos',
+  'home.corporate.title':
+    'Proyectos para clientes',
   'home.systems': '{n} sistemas',
   'home.corporate.note':
-    'Los sistemas de clientes se presentan sin referencias a la empresa: solo arquitectura y decisiones, sin código ni nombres.',
+    'Sistemas que construí para empleadores, presentados sin referencias a la empresa: se muestra la arquitectura, se omiten nombres y código.',
   'home.personal.note':
     'Construidos en mi tiempo libre, con repositorios públicos y demos en vivo cuando existen.',
 
-  'card.open': 'Ver arquitectura',
+  'home.work.eyebrow': 'Trabajo seleccionado',
+  'home.work.title': 'Sistemas que he construido',
+  'home.capabilities': 'Con qué trabajo',
+  'hero.now': 'Mostrando',
+  'hero.dot': 'Mostrar {title}',
+  'detail.what': 'Qué hace',
+  'detail.built': 'Qué construí',
+  'detail.prev': 'Proyecto anterior',
+  'detail.next': 'Proyecto siguiente',
+  'card.open': 'Ver arquitectura →',
   'card.diagram.alt': 'Vista previa de arquitectura con {nodes} componentes y {flows} flujos.',
 
   'status.live': 'En vivo',

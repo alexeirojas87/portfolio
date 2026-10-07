@@ -1,0 +1,13 @@
+---
+import { useTranslations, type Locale } from '../i18n/ui';
+interface Props { status: 'live' | 'production' | 'in-progress' | 'prototype'; locale: Locale }
+const { status, locale } = Astro.props;
+const t = useTranslations(locale);
+const tone = {
+  live: 'color:#0b6b59;background:#d9f5ec',
+  production: 'color:#1f45c4;background:#e4ebff',
+  'in-progress': 'color:#8a5a00;background:#fff4d9',
+  prototype: 'color:#4a5568;background:#e8ecf2',
+}[status];
+---
+<span class="pill" style={tone}>{t(`status.${status}` as const)}</span>

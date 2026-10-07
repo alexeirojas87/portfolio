@@ -120,9 +120,9 @@ export default function DiagramSvg(p: DiagramSvgProps) {
               </g>
             );
           }
-          const label = wrapText(n.node.label, 19, 2);
-          const subl = wrapText(sub, 25, 2);
-          const lineH = 14, subH = 12;
+          const label = wrapText(n.node.label, 17, 2);
+          const subl = wrapText(sub, 23, 3);
+          const lineH = 16, subH = 13.5;
           const total = label.length * lineH + subl.length * subH + 2;
           const y0 = (n.h - total) / 2 + 11;
           const subY0 = y0 + (label.length - 1) * lineH + lineH;
@@ -133,13 +133,13 @@ export default function DiagramSvg(p: DiagramSvgProps) {
               onMouseEnter={() => p.onHover?.(n.id)} onMouseLeave={() => p.onHover?.(null)}
               onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}>
               <rect width={n.w} height={n.h} rx={16} className="dg-box" />
-              <rect x={12} y={(n.h - 34) / 2} width={34} height={34} rx={10} className="dg-ibox" />
-              <Icon x={12 + 8} y={(n.h - 34) / 2 + 8} size={18} strokeWidth={2} color={color} />
-              <text x={58} className="dg-label">
-                {label.map((l, i) => <tspan key={i} x={58} y={y0 + i * lineH}>{l}</tspan>)}
+              <rect x={10} y={(n.h - 32) / 2} width={32} height={32} rx={10} className="dg-ibox" />
+              <Icon x={10 + 7} y={(n.h - 32) / 2 + 7} size={18} strokeWidth={2} color={color} />
+              <text x={50} className="dg-label">
+                {label.map((l, i) => <tspan key={i} x={50} y={y0 + i * lineH}>{l}</tspan>)}
               </text>
-              <text x={58} className="dg-sub">
-                {subl.map((l, i) => <tspan key={i} x={58} y={subY0 + i * subH}>{l}</tspan>)}
+              <text x={50} className="dg-sub">
+                {subl.map((l, i) => <tspan key={i} x={50} y={subY0 + i * subH}>{l}</tspan>)}
               </text>
               <circle cx={n.w - 12} cy={12} r={4} className="dg-dot" />
             </g>

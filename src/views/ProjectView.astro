@@ -1,0 +1,136 @@
+---
+import Base from '../layouts/Base.astro';
+import ArchitectureDiagram from '../components/diagram/ArchitectureDiagram.tsx';
+import StatusPill from '../components/StatusPill.astro';
+import StackChip from '../components/StackChip.astro';
+import { useTranslations, localePath, type Locale, type UiKey } from '../i18n/ui';
+import { getProjects, t as tx, type Project } from '../lib/projects';
+
+interface Props { project: Project; locale: Locale }
+const { project: p, locale } = Astro.props;
+const t = useTranslations(locale);
+const all = await getProjects();
+const idx = all.findIndex((x) => x.slug === p.slug);
+const prev = all[(idx - 1 + all.length) % all.length];
+const next = all[(idx + 1) % all.length];
+const title = tx(p.title, locale);
+
+const groups = new Map<string, Project['stack']>();
+for (const s of p.stack) groups.set(s.category, [...(groups.get(s.category) ?? []), s]);
+const stackKey = (c: string) => `stack.${c}` as UiKey;
+
+const video = p.video;
+const isFile = video ? /\.(mp4|webm)(\?|$)/i.test(video.url) : false;
+const links = [
+  p.links.live && { href: p.links.live, label: t('detail.link.live') },
+  p.links.github && { href: p.links.github, label: t('detail.link.github') },
+].filter((l): l is { href: string; label: string } => !!l);
+---
+<Base locale={locale} title={title} description={tx(p.tagline, locale)}>
+  <div class="wrap pt-8">
+    <a href={localePath(locale, '/#work')} class="text-sm font-medium text-ink-2 hover:text-cobalt">← {t('detail.back')}</a>
+
+    <header class="mt-5 grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-end">
+      <div>
+        <p class="eyebrow">{t(`detail.category.${p.category}` as const)}</p>
+        <h1 class="display mt-3 text-[clamp(2.2rem,5vw,3.6rem)]">{title}</h1>
+        <p class="mt-3 max-w-2xl text-lg text-ink-2">{tx(p.tagline, locale)}</p>
+      </div>
+      <dl class="card grid grid-cols-2 gap-x-4 gap-y-3 p-4 text-sm">
+        <div><dt class="eyebrow">{t('detail.year')}</dt><dd class="mt-0.5 font-mono">{p.year}</dd></div>
+        <div><dt class="eyebrow">Status</dt><dd class="mt-1"><StatusPill status={p.status} locale={locale} /></dd></div>
+        <div class="col-span-2"><dt class="eyebrow">{t('detail.role')}</dt><dd class="mt-0.5">{tx(p.role, locale)}</dd></div>
+        {links.length > 0 && (
+          <div class="col-span-2 flex flex-wrap gap-2 pt-1">
+            {links.map((l) => <a class="btn btn-ghost !px-4 !py-2 text-sm" href={l.href} rel="noopener" target="_blank">{l.label} <span aria-hidden="true">↗</span></a>)}
+          </div>
+        )}
+      </dl>
+    </header>
+    {p.category === 'corporate' && <p class="mt-4 text-sm text-ink-2">{t('detail.corporate.note')}</p>}
+  </div>
+
+  <section class="wrap-wide mt-10" aria-labelledby="arch">
+    <h2 id="arch" class="sr-only">{t('detail.architecture')}</h2>
+    <ArchitectureDiagram client:load architecture={p.architecture} locale={locale} mode="full" title={title} />
+  </section>
+
+  <div class="wrap mt-20 grid gap-12">
+    <section class="grid gap-8 md:grid-cols-2">
+      <div>
+        <h2 class="section-title">{t('detail.what')}</h2>
+        <p class="mt-4 text-ink-2">{tx(p.summary, locale)}</p>
+      </div>
+      <div class="card p-5">
+        <h3 class="eyebrow">{t('detail.problem')}</h3>
+        <p class="mt-2">{tx(p.problem, locale)}</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">{t('detail.built')}</h2>
+      <ul class="mt-6 grid gap-3 md:grid-cols-2">
+        {p.highlights.map((h) => (
+          <li class="card flex gap-3 p-4 text-sm">
+            <span aria-hidden="true" class="mt-1.5 h-2 w-2 flex-none rounded-full bg-cobalt"></span>
+            <span>{tx(h, locale)}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="section-title">{t('detail.decisions')}</h2>
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        {p.decisions.map((d, i) => (
+          <article class="card p-5">
+            <p class="eyebrow">{String(i + 1).padStart(2, '0')}</p>
+            <h3 class="display-md mt-1 text-lg">{tx(d.title, locale)}</h3>
+            <p class="mt-2 text-sm text-ink-2">{tx(d.why, locale)}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">{t('detail.stack')}</h2>
+      <dl class="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2">
+        {[...groups.entries()].map(([cat, items]) => (
+          <div>
+            <dt class="eyebrow">{t(stackKey(cat))}</dt>
+            <dd class="mt-2 flex flex-wrap gap-1.5">{items.map((s) => <StackChip name={s.name} category={s.category} />)}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    <section>
+      <h2 class="section-title">{t('detail.video')}</h2>
+      <div class="mt-6 overflow-hidden rounded-[18px] border border-rule bg-canvas shadow-[var(--shadow-soft)]" style="aspect-ratio:16/9">
+        {video ? (
+          isFile
+            ? <video class="h-full w-full" controls preload="metadata" src={video.url} title={video.title ? tx(video.title, locale) : title}></video>
+            : <iframe class="h-full w-full" src={video.url} title={video.title ? tx(video.title, locale) : title} allowfullscreen loading="lazy"></iframe>
+        ) : (
+          <div class="canvas on-canvas grid h-full w-full place-items-center rounded-none border-0 text-center shadow-none">
+            <div>
+              <div aria-hidden="true" class="mx-auto grid h-14 w-14 place-items-center rounded-full border border-canvas-line text-xl" style="color:#9db8ff">▶</div>
+              <p class="mt-3 font-display text-lg font-bold">{t('detail.video.soon')}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <nav aria-label="Projects" class="grid gap-4 sm:grid-cols-2">
+      <a class="card block p-5 hover:border-cobalt" href={localePath(locale, `/projects/${prev.slug}`)}>
+        <span class="eyebrow">← {t('detail.prev')}</span>
+        <span class="display-md mt-1 block text-lg">{tx(prev.title, locale)}</span>
+      </a>
+      <a class="card block p-5 text-right hover:border-cobalt" href={localePath(locale, `/projects/${next.slug}`)}>
+        <span class="eyebrow">{t('detail.next')} →</span>
+        <span class="display-md mt-1 block text-lg">{tx(next.title, locale)}</span>
+      </a>
+    </nav>
+  </div>
+</Base>

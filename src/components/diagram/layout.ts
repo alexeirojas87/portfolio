@@ -11,7 +11,7 @@ export interface Dims {
 }
 
 export const DIMS: Record<Mode, Dims> = {
-  full: { nodeW: 188, nodeH: 76, rowGap: 28, zonePadX: 16, zonePadTop: 40, zonePadBottom: 20, colGap: 76, margin: 16 },
+  full: { nodeW: 184, nodeH: 84, rowGap: 26, zonePadX: 14, zonePadTop: 40, zonePadBottom: 20, colGap: 60, margin: 14 },
   compact: { nodeW: 74, nodeH: 40, rowGap: 16, zonePadX: 10, zonePadTop: 14, zonePadBottom: 12, colGap: 44, margin: 8 },
 };
 
