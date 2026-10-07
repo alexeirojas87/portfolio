@@ -1,7 +1,8 @@
-import type { CSSProperties } from 'react';
+import { useMemo, type CSSProperties } from 'react';
 import { KIND_ICON } from './icons.tsx';
 import { kindColor } from './kinds.ts';
-import { wrapText } from './layout.ts';
+import { fitTitle, wrapText } from './layout.ts';
+import { placeBadges, pillSize, type BadgeRequest } from './badges.ts';
 import type { CuratedLayout } from './curated.ts';
 import { nodeLabel, type Architecture, type Locale } from './types.ts';
 import type { Progress } from './flow.ts';
@@ -24,6 +25,8 @@ export interface CuratedSvgProps {
   onHover?: (id: string | null) => void;
   onSelect?: (id: string) => void;
   emphasisEdge?: string | null;
+  hoverEdge?: string | null;
+  onHoverEdge?: (id: string | null) => void;
   /** Rendered pixel width (vertical orientation is never scaled). */
   fixedWidth?: boolean;
 }
@@ -44,6 +47,19 @@ export default function CuratedSvg(p: CuratedSvgProps) {
   }
   const mk = (k: string) => `${uid}-ah-${k}`;
   const inFlow = (id: string) => !!p.stepNo?.has(id);
+
+  // Dots for every step; full label pills only for the active / emphasised / hovered edge.
+  const pillIds = useMemo(() => [active, p.emphasisEdge ?? null, p.hoverEdge ?? null].filter((x, i, a): x is string => !!x && a.indexOf(x) === i), [active, p.emphasisEdge, p.hoverEdge]);
+  const pillInfo = useMemo(() => new Map(pillIds.map((id) => [id, pillSize(edgeById.get(id)?.label[locale] ?? '')])), [pillIds, arch, locale]);
+  const badges = useMemo(() => {
+    if (compact) return new Map();
+    const ids = new Set<string>([...(p.stepNo?.keys() ?? []), ...pillIds]);
+    const reqs: BadgeRequest[] = [...pillIds, ...[...ids].filter((id) => !pillIds.includes(id))]
+      .map((id) => layout.edges.find((e) => e.id === id))
+      .filter((e): e is NonNullable<typeof e> => !!e)
+      .map((e) => ({ id: e.id, points: e.points, pill: pillInfo.has(e.id) ? { w: pillInfo.get(e.id)!.w, h: pillInfo.get(e.id)!.h } : undefined }));
+    return placeBadges(reqs, layout.nodes.map((n) => ({ x: n.x, y: n.y, w: n.w, h: n.h })));
+  }, [compact, layout, p.stepNo, pillIds, pillInfo]);
 
   return (
     <svg className="dg-svg dg-curated" viewBox={`${layout.vb.x} ${layout.vb.y} ${layout.vb.w} ${layout.vb.h}`}
@@ -81,7 +97,12 @@ export default function CuratedSvg(p: CuratedSvgProps) {
           const dim = (hasFlow && !flow && !hl) || ((!!p.hoverNode || !!p.emphasisEdge) && !hl);
           const state = isActive || hl ? 'active' : isDone ? 'done' : flow ? 'flow' : e.async ? 'async' : 'base';
           const cls = ['dg-edge', `st-${state}`, e.async ? 'is-async' : '', dim ? 'is-dim' : '', compact && flow ? 'in-flow0' : ''].join(' ');
-          return <path key={e.id} d={e.d} className={cls} markerEnd={`url(#${mk(state)})`} />;
+          return (
+            <g key={e.id}>
+              <path d={e.d} className={cls} markerEnd={`url(#${mk(state)})`} />
+              {!compact && <path d={e.d} className="dg-edge-hit" onMouseEnter={() => p.onHoverEdge?.(e.id)} onMouseLeave={() => p.onHoverEdge?.(null)} />}
+            </g>
+          );
         })}
       </g>
 
@@ -119,7 +140,8 @@ export default function CuratedSvg(p: CuratedSvgProps) {
           const sub = n.node.sublabel[locale];
           const narrow = n.w < 120;
           const textW = n.w - (narrow ? 16 : 24);
-          const tl = wrapText(title, Math.floor(textW / (narrow ? 6.2 : 7.0)), 3);
+          const ft = fitTitle(title, textW, narrow ? [12, 11] : [14.5, 13], narrow ? 0.52 : 0.483, 3);
+          const tl = ft.lines;
           const lh = narrow ? 14 : 16;
           const room = n.h - (narrow ? 40 : 36) - tl.length * lh - 6;
           const subLines = Math.min(3, Math.floor(room / 13));
@@ -146,7 +168,7 @@ export default function CuratedSvg(p: CuratedSvgProps) {
                   <text x={6} y={13} className="dg-tech">{techText}</text>
                 </g>
               )}
-              <text className="dg-label">
+              <text className="dg-label" lang={locale} style={{ fontSize: ft.size }}>
                 {tl.map((l, i) => <tspan key={i} x={narrow ? 8 : 12} y={titleY + i * lh}>{l}</tspan>)}
               </text>
               <text className="dg-sub">
@@ -158,40 +180,32 @@ export default function CuratedSvg(p: CuratedSvgProps) {
         })}
       </g>
 
-      {!compact && p.emphasisEdge && (() => {
-        const e = layout.edges.find((x) => x.id === p.emphasisEdge);
-        if (!e) return null;
-        return (
-          <text x={e.anchor.x} y={e.anchor.y - 9} textAnchor="middle" className="dg-edge-label" pointerEvents="none">
-            {edgeById.get(e.id)!.label[locale]}
-          </text>
-        );
-      })()}
-
-      {!compact && p.stepNo && (
+      {!compact && (
         <g className="dg-badges" pointerEvents="none">
-          {layout.edges.filter((e) => inFlow(e.id)).map((e) => {
-            const no = p.stepNo!.get(e.id)!;
-            const label = trunc(edgeById.get(e.id)!.label[locale], 26);
-            const isActive = e.id === active;
-            const done = !!p.progress?.doneEdges.has(e.id);
-            const w = 26 + label.length * 6.3 + 10;
+          {[...badges.values()].map((b) => {
+            const no = p.stepNo?.get(b.id);
+            const isActive = b.id === active;
+            const done = !!p.progress?.doneEdges.has(b.id);
             const cls = `dg-badge ${isActive ? 'is-active' : done ? 'is-done' : ''}`;
-            // Label pills only where the straight segment is long enough; otherwise a numbered dot.
-            if (e.anchor.len < w + 16) {
+            if (b.kind === 'dot') {
+              const r = b.w / 2;
               return (
-                <g key={e.id} transform={`translate(${e.anchor.x} ${e.anchor.y})`} className={cls}>
-                  <circle r={11.5} className="dg-num dg-num-solo" />
+                <g key={b.id} transform={`translate(${b.x + r} ${b.y + r})`} className={cls}>
+                  <circle r={r - 0.5} className="dg-num dg-num-solo" />
                   <text y={3.8} textAnchor="middle" className="dg-numt">{no}</text>
                 </g>
               );
             }
+            const info = pillInfo.get(b.id)!;
+            const tx = no ? 30 : 12;
             return (
-              <g key={e.id} transform={`translate(${e.anchor.x - w / 2} ${e.anchor.y - 11})`} className={cls}>
-                <rect width={w} height={22} rx={11} className="dg-pill" />
-                <circle cx={11} cy={11} r={8.5} className="dg-num" />
-                <text x={11} y={14.6} textAnchor="middle" className="dg-numt">{no}</text>
-                <text x={26} y={15} className="dg-pt">{label}</text>
+              <g key={b.id} transform={`translate(${b.x} ${b.y})`} className={`${cls} is-pill`}>
+                <rect width={b.w} height={b.h} rx={Math.min(12, b.h / 2)} className="dg-pill" />
+                {no && <circle cx={14} cy={Math.min(14, b.h / 2)} r={9.5} className="dg-num" />}
+                {no && <text x={14} y={Math.min(14, b.h / 2) + 3.8} textAnchor="middle" className="dg-numt">{no}</text>}
+                <text className="dg-pt">
+                  {info.lines.map((l, i) => <tspan key={i} x={tx} y={(info.lines.length === 1 ? b.h / 2 + 3.8 : 17 + i * 14)}>{l}</tspan>)}
+                </text>
               </g>
             );
           })}

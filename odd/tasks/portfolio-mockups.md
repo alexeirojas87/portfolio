@@ -38,6 +38,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T5 Visual review with user, iterate on design.
 - [x] T5c Integrate code-verified content-v2 (11 projects + agentic details), schema/renderer accept it, layout tests over all projects. Route: delegated writer.
 - [x] T5d Polish: readable hero diagram, crypto on 3 rows, Spanish sublabel truncation. Route: delegated writer.
+- [x] T5e Polish: collision-free edge labels (dots for all steps, full pill only for active/hovered), minimum diagram scale ~0.85, mobile title wrapping, clearance from nodes, rename agentic platform title. Route: delegated writer.
 - [ ] T6 (later) Backend design.
 
 ## Acceptance criteria
@@ -55,6 +56,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - T5 round 2: fluid container (1760px max), Archivo (width axis) + IBM Plex Sans + JetBrains Mono, content-fitted viewBox, 2-line sublabels, node details panel (slide-over / bottom sheet, focus trap), multi-view schema (`viewName`, `additionalViews`), agentic split into "Agent lifecycle" + "AI infrastructure" (<=10 nodes, 3 rows), crypto node details. Commits: `93178d4`, `d5cfc7a`, plus agentic split (see git log). Evidence: check 0 errors; npm test 18 pass; build 30 pages; privacy 0 hits; screenshots 2000/1440/1024/390 + panel; 390px page and diagram have no horizontal scroll for the 3-row agentic views (crypto has 4 rows and scrolls inside its frame).
 - T5c done (`39abf7a`): 11 project files + agentic node details integrated; externals re-placed outside the boundary; crypto split into two 3-row views; layout tests now run over every project/view (<=10 nodes, <=3 rows, no route through a node, 390px fit). The "10 min" in apagones is a cache TTL, not the cron; the cron wording already says 30.
 - T5d done: hero shows titles + tech chips (vertical on phones), 3-line titles / up to 3-line sublabels with 128px nodes, hyphen-aware wrapping, very wide diagrams (>1400px) use full width with steps below. Commit `8fc42ed`.
+- T5e done: edge labels via `badges.ts` (dot for every step; wrapped, never truncated pill only for active/hovered/emphasised edge on a collision-free spot, else caption only; unit-tested over all projects), min diagram scale 0.85 (gap 32, steps move below, last resort scroll + hint), titles step down font then hyphenate, 24px edge attachment spacing, agentic title renamed (`27c8126`). Commit: see git log.
 
 ## Next step
 T1.

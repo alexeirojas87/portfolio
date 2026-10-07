@@ -24,6 +24,8 @@ interface Props {
 }
 
 const STEP_MS = 2000;
+/** Smallest effective scale before the steps move below the canvas, then the frame scrolls. */
+const MIN_SCALE = 0.85;
 
 export default function ArchitectureDiagram({ architecture, locale, mode = 'full', title, className, labels, vertical }: Props) {
   return mode === 'compact'
@@ -65,6 +67,8 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
   const scrollRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [overflow, setOverflow] = useState(false);
+  const [bodyW, setBodyW] = useState(0);
+  const [vw, setVw] = useState(0);
   const [flowIdx, setFlowIdx] = useState(0);
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -72,19 +76,29 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
   const [hover, setHover] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [emph, setEmph] = useState<string | null>(null);
+  const [hoverEdge, setHoverEdge] = useState<string | null>(null);
 
   // Orientation follows the diagram's own container: vertical (top to bottom) on phones.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => { setWidth(el.clientWidth); setOverflow(el.scrollWidth > el.clientWidth + 2); });
+    const ro = new ResizeObserver(() => { setWidth(el.clientWidth); setOverflow(el.scrollWidth > el.clientWidth + 16); });
     ro.observe(el);
     setWidth(el.clientWidth);
     return () => ro.disconnect();
   }, []);
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) setOverflow(el.scrollWidth > el.clientWidth + 2);
+    if (el) setOverflow(el.scrollWidth > el.clientWidth + 16);
+  }, []);
+  // Available width: lets us keep the diagram at a readable scale (see MIN_SCALE below).
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const apply = () => { setBodyW(el.clientWidth); setVw(window.innerWidth); };
+    const ro = new ResizeObserver(apply);
+    ro.observe(el); apply();
+    return () => ro.disconnect();
   }, []);
   const orientation: Orientation = curated && width > 0 && width < 720 ? 'vertical' : 'horizontal';
 
@@ -127,6 +141,9 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
   const isPlaying = playing && !reduced;
   const natural = (cLayout ?? layout)!.width;
   const vertical = orientation === 'vertical';
+  // Two columns (canvas + steps) only when the canvas keeps >= MIN_SCALE; else steps go underneath.
+  const stepsCol = Math.min(420, Math.max(300, vw * 0.24));
+  const wideLayout = !vertical && vw >= 1280 && bodyW > 0 && (bodyW - 24 - stepsCol) / natural < MIN_SCALE;
 
   return (
     <section className="dg-player" ref={rootRef} aria-label={t('diagram.label')}>
@@ -141,7 +158,7 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
         {flow && <p className="dg-desc">{flow.description[locale]}</p>}
       </div>
 
-      <div className={`dg-body ${natural > 1400 ? 'wide' : ''}`}>
+      <div className={`dg-body ${wideLayout ? 'wide' : ''}`}>
         <div className="canvas dg-full on-canvas">
           <div className="dg-bar">
             <span className="dg-eyebrow">
@@ -166,11 +183,11 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
           )}
 
           <div className="dg-scroll" ref={scrollRef} tabIndex={0} role="region" aria-label={title ? `${t('diagram.label')}: ${title}` : t('diagram.label')}>
-            <div className="dg-inner" style={vertical ? { width: natural } : { minWidth: Math.round(natural * 0.72), maxWidth: Math.round(natural * 1.3) }}>
+            <div className="dg-inner" style={vertical ? { width: natural } : { minWidth: Math.round(natural * MIN_SCALE), maxWidth: Math.round(natural * 1.3) }}>
               {cLayout ? (
                 <CuratedSvg arch={architecture} layout={cLayout} locale={locale} uid={uid}
                   boundaryLabel={t('diagram.boundary')} progress={progress} stepNo={stepNo}
-                  stepKey={`${flowIdx}:${step}`} playing={isPlaying} hoverNode={selected ?? hover} onHover={setHover} onSelect={setSelected} emphasisEdge={emph} fixedWidth={vertical} />
+                  stepKey={`${flowIdx}:${step}`} playing={isPlaying} hoverNode={selected ?? hover} onHover={setHover} onSelect={setSelected} emphasisEdge={emph} hoverEdge={hoverEdge} onHoverEdge={setHoverEdge} fixedWidth={vertical} />
               ) : (
                 <DiagramSvg arch={architecture} layout={layout!} locale={locale} mode="full" uid={uid}
                   progress={progress} flowEdges={flowEdges} stepKey={`${flowIdx}:${step}`}

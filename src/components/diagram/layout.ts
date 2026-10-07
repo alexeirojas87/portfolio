@@ -124,9 +124,10 @@ export function computeLayout(arch: Architecture, locale: Locale, mode: Mode): L
 const r2 = (n: number) => Math.round(n * 10) / 10;
 
 /** Greedy word wrap with ellipsis, used for SVG text which cannot wrap on its own. */
-export function wrapText(text: string, maxChars: number, maxLines: number): string[] {
+export function wrapText(text: string, maxChars: number, maxLines: number, hardBreak = false): string[] {
   // Break at spaces and after hyphens ("Backend-for-frontend" can wrap).
-  const words = text.split(/(?<=-)(?=\S)|\s+/).filter(Boolean);
+  let words = text.split(/(?<=-)(?=\S)|\s+/).filter(Boolean);
+  if (hardBreak) words = words.flatMap((w) => splitLong(w, maxChars));
   const join = (a: string, w: string) => (a.endsWith('-') ? a + w : a + ' ' + w);
   const lines: string[] = [];
   let cur = '';
@@ -143,3 +144,26 @@ export function wrapText(text: string, maxChars: number, maxLines: number): stri
   return kept.map((l) => clip(l, maxChars));
 }
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+
+/** Split a word longer than `max` into hyphenated chunks ("enriquecimi-" / "ento"). */
+function splitLong(w: string, max: number): string[] {
+  if (w.length <= max || max < 4) return [w];
+  const out: string[] = [];
+  let rest = w;
+  while (rest.length > max) { out.push(rest.slice(0, max - 1) + '-'); rest = rest.slice(max - 1); }
+  out.push(rest);
+  return out;
+}
+
+/** Title lines for a node: step the font down before truncating; hard-hyphenate only as a last resort. */
+export function fitTitle(title: string, textW: number, sizes: number[], charFactor: number, maxLines = 3): { lines: string[]; size: number } {
+  for (const size of sizes) {
+    const chars = Math.floor(textW / (size * charFactor));
+    const longest = Math.max(...title.split(/(?<=-)(?=\S)|\s+/).map((w) => w.length), 0);
+    if (longest > chars) continue;
+    const lines = wrapText(title, chars, maxLines);
+    if (!lines.some((l) => l.endsWith('…'))) return { lines, size };
+  }
+  const size = sizes[sizes.length - 1];
+  return { lines: wrapText(title, Math.floor(textW / (size * charFactor)), maxLines, true), size };
+}

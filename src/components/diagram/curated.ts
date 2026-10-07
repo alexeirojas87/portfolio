@@ -29,8 +29,8 @@ export interface CuratedLayout {
 const PAD = 16, PAD_V = 10, PAD_TOP = 32;
 
 export function curatedDims(o: CuratedOptions) {
-  if (o.compact) return { nodeW: 160, nodeH: 128, gapAlong: 40, gapAcross: 40, margin: 32 };
-  if (o.orientation === 'horizontal') return { nodeW: 160, nodeH: 128, gapAlong: 40, gapAcross: 40, margin: 32 };
+  if (o.compact) return { nodeW: 160, nodeH: 128, gapAlong: 32, gapAcross: 40, margin: 32 };
+  if (o.orientation === 'horizontal') return { nodeW: 160, nodeH: 128, gapAlong: 32, gapAcross: 40, margin: 32 };
   const nodeW = o.nodeW ?? 144;
   // Narrow cards (phones) drop the sublabel, so they can be shorter.
   return { nodeW, nodeH: nodeW < 120 ? 112 : 128, gapAlong: 40, gapAcross: 16, margin: 16 };
@@ -101,7 +101,10 @@ export function computeCurated(arch: Architecture, _locale: Locale, opts: Curate
   const anchor = (n: CNode, s: Dir, edgeId: string): Point => {
     const list = [...(slots.get(`${n.id}:${s}`) ?? [])].sort((p, q) => p.key - q.key || (p.id < q.id ? -1 : 1));
     const i = list.findIndex((x) => x.id === edgeId);
-    const off = (i - (list.length - 1) / 2) * 16;
+    // Spread attachments along the side (24px apart where there is room, always on the 8px grid).
+    const sideLen = s === 'left' || s === 'right' ? n.h : n.w;
+    const sp = Math.max(8, Math.min(24, Math.floor((sideLen - 24) / Math.max(1, list.length - 1) / 8) * 8));
+    const off = (i - (list.length - 1) / 2) * sp;
     const cx = snap(n.x + n.w / 2), cy = snap(n.y + n.h / 2);
     switch (s) {
       case 'right': return { x: n.x + n.w, y: cy + off };

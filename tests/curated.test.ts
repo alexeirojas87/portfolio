@@ -160,3 +160,47 @@ test('all projects: no route crosses a node, boundary excludes outside nodes, an
     }
   }
 });
+
+// ---- badge placement ----
+import { placeBadges, rectsOverlap, pillSize, DOT } from '../src/components/diagram/badges.ts';
+
+test('badges: dots and active pills never overlap each other or nodes (all projects, all steps)', () => {
+  let pills = 0, drops = 0;
+  for (const { name, arch } of allViews) {
+    const l = computeCurated(arch, 'en', { orientation: 'horizontal' });
+    const nodes = l.nodes.map((n) => ({ x: n.x, y: n.y, w: n.w, h: n.h }));
+    for (const f of arch.flows) {
+      const flowEdges = l.edges.filter((e) => f.edges.includes(e.id));
+      for (const active of flowEdges) {
+        const label = arch.edges.find((e) => e.id === active.id)!.label.en;
+        const reqs = flowEdges.map((e) => ({ id: e.id, points: e.points, pill: e.id === active.id ? pillSize(label) : undefined }));
+        const placed = placeBadges(reqs, nodes);
+        const list = [...placed.values()];
+        assert.equal(list.length >= flowEdges.length - 0, true, `${name}/${f.id}: every step has a badge`);
+        for (let i = 0; i < list.length; i++) {
+          for (let j = i + 1; j < list.length; j++) assert.ok(!rectsOverlap(list[i], list[j]), `${name}/${f.id} badges ${list[i].id} and ${list[j].id} overlap`);
+          if (list[i].kind === 'pill') {
+            pills++;
+            for (const n of nodes) assert.ok(!rectsOverlap(list[i], n), `${name}/${f.id} pill ${list[i].id} covers a node`);
+          } else assert.ok(list[i].w <= DOT && list[i].w >= 18, 'dot size');
+        }
+        if (placed.get(active.id)?.kind !== 'pill') drops++;
+      }
+    }
+  }
+  assert.ok(pills > 0);
+  // Pills without a free spot fall back to the caption line; placement must still succeed often.
+  assert.ok(pills >= drops * 0.6, `placed ${pills} vs caption-only ${drops}`);
+});
+
+test('titles: font steps down before truncating; long words are hyphenated only as a last resort', async () => {
+  const { fitTitle } = await import('../src/components/diagram/layout.ts');
+  const ok = fitTitle('Jobs de enriquecimiento LLM', 80, [12, 11], 0.52, 3);
+  assert.ok(ok.lines.every((l) => !l.endsWith('…')), ok.lines.join('|'));
+  assert.ok(ok.lines.length <= 3);
+  const tight = fitTitle('Supercalifragilistic', 60, [12, 11], 0.52, 3);
+  assert.ok(tight.lines.every((l) => !l.endsWith('…')));
+  assert.ok(tight.lines.slice(0, -1).every((l) => l.endsWith('-')));
+  const normal = fitTitle('Payment intake', 136, [14.5, 13], 0.483, 3);
+  assert.equal(normal.size, 14.5);
+});
