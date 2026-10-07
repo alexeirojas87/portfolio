@@ -7,3 +7,6 @@ dist/
 # Private inputs: never published
 *.pdf
 .privacy-denylist
+
+# Local agent tooling
+.atl/
