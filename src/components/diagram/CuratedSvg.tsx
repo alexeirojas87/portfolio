@@ -20,6 +20,8 @@ export interface CuratedSvgProps {
   playing?: boolean;
   hoverNode?: string | null;
   onHover?: (id: string | null) => void;
+  onSelect?: (id: string) => void;
+  emphasisEdge?: string | null;
   /** Rendered pixel width (vertical orientation is never scaled). */
   fixedWidth?: boolean;
 }
@@ -72,9 +74,9 @@ export default function CuratedSvg(p: CuratedSvgProps) {
         {layout.edges.map((e) => {
           const isActive = e.id === active;
           const isDone = !!p.progress?.doneEdges.has(e.id);
-          const hl = connected.has(e.id);
+          const hl = connected.has(e.id) || e.id === p.emphasisEdge;
           const flow = inFlow(e.id);
-          const dim = (hasFlow && !flow && !hl) || (!!p.hoverNode && !hl);
+          const dim = (hasFlow && !flow && !hl) || ((!!p.hoverNode || !!p.emphasisEdge) && !hl);
           const state = isActive || hl ? 'active' : isDone ? 'done' : flow ? 'flow' : e.async ? 'async' : 'base';
           const cls = ['dg-edge', `st-${state}`, e.async ? 'is-async' : '', dim ? 'is-dim' : '', compact && flow ? 'in-flow0' : ''].join(' ');
           return <path key={e.id} d={e.d} className={cls} markerEnd={`url(#${mk(state)})`} />;
@@ -127,10 +129,12 @@ export default function CuratedSvg(p: CuratedSvgProps) {
           const titleY = narrow ? 50 : 44;
           return (
             <g key={n.id} className={`dg-node ${own} ${narrow ? 'narrow' : ''} st-${st} ${hov ? 'is-hover' : ''} ${dim ? 'is-dim' : ''}`} style={style}
-              transform={`translate(${n.x} ${n.y})`} tabIndex={0} role="img"
+              transform={`translate(${n.x} ${n.y})`} tabIndex={0} role="button" data-node-id={n.id} aria-haspopup="dialog"
               aria-label={`${title}${tech ? ` (${tech})` : ''}: ${sub}${n.owned ? '' : ''}`}
               onMouseEnter={() => p.onHover?.(n.id)} onMouseLeave={() => p.onHover?.(null)}
-              onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}>
+              onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}
+              onClick={() => p.onSelect?.(n.id)}
+              onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); p.onSelect?.(n.id); } }}>
               <rect width={n.w} height={n.h} rx={16} className="dg-box" />
               <Icon x={iconX} y={11} size={16} strokeWidth={2} color={color} />
               {tech && (
@@ -150,6 +154,16 @@ export default function CuratedSvg(p: CuratedSvgProps) {
           );
         })}
       </g>
+
+      {!compact && p.emphasisEdge && (() => {
+        const e = layout.edges.find((x) => x.id === p.emphasisEdge);
+        if (!e) return null;
+        return (
+          <text x={e.anchor.x} y={e.anchor.y - 9} textAnchor="middle" className="dg-edge-label" pointerEvents="none">
+            {edgeById.get(e.id)!.label[locale]}
+          </text>
+        );
+      })()}
 
       {!compact && p.stepNo && (
         <g className="dg-badges" pointerEvents="none">

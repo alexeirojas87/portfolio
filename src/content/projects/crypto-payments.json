@@ -189,6 +189,26 @@
         "pos": {
           "col": 0,
           "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The merchant's checkout or client application. It integrates with the platform to submit payment requests and to receive the final result.",
+            "es": "La aplicación o checkout del comercio. Se integra con la plataforma para enviar solicitudes de pago y recibir el resultado final."
+          },
+          "responsibilities": [
+            {
+              "en": "Sends a payment request to the Payment API.",
+              "es": "Envía una solicitud de pago a la API de pagos."
+            },
+            {
+              "en": "Receives the outcome pushed in real time instead of polling for status.",
+              "es": "Recibe el resultado enviado en tiempo real, sin consultar el estado repetidamente."
+            }
+          ],
+          "why": {
+            "en": "Merchants wanted to accept cryptocurrency without building blockchain integrations themselves.",
+            "es": "Los comercios querían aceptar criptomonedas sin construir ellos mismos las integraciones con blockchain."
+          }
         }
       },
       {
@@ -207,6 +227,30 @@
         "pos": {
           "col": 1,
           "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The entry point of the platform. It validates a payment request, stores it as pending and acknowledges the merchant immediately.",
+            "es": "El punto de entrada de la plataforma. Valida la solicitud de pago, la guarda como pendiente y confirma de inmediato al comercio."
+          },
+          "responsibilities": [
+            {
+              "en": "Validates incoming payment requests.",
+              "es": "Valida las solicitudes de pago entrantes."
+            },
+            {
+              "en": "Persists the payment as pending in SQL Server.",
+              "es": "Persiste el pago como pendiente en SQL Server."
+            },
+            {
+              "en": "Enqueues the request on RabbitMQ for asynchronous execution.",
+              "es": "Encola la solicitud en RabbitMQ para su ejecución asíncrona."
+            }
+          ],
+          "why": {
+            "en": "It only accepts and enqueues, so merchants get a quick acknowledgement while the heavy work happens asynchronously.",
+            "es": "Solo acepta y encola, de modo que el comercio recibe una confirmación rápida mientras el trabajo pesado ocurre de forma asíncrona."
+          }
         }
       },
       {
@@ -225,6 +269,34 @@
         "pos": {
           "col": 3,
           "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "A worker that takes payment requests from the queue and executes them on-chain using the user's wallet.",
+            "es": "Un worker que toma las solicitudes de la cola y las ejecuta en la cadena usando la billetera del usuario."
+          },
+          "responsibilities": [
+            {
+              "en": "Consumes payment requests from RabbitMQ.",
+              "es": "Consume solicitudes de pago desde RabbitMQ."
+            },
+            {
+              "en": "Signs transactions with the user's wallet.",
+              "es": "Firma transacciones con la billetera del usuario."
+            },
+            {
+              "en": "Selects the coin adapter and broadcasts the transaction.",
+              "es": "Selecciona el adaptador de la moneda y emite la transacción."
+            },
+            {
+              "en": "Records the transaction hash and the submitted status in SQL Server.",
+              "es": "Registra el hash de la transacción y el estado enviado en SQL Server."
+            }
+          ],
+          "why": {
+            "en": "Messaging is at-least-once, so each payment carries a unique key and the handler checks persisted state before acting, preventing duplicate on-chain transactions.",
+            "es": "La mensajería es al-menos-una-vez, así que cada pago lleva una clave única y el manejador revisa el estado persistido antes de actuar, evitando transacciones duplicadas en la cadena."
+          }
         }
       },
       {
@@ -243,6 +315,22 @@
         "pos": {
           "col": 4,
           "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "Adapters that give Bitcoin, Ethereum and Litecoin a common execution contract.",
+            "es": "Adaptadores que dan a Bitcoin, Ethereum y Litecoin un contrato de ejecución común."
+          },
+          "responsibilities": [
+            {
+              "en": "Exposes one execution contract for every supported coin.",
+              "es": "Expone un único contrato de ejecución para todas las monedas soportadas."
+            },
+            {
+              "en": "Broadcasts the transaction to the blockchain nodes of the selected coin.",
+              "es": "Emite la transacción a los nodos blockchain de la moneda seleccionada."
+            }
+          ]
         }
       },
       {
@@ -261,6 +349,30 @@
         "pos": {
           "col": 4,
           "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "A worker that tracks blockchain finality for submitted payments, which can take minutes, and announces when a payment is confirmed.",
+            "es": "Un worker que sigue la finalidad en la blockchain de los pagos enviados, algo que puede tardar minutos, y avisa cuando un pago queda confirmado."
+          },
+          "responsibilities": [
+            {
+              "en": "Reads submitted payments from SQL Server.",
+              "es": "Lee los pagos enviados desde SQL Server."
+            },
+            {
+              "en": "Polls the blockchain nodes for confirmations.",
+              "es": "Consulta a los nodos blockchain por confirmaciones."
+            },
+            {
+              "en": "Marks payments as confirmed and publishes a payment-confirmed event.",
+              "es": "Marca los pagos como confirmados y publica un evento de pago confirmado."
+            }
+          ],
+          "why": {
+            "en": "Broadcasting a transaction is quick but finality is slow and variable per chain. A dedicated watcher keeps the executor free.",
+            "es": "Emitir una transacción es rápido, pero la finalidad es lenta y variable según la cadena. Un vigilante dedicado mantiene libre al ejecutor."
+          }
         }
       },
       {
@@ -279,6 +391,26 @@
         "pos": {
           "col": 1,
           "row": 3
+        },
+        "details": {
+          "what": {
+            "en": "A SignalR hub that pushes the final payment result to the client the moment the confirmation event arrives.",
+            "es": "Un hub de SignalR que envía el resultado final del pago al cliente en cuanto llega el evento de confirmación."
+          },
+          "responsibilities": [
+            {
+              "en": "Consumes payment-confirmed events.",
+              "es": "Consume eventos de pago confirmado."
+            },
+            {
+              "en": "Pushes the result to the merchant over SignalR.",
+              "es": "Envía el resultado al comercio mediante SignalR."
+            }
+          ],
+          "why": {
+            "en": "Clients learn the outcome immediately, with less load and lower latency than repeated status requests.",
+            "es": "Los clientes conocen el resultado de inmediato, con menos carga y menor latencia que las consultas repetidas de estado."
+          }
         }
       },
       {
@@ -297,6 +429,26 @@
         "pos": {
           "col": 2,
           "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "A RabbitMQ queue holding accepted payment requests until the executor consumes them.",
+            "es": "Una cola de RabbitMQ que retiene las solicitudes de pago aceptadas hasta que el ejecutor las consume."
+          },
+          "responsibilities": [
+            {
+              "en": "Buffers accepted payment requests.",
+              "es": "Almacena las solicitudes de pago aceptadas."
+            },
+            {
+              "en": "Routes messages that keep failing to the dead-letter queue.",
+              "es": "Envía a la cola de mensajes fallidos los mensajes que siguen fallando."
+            }
+          ],
+          "why": {
+            "en": "Queues absorb bursts, let each service scale on its own and keep accepted requests safe if a downstream service is down.",
+            "es": "Las colas absorben picos, permiten escalar cada servicio por separado y mantienen seguras las solicitudes aceptadas si un servicio posterior no está disponible."
+          }
         }
       },
       {
@@ -315,6 +467,22 @@
         "pos": {
           "col": 2,
           "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "A RabbitMQ queue that collects messages that failed after retries so they can be inspected.",
+            "es": "Una cola de RabbitMQ que reúne los mensajes que fallaron tras los reintentos para poder revisarlos."
+          },
+          "responsibilities": [
+            {
+              "en": "Holds failed messages for review.",
+              "es": "Retiene los mensajes fallidos para su revisión."
+            }
+          ],
+          "why": {
+            "en": "Failed messages go to a dead-letter queue for inspection instead of being lost or blocking the flow.",
+            "es": "Los mensajes fallidos van a una cola de mensajes fallidos para su inspección, en lugar de perderse o bloquear el flujo."
+          }
         }
       },
       {
@@ -333,6 +501,18 @@
         "pos": {
           "col": 4,
           "row": 3
+        },
+        "details": {
+          "what": {
+            "en": "A RabbitMQ queue carrying payment-confirmed events from the watcher to the notifier.",
+            "es": "Una cola de RabbitMQ que lleva los eventos de pago confirmado del vigilante al notificador."
+          },
+          "responsibilities": [
+            {
+              "en": "Carries payment-confirmed events between services.",
+              "es": "Transporta eventos de pago confirmado entre servicios."
+            }
+          ]
         }
       },
       {
@@ -351,6 +531,26 @@
         "pos": {
           "col": 3,
           "row": 2
+        },
+        "details": {
+          "what": {
+            "en": "The SQL Server database: system of record for payments and their status history.",
+            "es": "La base de datos SQL Server: sistema de registro de los pagos y su historial de estados."
+          },
+          "responsibilities": [
+            {
+              "en": "Stores every payment and each state transition.",
+              "es": "Almacena cada pago y cada transición de estado."
+            },
+            {
+              "en": "Lets handlers check persisted state before acting.",
+              "es": "Permite a los manejadores revisar el estado persistido antes de actuar."
+            }
+          ],
+          "why": {
+            "en": "Payment state and its history are relational and transactional, which makes recovery, reconciliation and auditing straightforward.",
+            "es": "El estado de los pagos y su historial son relacionales y transaccionales, lo que simplifica la recuperación, la conciliación y la auditoría."
+          }
         }
       },
       {
@@ -368,6 +568,22 @@
         "pos": {
           "col": 5,
           "row": 0
+        },
+        "details": {
+          "what": {
+            "en": "The user's wallet, which holds the funds and signs the transactions.",
+            "es": "La billetera del usuario, que guarda los fondos y firma las transacciones."
+          },
+          "responsibilities": [
+            {
+              "en": "Holds the funds.",
+              "es": "Guarda los fondos."
+            },
+            {
+              "en": "Signs transactions requested by the executor.",
+              "es": "Firma las transacciones solicitadas por el ejecutor."
+            }
+          ]
         }
       },
       {
@@ -386,6 +602,22 @@
         "pos": {
           "col": 5,
           "row": 1
+        },
+        "details": {
+          "what": {
+            "en": "The blockchain nodes for each supported coin, reached through RPC.",
+            "es": "Los nodos blockchain de cada moneda soportada, accesibles mediante RPC."
+          },
+          "responsibilities": [
+            {
+              "en": "Receives broadcast transactions.",
+              "es": "Recibe las transacciones emitidas."
+            },
+            {
+              "en": "Answers confirmation queries from the watcher.",
+              "es": "Responde las consultas de confirmación del vigilante."
+            }
+          ]
         }
       }
     ],

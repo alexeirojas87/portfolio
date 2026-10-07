@@ -7,6 +7,12 @@ export type NodeKind =
   | 'ai' | 'cache' | 'client' | 'db' | 'external' | 'gateway'
   | 'queue' | 'scheduler' | 'service' | 'storage' | 'worker';
 
+export interface NodeDetails {
+  what: LText;
+  responsibilities: LText[];
+  why?: LText | null;
+}
+
 export interface GridPos { col: number; row: number }
 
 export interface ArchNode {
@@ -19,6 +25,8 @@ export interface ArchNode {
   pos?: GridPos | null;
   /** Inside the "What I built" boundary. Defaults to true except for client/external. */
   owned?: boolean | null;
+  /** Content for the click-through details panel. */
+  details?: NodeDetails | null;
   sublabel: LText;
   kind: NodeKind;
   group: string;
@@ -33,6 +41,8 @@ export interface Architecture {
   edges: ArchEdge[];
   flows: ArchFlow[];
   glance?: LText[] | null;
+  /** Name of this view when the project has several. */
+  viewName?: LText | null;
 }
 
 export const nodeLabel = (n: ArchNode, locale: Locale): string =>

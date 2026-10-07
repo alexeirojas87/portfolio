@@ -19,6 +19,8 @@ export interface DiagramSvgProps {
   playing?: boolean;
   hoverNode?: string | null;
   onHover?: (id: string | null) => void;
+  onSelect?: (id: string) => void;
+  emphasisEdge?: string | null;
 }
 
 const COMET_MS = 1700;
@@ -36,6 +38,11 @@ export default function DiagramSvg(p: DiagramSvgProps) {
       }
     }
   }
+  if (p.emphasisEdge) {
+    const e = edgeById.get(p.emphasisEdge);
+    if (e) { connected.add(e.id); connected.add(e.from); connected.add(e.to); }
+  }
+  const hovering = !!p.hoverNode || !!p.emphasisEdge;
   const hasFlow = full && !!p.flowEdges;
   const active = p.progress?.activeEdge ?? null;
   const markerId = (k: string) => `${uid}-ah-${k}`;
@@ -73,7 +80,7 @@ export default function DiagramSvg(p: DiagramSvgProps) {
           const isDone = !!p.progress?.doneEdges.has(e.id);
           const inFlow = p.flowEdges?.has(e.id) ?? false;
           const hl = connected.has(e.id);
-          const dim = (hasFlow && !inFlow && !hl) || (p.hoverNode && !hl);
+          const dim = (hasFlow && !inFlow && !hl) || (hovering && !hl);
           const state = isActive || hl ? 'active' : isDone ? 'done' : e.async ? 'async' : 'base';
           const cls = [
             'dg-edge', `st-${state}`, e.async ? 'is-async' : '', dim ? 'is-dim' : '',
@@ -109,7 +116,7 @@ export default function DiagramSvg(p: DiagramSvgProps) {
           const Icon = KIND_ICON[n.node.kind];
           const st = p.progress?.activeNodes.has(n.id) ? 'active' : p.progress?.doneNodes.has(n.id) ? 'done' : 'idle';
           const hov = p.hoverNode === n.id;
-          const dim = p.hoverNode && !connected.has(n.id) && !hov;
+          const dim = hovering && !connected.has(n.id) && !hov;
           const style = { '--k': color } as CSSProperties;
           const sub = n.node.sublabel[locale];
           if (!full) {
@@ -128,10 +135,12 @@ export default function DiagramSvg(p: DiagramSvgProps) {
           const subY0 = y0 + (label.length - 1) * lineH + lineH;
           return (
             <g key={n.id} className={`dg-node st-${st} ${hov ? 'is-hover' : ''} ${dim ? 'is-dim' : ''}`} style={style}
-              transform={`translate(${n.x} ${n.y})`} tabIndex={0} role="img"
+              transform={`translate(${n.x} ${n.y})`} tabIndex={0} role="button" data-node-id={n.id} aria-haspopup="dialog"
               aria-label={`${nodeLabel(n.node, locale)}: ${sub}`}
               onMouseEnter={() => p.onHover?.(n.id)} onMouseLeave={() => p.onHover?.(null)}
-              onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}>
+              onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}
+              onClick={() => p.onSelect?.(n.id)}
+              onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); p.onSelect?.(n.id); } }}>
               <rect width={n.w} height={n.h} rx={16} className="dg-box" />
               <rect x={10} y={(n.h - 32) / 2} width={32} height={32} rx={10} className="dg-ibox" />
               <Icon x={10 + 7} y={(n.h - 32) / 2 + 7} size={18} strokeWidth={2} color={color} />

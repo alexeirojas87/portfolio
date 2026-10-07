@@ -3,6 +3,7 @@ import { Pause, Play, RotateCcw, SkipBack, SkipForward } from 'lucide-react';
 import { useTranslations, type Locale as UiLocale } from '../../i18n/ui.ts';
 import DiagramSvg from './DiagramSvg.tsx';
 import CuratedSvg from './CuratedSvg.tsx';
+import NodePanel from './NodePanel.tsx';
 import { computeCurated, fitNodeW, gridRows, type Orientation } from './curated.ts';
 import { CLASS_COLOR, CLASS_ORDER, KIND_CLASS } from './kinds.ts';
 import { computeLayout } from './layout.ts';
@@ -64,6 +65,8 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
   const [playing, setPlaying] = useState(true);
   const [reduced, setReduced] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [emph, setEmph] = useState<string | null>(null);
 
   // Orientation follows the diagram's own container: vertical (top to bottom) on phones.
   useEffect(() => {
@@ -103,6 +106,12 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
     return () => window.clearTimeout(id);
   }, [playing, reduced, step, steps.length, flowIdx]);
 
+  const closePanel = () => {
+    const id = selected;
+    setSelected(null); setEmph(null);
+    requestAnimationFrame(() => rootRef.current?.querySelector<HTMLElement>(`[data-node-id="${id}"]`)?.focus());
+  };
+  const selectedNode = selected ? architecture.nodes.find((n) => n.id === selected) ?? null : null;
   const selectFlow = (i: number) => { setFlowIdx(i); setStep(0); if (!reduced) setPlaying(true); };
   const goTo = (i: number) => setStep(i);
   const kindsPresent = CLASS_ORDER.filter((c) => architecture.nodes.some((n) => KIND_CLASS[n.kind] === c));
@@ -152,11 +161,11 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
               {cLayout ? (
                 <CuratedSvg arch={architecture} layout={cLayout} locale={locale} uid={uid}
                   boundaryLabel={t('diagram.boundary')} progress={progress} stepNo={stepNo}
-                  stepKey={`${flowIdx}:${step}`} playing={isPlaying} hoverNode={hover} onHover={setHover} fixedWidth={vertical} />
+                  stepKey={`${flowIdx}:${step}`} playing={isPlaying} hoverNode={selected ?? hover} onHover={setHover} onSelect={setSelected} emphasisEdge={emph} fixedWidth={vertical} />
               ) : (
                 <DiagramSvg arch={architecture} layout={layout!} locale={locale} mode="full" uid={uid}
                   progress={progress} flowEdges={flowEdges} stepKey={`${flowIdx}:${step}`}
-                  playing={isPlaying} hoverNode={hover} onHover={setHover} />
+                  playing={isPlaying} hoverNode={selected ?? hover} onHover={setHover} onSelect={setSelected} emphasisEdge={emph} />
               )}
             </div>
           </div>
@@ -196,6 +205,11 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
           <p className="dg-hint">{t('diagram.hint')}</p>
         </div>
       </div>
+
+      {selectedNode && (
+        <NodePanel arch={architecture} node={selectedNode} locale={locale} emphasisEdge={emph}
+          onEmphasis={setEmph} onClose={closePanel} />
+      )}
     </section>
   );
 }

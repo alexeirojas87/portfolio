@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import ArchitectureDiagram from '../components/diagram/ArchitectureDiagram.tsx';
+import ProjectDiagram from '../components/diagram/ProjectDiagram.tsx';
+import { buildViews } from '../components/diagram/views';
 import StatusPill from '../components/StatusPill.astro';
 import StackChip from '../components/StackChip.astro';
 import { useTranslations, localePath, type Locale, type UiKey } from '../i18n/ui';
@@ -47,12 +48,7 @@ const links = [
 
   <section class="wrap-wide mt-6" aria-labelledby="arch">
     <h2 id="arch" class="sr-only">{t('detail.architecture')}</h2>
-    {p.architecture.glance && p.architecture.glance.length > 0 && (
-      <ul class="dg-glance" aria-label="At a glance">
-        {p.architecture.glance.map((g) => <li>{tx(g, locale)}</li>)}
-      </ul>
-    )}
-    <ArchitectureDiagram client:load architecture={p.architecture} locale={locale} mode="full" title={title} />
+    <ProjectDiagram client:load views={buildViews(p)} locale={locale} title={title} />
   </section>
 
   <div class="wrap mt-16 grid gap-14">

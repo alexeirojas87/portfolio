@@ -18,6 +18,9 @@ const architecture = z.object({
       tech: z.string().nullish(),
       pos: z.object({ col: z.number(), row: z.number() }).nullish(),
       owned: z.boolean().nullish(),
+      details: z
+        .object({ what: text, responsibilities: z.array(text), why: text.nullish() })
+        .nullish(),
       sublabel: text,
       kind: nodeKind,
       group: z.string(),
@@ -37,6 +40,7 @@ const architecture = z.object({
     z.object({ id: z.string(), name: text, description: text, edges: z.array(z.string()) }),
   ),
   glance: z.array(text).nullish(),
+  viewName: text.nullish(),
 });
 
 const projects = defineCollection({
@@ -57,6 +61,9 @@ const projects = defineCollection({
     decisions: z.array(z.object({ title: text, why: text })),
     video: z.object({ url: z.url(), title: text.optional() }).nullish(),
     architecture,
+    additionalViews: z
+      .array(z.object({ id: z.string(), name: text, description: text, architecture }))
+      .nullish(),
   }),
 });
 
