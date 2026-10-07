@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { computeCurated, boundaryRect, crossesRect, gridRows } from '../src/components/diagram/curated.ts';
+import { computeCurated, boundaryRect, crossesRect, gridRows, fitNodeW } from '../src/components/diagram/curated.ts';
 import { compress, roundedPath } from '../src/components/diagram/route.ts';
 import { isOwned, isCurated, type Architecture } from '../src/components/diagram/types.ts';
 
@@ -85,4 +85,32 @@ test('no routed edge passes through a node, in either orientation', () => {
 test('route helpers: compress collinear points, rounded corners', () => {
   assert.deepEqual(compress([{ x: 0, y: 0 }, { x: 8, y: 0 }, { x: 16, y: 0 }, { x: 16, y: 8 }]), [{ x: 0, y: 0 }, { x: 16, y: 0 }, { x: 16, y: 8 }]);
   assert.match(roundedPath([{ x: 0, y: 0 }, { x: 40, y: 0 }, { x: 40, y: 40 }], 10), /Q40 0 40 10/);
+});
+
+test('agentic views: <=10 nodes, <=3 rows, primary path on the middle row, valid flows, routes clear of nodes', () => {
+  const proj = JSON.parse(readFileSync(new URL('../src/content/projects/agentic-orchestration.json', import.meta.url), 'utf8'));
+  const views: Architecture[] = [proj.architecture, ...proj.additionalViews.map((v: { architecture: Architecture }) => v.architecture)];
+  assert.equal(views.length, 2);
+  for (const a of views) {
+    assert.ok(isCurated(a));
+    assert.ok(a.nodes.length <= 10, `nodes ${a.nodes.length}`);
+    assert.ok(gridRows(a) <= 3, 'rows');
+    const ids = new Set(a.nodes.map((n) => n.id));
+    const edgeIds = new Set(a.edges.map((e) => e.id));
+    for (const e of a.edges) assert.ok(ids.has(e.from) && ids.has(e.to), `edge ${e.id} endpoints`);
+    for (const f of a.flows) for (const id of f.edges) assert.ok(edgeIds.has(id), `flow ${f.id} edge ${id}`);
+    const middle = a.nodes.filter((n) => n.pos!.row === 1).length;
+    assert.ok(middle >= a.nodes.filter((n) => n.pos!.row === 0).length && middle >= 2, 'middle row carries the primary path');
+    for (const o of ['horizontal', 'vertical'] as const) {
+      const l = computeCurated(a, 'en', { orientation: o, nodeW: 96 });
+      for (const e of l.edges) assert.ok(!crossesRect(e.points, l.nodes), `${o} ${e.id}`);
+    }
+  }
+});
+
+test('vertical layout of a <=3 row view fits a 390px phone without scrolling', () => {
+  const a = JSON.parse(readFileSync(new URL('../src/content/projects/agentic-orchestration.json', import.meta.url), 'utf8')).architecture as Architecture;
+  const avail = 390 - 32 - 8; // page gutters + frame padding
+  const l = computeCurated(a, 'en', { orientation: 'vertical', nodeW: fitNodeW(gridRows(a), avail) });
+  assert.ok(l.width <= avail, `${l.width} <= ${avail}`);
 });

@@ -50,6 +50,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - Repo initialized (`8fb4204`), branch `feat/portfolio-mockups`.
 
 - T5 (owner feedback, pilot on crypto-payments + agentic-orchestration): curated grid layout (`pos`), orthogonal A* edge routing with rounded corners, "What I built" boundary (`owned`), node anatomy (role title + `tech` chip), `glance` strip, numbered flow badges, sticky narrated steps at >=1280px, vertical orientation under 720px. Other projects keep the auto-layout renderer. Evidence: check 0 errors; npm test 12 pass; build ok; privacy 0 hits; screenshots at 1440/1024/390. Commit: `e379380`.
+- T5 round 2: fluid container (1760px max), Archivo (width axis) + IBM Plex Sans + JetBrains Mono, content-fitted viewBox, 2-line sublabels, node details panel (slide-over / bottom sheet, focus trap), multi-view schema (`viewName`, `additionalViews`), agentic split into "Agent lifecycle" + "AI infrastructure" (<=10 nodes, 3 rows), crypto node details. Commits: `93178d4`, `d5cfc7a`, plus agentic split (see git log). Evidence: check 0 errors; npm test 18 pass; build 30 pages; privacy 0 hits; screenshots 2000/1440/1024/390 + panel; 390px page and diagram have no horizontal scroll for the 3-row agentic views (crypto has 4 rows and scrolls inside its frame).
 
 ## Next step
 T1.

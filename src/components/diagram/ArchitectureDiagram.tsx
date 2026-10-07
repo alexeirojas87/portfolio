@@ -60,6 +60,7 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
   const rootRef = useRef<HTMLElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
+  const [overflow, setOverflow] = useState(false);
   const [flowIdx, setFlowIdx] = useState(0);
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -72,10 +73,14 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    const ro = new ResizeObserver(() => { setWidth(el.clientWidth); setOverflow(el.scrollWidth > el.clientWidth + 2); });
     ro.observe(el);
     setWidth(el.clientWidth);
     return () => ro.disconnect();
+  }, []);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) setOverflow(el.scrollWidth > el.clientWidth + 2);
   }, []);
   const orientation: Orientation = curated && width > 0 && width < 720 ? 'vertical' : 'horizontal';
 
@@ -170,7 +175,7 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
             </div>
           </div>
 
-          <div className="dg-foot">
+          <div className="dg-foot" data-overflow={overflow}>
             <ul className="dg-legend" aria-label={t('diagram.legend.title')}>
               {kindsPresent.map((c) => (
                 <li key={c}><span className="sw" style={{ background: CLASS_COLOR[c] }} />{t(`kindclass.${c}` as const)}</li>

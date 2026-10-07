@@ -26,7 +26,7 @@ export interface CuratedLayout {
   nodes: CNode[]; boundary: Rect | null; edges: CEdge[];
 }
 
-const PAD = 16, PAD_TOP = 32;
+const PAD = 16, PAD_V = 10, PAD_TOP = 32;
 
 export function curatedDims(o: CuratedOptions) {
   if (o.compact) return { nodeW: 160, nodeH: 112, gapAlong: 40, gapAcross: 40, margin: 32 };
@@ -38,21 +38,21 @@ export function curatedDims(o: CuratedOptions) {
 
 /** Column count when transposed, and the node width that fits `width` px without scrolling. */
 export function fitNodeW(rows: number, width: number): number {
-  const PADS = 2 * PAD + 16;
-  const w = Math.floor((width - PADS - (rows - 1) * 16) / rows / 8) * 8;
-  return Math.max(96, Math.min(176, w));
+  // nodes + 16px gaps + boundary padding (PAD_V each side) + view-box padding (4 each side)
+  const w = Math.floor((width - (rows - 1) * 16 - 2 * PAD_V - 8) / rows / 8) * 8;
+  return Math.max(88, Math.min(176, w));
 }
 
 /** Number of distinct grid rows: the column count when transposed. */
 export const gridRows = (arch: Architecture): number =>
   new Set(arch.nodes.map((n) => n.pos!.row)).size;
 
-export function boundaryRect(nodes: { x: number; y: number; w: number; h: number; owned: boolean }[]): Rect | null {
+export function boundaryRect(nodes: { x: number; y: number; w: number; h: number; owned: boolean }[], pad = PAD, padTop = PAD_TOP): Rect | null {
   const o = nodes.filter((n) => n.owned);
   if (o.length === 0 || o.length === nodes.length) return null;
   const x1 = Math.min(...o.map((n) => n.x)), y1 = Math.min(...o.map((n) => n.y));
   const x2 = Math.max(...o.map((n) => n.x + n.w)), y2 = Math.max(...o.map((n) => n.y + n.h));
-  return { x: x1 - PAD, y: y1 - PAD_TOP, w: x2 - x1 + PAD * 2, h: y2 - y1 + PAD_TOP + PAD };
+  return { x: x1 - pad, y: y1 - padTop, w: x2 - x1 + pad * 2, h: y2 - y1 + padTop + pad };
 }
 
 export function computeCurated(arch: Architecture, _locale: Locale, opts: CuratedOptions): CuratedLayout {
@@ -70,7 +70,7 @@ export function computeCurated(arch: Architecture, _locale: Locale, opts: Curate
     const y = D.margin + (vertical ? c : r) * cellH;
     return { id: node.id, node, x: snap(x), y: snap(y), w: D.nodeW, h: D.nodeH, owned: isOwned(node) };
   });
-  const boundary = boundaryRect(nodes);
+  const boundary = boundaryRect(nodes, vertical ? PAD_V : PAD, PAD_TOP);
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const maxX = Math.max(...nodes.map((n) => n.x + n.w));
   const maxY = Math.max(...nodes.map((n) => n.y + n.h));
@@ -123,7 +123,7 @@ export function computeCurated(arch: Architecture, _locale: Locale, opts: Curate
   for (const n of nodes) { xs.push(n.x, n.x + n.w); ys.push(n.y, n.y + n.h); }
   if (boundary) { xs.push(boundary.x, boundary.x + boundary.w); ys.push(boundary.y, boundary.y + boundary.h); }
   for (const e of cedges) for (const p of e.points) { xs.push(p.x); ys.push(p.y); }
-  const VP = 12;
+  const VP = vertical ? 4 : 12;
   const vx = Math.min(...xs) - VP, vy = Math.min(...ys) - VP;
   const vb = { x: vx, y: vy, w: Math.max(...xs) + VP - vx, h: Math.max(...ys) + VP - vy };
   return { width: vb.w, height: vb.h, orientation: vertical ? 'vertical' : 'horizontal', vb, nodes, boundary, edges: cedges };
