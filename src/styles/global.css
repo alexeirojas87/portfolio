@@ -17,9 +17,9 @@
   --k-ai: #e0559e;
   --k-client: #c7d2e3;
   --k-external: #8a97ab;
-  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-body: 'Geist', system-ui, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --shadow-soft: 0 1px 2px rgb(14 23 38 / 0.05), 0 8px 24px -8px rgb(14 23 38 / 0.12);
   --shadow-lift: 0 2px 4px rgb(14 23 38 / 0.06), 0 18px 40px -12px rgb(14 23 38 / 0.22);
   color-scheme: light;
@@ -71,14 +71,17 @@ body {
 .display {
   font-family: var(--font-display);
   font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.02;
+  font-stretch: 122%;
+  letter-spacing: -0.02em;
+  line-height: 1.03;
 }
+.display .soft { font-weight: 500; font-stretch: 100%; letter-spacing: -0.01em; color: var(--ink-2); }
 .display-md {
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+  font-stretch: 112%;
+  letter-spacing: -0.015em;
+  line-height: 1.12;
 }
 
 .card {
@@ -125,9 +128,8 @@ body {
 .btn-ghost:hover { border-color: var(--cobalt); color: var(--cobalt); }
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn-primary:hover { transform: none; } }
 
-.wrap { width: min(1160px, 100% - 32px); margin-inline: auto; }
-.wrap-wide { width: min(1400px, 100% - 32px); margin-inline: auto; }
-@media (min-width: 1100px) { .wrap-wide { width: min(1400px, 100% - 64px); } }
+.wrap, .wrap-wide { width: min(100% - 2 * clamp(16px, 4vw, 64px), 1760px); margin-inline: auto; }
+.cards { display: grid; gap: 24px; grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)); }
 
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -141,7 +143,7 @@ body {
 }
 .skip-link:focus { top: 12px; }
 
-.section-title { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.025em; font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.1; }
+.section-title { font-family: var(--font-display); font-weight: 750; font-stretch: 115%; letter-spacing: -0.015em; font-size: clamp(1.5rem, 2.2vw, 2.1rem); line-height: 1.1; }
 
 /* ---------- Architecture diagram ---------- */
 .canvas {
@@ -226,6 +228,8 @@ body {
 .dg-ctl:hover { border-color: #7fa0ff; }
 .dg-ctl.primary { background: var(--cobalt); border-color: var(--cobalt); color: #fff; }
 .dg-scroll { overflow-x: auto; padding: 8px 12px; }
+.dg-inner { margin-inline: auto; }
+@media (max-width: 719px) { .dg-scroll { padding: 8px 4px; } }
 .dg-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding: 10px 16px 14px; border-top: 1px solid var(--canvas-line); }
 .dg-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font: 400 0.72rem var(--font-mono); color: var(--canvas-muted); }
 .dg-legend li { display: inline-flex; align-items: center; gap: 6px; }
@@ -255,7 +259,8 @@ body {
 
 /* ---------- Hero ---------- */
 .hero-canvas { position: relative; }
-.hero-stage { position: relative; aspect-ratio: 4 / 3.1; border-radius: 18px; }
+.hero-stage { position: relative; aspect-ratio: 16 / 11; border-radius: 18px; }
+.meta { padding: 10px 0; }
 .hero-layer { position: absolute; inset: 0; opacity: 0; transition: opacity 0.9s ease; pointer-events: none; }
 .hero-layer.on { opacity: 1; pointer-events: auto; }
 .hero-diagram.dg-compact { aspect-ratio: auto; height: 100%; width: 100%; border-radius: 22px; }
@@ -284,6 +289,8 @@ body {
 .dg-caption .what { color: var(--canvas-muted); font-family: var(--font-mono); font-size: 0.75rem; }
 .dg-caption .what::before { content: '· '; }
 .dg-curated .dg-label { font-size: 14.5px; }
+.dg-node.narrow .dg-label { font-size: 12px; }
+.dg-node.narrow .dg-tech { font-size: 10px; }
 .dg-curated .dg-sub { font-size: 11px; }
 .dg-pill { fill: rgb(15 27 45 / 0.94); stroke: #3a5078; }
 .dg-num { fill: #3a5078; }
@@ -304,7 +311,7 @@ body {
 .dg-body > * { min-width: 0; }
 .dg-steps-wrap { margin-top: 0; }
 @media (min-width: 1280px) {
-  .dg-body { grid-template-columns: minmax(0, 72fr) minmax(300px, 28fr); align-items: start; gap: 24px; }
+  .dg-body { grid-template-columns: minmax(0, 1fr) clamp(300px, 24vw, 420px); align-items: start; gap: 24px; }
   .dg-steps-wrap { position: sticky; top: 76px; max-height: calc(100vh - 96px); overflow-y: auto; padding-right: 4px; }
   .dg-steps { grid-template-columns: 1fr; }
 }

@@ -23,6 +23,8 @@ const en = {
     'I build distributed systems — here is how they work inside.',
   'hero.lead':
     'Twelve years of .NET services that handle payments, live odds and real-time messaging, and now the gateways and agents that put LLMs into production safely. Every project below comes with a diagram you can play.',
+  'hero.title.a': 'I build distributed systems',
+  'hero.title.b': 'here is how they work inside.',
   'hero.cta.projects': 'See the systems',
   'hero.cta.about': 'About me',
   'hero.trace': 'trace',
@@ -176,6 +178,8 @@ const es: Record<UiKey, string> = {
     'Construyo sistemas distribuidos: así funcionan por dentro.',
   'hero.lead':
     'Doce años de servicios .NET que manejan pagos, cuotas en vivo y mensajería en tiempo real, y ahora los gateways y agentes que llevan los LLM a producción con seguridad. Cada proyecto incluye un diagrama que puedes reproducir.',
+  'hero.title.a': 'Construyo sistemas distribuidos',
+  'hero.title.b': 'así funcionan por dentro.',
   'hero.cta.projects': 'Ver los sistemas',
   'hero.cta.about': 'Sobre mí',
   'hero.trace': 'traza',

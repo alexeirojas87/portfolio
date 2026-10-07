@@ -21,16 +21,26 @@ export interface CEdge {
 }
 export interface CuratedLayout {
   width: number; height: number; orientation: Orientation;
+  /** Content-fitted view box: crops empty canvas around the drawing. */
+  vb: Rect;
   nodes: CNode[]; boundary: Rect | null; edges: CEdge[];
 }
 
 const PAD = 16, PAD_TOP = 32;
 
 export function curatedDims(o: CuratedOptions) {
-  if (o.compact) return { nodeW: 144, nodeH: 96, gapAlong: 40, gapAcross: 40, margin: 32 };
-  return o.orientation === 'horizontal'
-    ? { nodeW: 144, nodeH: 96, gapAlong: 40, gapAcross: 40, margin: 32 }
-    : { nodeW: o.nodeW ?? 144, nodeH: 96, gapAlong: 40, gapAcross: 32, margin: 24 };
+  if (o.compact) return { nodeW: 160, nodeH: 112, gapAlong: 40, gapAcross: 40, margin: 32 };
+  if (o.orientation === 'horizontal') return { nodeW: 160, nodeH: 112, gapAlong: 40, gapAcross: 40, margin: 32 };
+  const nodeW = o.nodeW ?? 144;
+  // Narrow cards (phones) drop the sublabel, so they can be shorter.
+  return { nodeW, nodeH: nodeW < 120 ? 96 : 112, gapAlong: 40, gapAcross: 16, margin: 16 };
+}
+
+/** Column count when transposed, and the node width that fits `width` px without scrolling. */
+export function fitNodeW(rows: number, width: number): number {
+  const PADS = 2 * PAD + 16;
+  const w = Math.floor((width - PADS - (rows - 1) * 16) / rows / 8) * 8;
+  return Math.max(96, Math.min(176, w));
 }
 
 /** Number of distinct grid rows: the column count when transposed. */
@@ -92,7 +102,7 @@ export function computeCurated(arch: Architecture, _locale: Locale, opts: Curate
     const list = [...(slots.get(`${n.id}:${s}`) ?? [])].sort((p, q) => p.key - q.key || (p.id < q.id ? -1 : 1));
     const i = list.findIndex((x) => x.id === edgeId);
     const off = (i - (list.length - 1) / 2) * 16;
-    const cx = n.x + n.w / 2, cy = n.y + n.h / 2;
+    const cx = snap(n.x + n.w / 2), cy = snap(n.y + n.h / 2);
     switch (s) {
       case 'right': return { x: n.x + n.w, y: cy + off };
       case 'left': return { x: n.x, y: cy + off };
@@ -109,7 +119,14 @@ export function computeCurated(arch: Architecture, _locale: Locale, opts: Curate
     const pts = compress(routes.get(e.id)!);
     return { id: e.id, from: e.from, to: e.to, async: e.async, points: pts, d: roundedPath(pts, 10), anchor: labelAnchor(pts) };
   });
-  return { width, height, orientation: vertical ? 'vertical' : 'horizontal', nodes, boundary, edges: cedges };
+  const xs: number[] = [], ys: number[] = [];
+  for (const n of nodes) { xs.push(n.x, n.x + n.w); ys.push(n.y, n.y + n.h); }
+  if (boundary) { xs.push(boundary.x, boundary.x + boundary.w); ys.push(boundary.y, boundary.y + boundary.h); }
+  for (const e of cedges) for (const p of e.points) { xs.push(p.x); ys.push(p.y); }
+  const VP = 12;
+  const vx = Math.min(...xs) - VP, vy = Math.min(...ys) - VP;
+  const vb = { x: vx, y: vy, w: Math.max(...xs) + VP - vx, h: Math.max(...ys) + VP - vy };
+  return { width: vb.w, height: vb.h, orientation: vertical ? 'vertical' : 'horizontal', vb, nodes, boundary, edges: cedges };
 }
 
 /** True when a polyline passes through the interior of any rectangle. */

@@ -3,7 +3,7 @@ import { Pause, Play, RotateCcw, SkipBack, SkipForward } from 'lucide-react';
 import { useTranslations, type Locale as UiLocale } from '../../i18n/ui.ts';
 import DiagramSvg from './DiagramSvg.tsx';
 import CuratedSvg from './CuratedSvg.tsx';
-import { computeCurated, gridRows, type Orientation } from './curated.ts';
+import { computeCurated, fitNodeW, gridRows, type Orientation } from './curated.ts';
 import { CLASS_COLOR, CLASS_ORDER, KIND_CLASS } from './kinds.ts';
 import { computeLayout } from './layout.ts';
 import { buildSteps, nextStep, prevStep, progressAt, stepState } from './flow.ts';
@@ -79,10 +79,7 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
   const layout = useMemo(() => (curated ? null : computeLayout(architecture, locale, 'full')), [architecture, locale, curated]);
   const cLayout = useMemo(() => {
     if (!curated) return null;
-    const cols = gridRows(architecture);
-    const nodeW = orientation === 'vertical'
-      ? Math.max(128, Math.min(176, Math.floor((width - 48 - (cols - 1) * 32) / cols / 16) * 16))
-      : undefined;
+    const nodeW = orientation === 'vertical' ? fitNodeW(gridRows(architecture), width) : undefined;
     return computeCurated(architecture, locale, { orientation, nodeW });
   }, [architecture, locale, curated, orientation, width]);
 
@@ -151,7 +148,7 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
           )}
 
           <div className="dg-scroll" ref={scrollRef} tabIndex={0} role="region" aria-label={title ? `${t('diagram.label')}: ${title}` : t('diagram.label')}>
-            <div className="dg-inner" style={vertical ? { width: natural } : { minWidth: Math.round(natural * 0.72) }}>
+            <div className="dg-inner" style={vertical ? { width: natural } : { minWidth: Math.round(natural * 0.72), maxWidth: Math.round(natural * 1.3) }}>
               {cLayout ? (
                 <CuratedSvg arch={architecture} layout={cLayout} locale={locale} uid={uid}
                   boundaryLabel={t('diagram.boundary')} progress={progress} stepNo={stepNo}

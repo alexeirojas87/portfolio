@@ -42,7 +42,7 @@ export default function CuratedSvg(p: CuratedSvgProps) {
   const inFlow = (id: string) => !!p.stepNo?.has(id);
 
   return (
-    <svg className="dg-svg dg-curated" viewBox={`0 0 ${layout.width} ${layout.height}`}
+    <svg className="dg-svg dg-curated" viewBox={`${layout.vb.x} ${layout.vb.y} ${layout.vb.w} ${layout.vb.h}`}
       width={p.fixedWidth ? layout.width : undefined} height={p.fixedWidth ? layout.height : undefined}
       preserveAspectRatio="xMidYMid meet" aria-hidden={compact ? true : undefined}
       role={compact ? undefined : 'group'} focusable="false">
@@ -113,35 +113,39 @@ export default function CuratedSvg(p: CuratedSvgProps) {
           }
           const title = nodeLabel(n.node, locale);
           const sub = n.node.sublabel[locale];
-          const textW = n.w - 24;
-          const tl = wrapText(title, Math.floor(textW / 7.4), 2);
-          const room = n.h - 36 - tl.length * 16 - 6; // space left for the sublabel
-          const sl = room >= 12 ? wrapText(sub, Math.floor(textW / 6.1), room >= 26 ? 2 : 1) : [];
+          const narrow = n.w < 120;
+          const textW = n.w - (narrow ? 16 : 24);
+          const tl = wrapText(title, Math.floor(textW / (narrow ? 6.6 : 7.4)), 2);
+          const lh = narrow ? 14 : 16;
+          const room = n.h - (narrow ? 40 : 36) - tl.length * lh - 6;
+          const sl = narrow || room < 12 ? [] : wrapText(sub, Math.floor(textW / 6.1), room >= 26 ? 2 : 1);
           const tech = n.node.tech ?? '';
-          const techMax = Math.floor((n.w - 34 - 20 - 6) / 6.4);
+          const techMax = narrow ? Math.floor((n.w - 8 - 24 - 6) / 6.2) : Math.floor((n.w - 34 - 20 - 6) / 6.4);
           const techText = trunc(tech, techMax);
           const techW = techText.length * 6.4 + 12;
+          const iconX = narrow ? 8 : 12;
+          const titleY = narrow ? 50 : 44;
           return (
-            <g key={n.id} className={`dg-node ${own} st-${st} ${hov ? 'is-hover' : ''} ${dim ? 'is-dim' : ''}`} style={style}
+            <g key={n.id} className={`dg-node ${own} ${narrow ? 'narrow' : ''} st-${st} ${hov ? 'is-hover' : ''} ${dim ? 'is-dim' : ''}`} style={style}
               transform={`translate(${n.x} ${n.y})`} tabIndex={0} role="img"
               aria-label={`${title}${tech ? ` (${tech})` : ''}: ${sub}${n.owned ? '' : ''}`}
               onMouseEnter={() => p.onHover?.(n.id)} onMouseLeave={() => p.onHover?.(null)}
               onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}>
               <rect width={n.w} height={n.h} rx={16} className="dg-box" />
-              <Icon x={12} y={11} size={16} strokeWidth={2} color={color} />
+              <Icon x={iconX} y={11} size={16} strokeWidth={2} color={color} />
               {tech && (
-                <g transform="translate(34 9)">
+                <g transform={`translate(${iconX + 22} 9)`}>
                   <rect width={techW} height={19} rx={9.5} className="dg-tech-bg" />
                   <text x={6} y={13} className="dg-tech">{techText}</text>
                 </g>
               )}
               <text className="dg-label">
-                {tl.map((l, i) => <tspan key={i} x={12} y={44 + i * 16}>{l}</tspan>)}
+                {tl.map((l, i) => <tspan key={i} x={narrow ? 8 : 12} y={titleY + i * lh}>{l}</tspan>)}
               </text>
               <text className="dg-sub">
-                {sl.map((l, i) => <tspan key={i} x={12} y={44 + tl.length * 16 + 2 + i * 13}>{l}</tspan>)}
+                {sl.map((l, i) => <tspan key={i} x={12} y={titleY + tl.length * lh + 2 + i * 13}>{l}</tspan>)}
               </text>
-              <circle cx={n.w - 12} cy={19} r={4} className="dg-dot" />
+              {!narrow && <circle cx={n.w - 10} cy={19} r={4} className="dg-dot" />}
             </g>
           );
         })}
