@@ -33,7 +33,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T1 Content extraction: sanitized architecture data for all 13 projects. Route: delegated (mapping trigger, 13 repos), 3 parallel read-only explorers. Evidence: 12 JSON files valid, corporate files 0 denylist hits.
 - [ ] T1b Content corrections from user: player-mesh and storage-lens show target architecture as built (no "planned"); dungeon-and-dragons LLM chapter generation is real; Cerberus kept both as personal project and as a component inside agentic-orchestration (adapted variant); crypto-payments authored from user description. Route: delegated writer.
 - [x] T2 Scaffold: Astro + React islands + Tailwind, en/es routing, design tokens, privacy scan script. Route: delegated writer.
-- [ ] T3 Animated architecture diagram component (SVG nodes/edges, flow pulses, groups, legend). Route: delegated writer.
+- [x] T3 Animated architecture diagram component (SVG nodes/edges, flow pulses, groups, legend). Route: delegated writer.
 - [ ] T4 Pages: Home, project lists, project detail, About me, language switch. Route: delegated writer.
 - [ ] T5 Visual review with user, iterate on design.
 - [ ] T6 (later) Backend design.
@@ -43,7 +43,8 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - Every project renders a detail page with an animated diagram in en and es.
 
 ## Progress / Evidence
-- T2 done (light "systems, explained" tokens, Astro 7 + React + Tailwind v4, en/es i18n, privacy scan). Route: delegated writer. Evidence: `npm run check` 0 errors; `npm run build` ok; `npm run privacy` 0 hits. TypeScript pinned to 6 (astro check does not support TS 7). Privacy scan skips vendor js/css/map in dist/_astro only (owner-approved).
+- T2 done (light "systems, explained" tokens, Astro 7 + React + Tailwind v4, en/es i18n, privacy scan). Route: delegated writer. Evidence: `npm run check` 0 errors; `npm run build` ok; `npm run privacy` 0 hits. TypeScript pinned to 6 (astro check does not support TS 7). Privacy scan skips vendor js/css/map in dist/_astro only (owner-approved). T2 commit `024f4c9`.
+- T3 done: ArchitectureDiagram (full: flow tabs, narrated step list, play/pause/step, comets, hover trace, legend; compact: ambient CSS comets, decorative with text alt), pure `layout.ts`/`flow.ts` with `npm test` (4 passing). Route: delegated writer. Evidence: check 0 errors, build ok, privacy 0 hits. Decision: edge labels on canvas only for active/hovered edges; every label is in the narrated step list.
 - Repo initialized (`8fb4204`), branch `feat/portfolio-mockups`.
 
 ## Next step
