@@ -289,8 +289,8 @@
               "es": "Produce con reintentos exponenciales acotados y lleva los identificadores de transacción como cabeceras del mensaje"
             },
             {
-              "en": "Also accepts ticket-writer batches (separate topic) and fill-open validation requests",
-              "es": "También acepta lotes de ticket writer (tópico aparte) y solicitudes de validación de relleno"
+              "en": "Also accepts fill-open validation requests",
+              "es": "También acepta solicitudes de validación de relleno"
             },
             {
               "en": "Answers status queries: pregame through the legacy ledger API, live through a bet-group lookup on the integration API",
@@ -420,10 +420,6 @@
             {
               "en": "Publishes every resulting state to the notification topic keyed by player",
               "es": "Publica cada estado resultante en el tópico de notificaciones con clave por jugador"
-            },
-            {
-              "en": "Also consumes the ticket-writer topic and resolves game ids before calling the legacy ledger API",
-              "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API del libro heredado"
             },
             {
               "en": "Stops the process on an unrecoverable consumer error so the orchestrator restarts it",
@@ -583,7 +579,7 @@
         "to": "liveapi",
         "label": {
           "en": "Hand off accepted live wager (HTTP, idempotent id)",
-          "es": "Entrega la apuesta en vivo aceptada (HTTP, id idempotente)"
+          "es": "Entrega la apuesta aceptada (HTTP, id idempotente)"
         },
         "async": false
       },
@@ -737,8 +733,8 @@
                   "es": "Produce con reintentos exponenciales acotados y lleva los identificadores de transacción como cabeceras del mensaje"
                 },
                 {
-                  "en": "Also accepts ticket-writer batches (separate topic) and fill-open validation requests",
-                  "es": "También acepta lotes de ticket writer (tópico aparte) y solicitudes de validación de relleno"
+                  "en": "Also accepts fill-open validation requests",
+                  "es": "También acepta solicitudes de validación de relleno"
                 },
                 {
                   "en": "Answers status queries: pregame through the legacy ledger API, live through a bet-group lookup on the integration API",
@@ -868,10 +864,6 @@
                 {
                   "en": "Publishes every resulting state to the notification topic keyed by player",
                   "es": "Publica cada estado resultante en el tópico de notificaciones con clave por jugador"
-                },
-                {
-                  "en": "Also consumes the ticket-writer topic and resolves game ids before calling the legacy ledger API",
-                  "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API del libro heredado"
                 },
                 {
                   "en": "Stops the process on an unrecoverable consumer error so the orchestrator restarts it",
@@ -1025,10 +1017,6 @@
                 {
                   "en": "Distinguishes not-found from general errors in the reported state",
                   "es": "Distingue no encontrado de errores generales en el estado reportado"
-                },
-                {
-                  "en": "Also used to resolve game ids for ticket-writer batches",
-                  "es": "También se usa para resolver identificadores de juego en lotes de ticket writer"
                 }
               ]
             }
@@ -1136,7 +1124,7 @@
             "to": "liveapi",
             "label": {
               "en": "Hand off accepted live wager (HTTP, idempotent id)",
-              "es": "Entrega la apuesta en vivo aceptada (HTTP, id idempotente)"
+              "es": "Entrega la apuesta aceptada (HTTP, id idempotente)"
             },
             "async": false
           },
@@ -1406,10 +1394,6 @@
                   "es": "Publica cada estado resultante en el tópico de notificaciones con clave por jugador"
                 },
                 {
-                  "en": "Also consumes the ticket-writer topic and resolves game ids before calling the legacy ledger API",
-                  "es": "También consume el tópico de ticket writer y resuelve identificadores de juego antes de llamar a la API del libro heredado"
-                },
-                {
                   "en": "Stops the process on an unrecoverable consumer error so the orchestrator restarts it",
                   "es": "Detiene el proceso ante un error irrecuperable del consumidor para que el orquestador lo reinicie"
                 }
@@ -1440,8 +1424,8 @@
             },
             "details": {
               "what": {
-                "en": "A background worker with two consumers: the persistence topic and the ticket-writer topic. It re-checks wager age against the live or pregame threshold, sends pregame wagers to the legacy ledger API over HTTP (2 exponential retries and a circuit breaker) and publishes the resulting states. Live wagers are not inserted here; they are marked as process errors.",
-                "es": "Un worker en segundo plano con dos consumidores: el tópico de persistencia y el de ticket writer. Revisa de nuevo la antigüedad contra el umbral en vivo o pregame, envía las apuestas pregame a la API del libro heredado por HTTP (2 reintentos exponenciales y circuit breaker) y publica los estados resultantes. Las apuestas en vivo no se insertan aquí: se marcan como error de proceso."
+                "en": "A background worker consuming the persistence topic. It re-checks wager age against the live or pregame threshold, sends pregame wagers to the legacy ledger API over HTTP (2 exponential retries and a circuit breaker) and publishes the resulting states. Live wagers are not inserted here; they are marked as process errors.",
+                "es": "Un worker en segundo plano que consume el tópico de persistencia. Revisa de nuevo la antigüedad contra el umbral en vivo o pregame, envía las apuestas pregame a la API del libro heredado por HTTP (2 reintentos exponenciales y circuit breaker) y publica los estados resultantes. Las apuestas en vivo no se insertan aquí: se marcan como error de proceso."
               },
               "responsibilities": [
                 {
@@ -1475,8 +1459,8 @@
             },
             "details": {
               "what": {
-                "en": "An ASP.NET Core minimal-API wrapper over the legacy insertion library. Endpoints: create wager, process ticket writer, fill-open validation and wager status. Wagers in a request are processed one at a time; each returns a state notification. A transaction tracker keyed by player and transaction id prevents duplicate inserts.",
-                "es": "Un envoltorio de minimal API de ASP.NET Core sobre la biblioteca heredada de inserción. Endpoints: crear apuesta, procesar ticket writer, validación de relleno y estado de apuesta. Las apuestas de una solicitud se procesan una a una y cada una devuelve una notificación de estado. Un rastreador de transacciones por jugador e identificador evita inserciones duplicadas."
+                "en": "An ASP.NET Core minimal-API wrapper over the legacy insertion library. Endpoints: create wager, fill-open validation and wager status. Wagers in a request are processed one at a time; each returns a state notification. A transaction tracker keyed by player and transaction id prevents duplicate inserts.",
+                "es": "Un envoltorio de minimal API de ASP.NET Core sobre la biblioteca heredada de inserción. Endpoints: crear apuesta, validación de relleno y estado de apuesta. Las apuestas de una solicitud se procesan una a una y cada una devuelve una notificación de estado. Un rastreador de transacciones por jugador e identificador evita inserciones duplicadas."
               },
               "responsibilities": [
                 {
