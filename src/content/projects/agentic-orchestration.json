@@ -2,8 +2,8 @@
   "slug": "agentic-orchestration",
   "category": "corporate",
   "title": {
-    "en": "Agentic SDLC Orchestration Platform",
-    "es": "Plataforma de Orquestación Agéntica del SDLC"
+    "en": "Agentic Software Delivery Platform",
+    "es": "Plataforma agéntica de entrega de software"
   },
   "tagline": {
     "en": "Persisted state machine coordinating AI agents from backlog item to approved pull request",
