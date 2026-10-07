@@ -41,6 +41,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T5e Polish: collision-free edge labels (dots for all steps, full pill only for active/hovered), minimum diagram scale ~0.85, mobile title wrapping, clearance from nodes, rename agentic platform title. Route: delegated writer.
 - [x] T5f Wagering "Live bet placement" view shows one live path only (branching idea dropped per owner); live engine bet API renamed and linked to /projects/live-betting-engine (`link`/`linkLabel`); node panel pauses the flow, dims flow badges, shows "Showing connections of <node>" and empty-outgoing text. Route: delegated writer. Commit `5a3142b`; check/test(24)/build/privacy pass.
 - [x] T5g Wagering: Ticket writer & legacy persistence view removed; live-bet delay removed everywhere; validation service is validation-only (read-only edge to the live DB) and the live engine bet API inserts (new edge to the live DB, end of the live flow). Commit `1d1a34a`. Route: delegated writer.
+- [x] T7 Boot-sequence intro on the home page (cursor, typed terminal lines from project data, title card with extruded name + sticker + ticking career uptime, FLIP-style exit into the hero canvas). Plays once per session, skippable, reduced-motion off, home only. Route: delegated writer.
 - [ ] T6 (later) Backend design.
 
 ## Acceptance criteria
