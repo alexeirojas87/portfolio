@@ -14,6 +14,10 @@ interface Props {
   architecture: Architecture;
   locale: Locale;
   mode?: Mode;
+  /** Compact only: show node titles and tech chips (hero). */
+  labels?: boolean;
+  /** Compact only: lay out top to bottom with this node width (phones). */
+  vertical?: { nodeW: number };
   /** Used in the text alternative. */
   title?: string;
   className?: string;
@@ -21,21 +25,21 @@ interface Props {
 
 const STEP_MS = 2000;
 
-export default function ArchitectureDiagram({ architecture, locale, mode = 'full', title, className }: Props) {
+export default function ArchitectureDiagram({ architecture, locale, mode = 'full', title, className, labels, vertical }: Props) {
   return mode === 'compact'
-    ? <CompactDiagram architecture={architecture} locale={locale} title={title} className={className} />
+    ? <CompactDiagram architecture={architecture} locale={locale} title={title} className={className} labels={labels} vertical={vertical} />
     : <FullDiagram architecture={architecture} locale={locale} title={title} />;
 }
 
 /** Decorative, non-interactive, CSS-animated: renders identically on the server (no hydration needed). */
-function CompactDiagram({ architecture, locale, title, className }: Omit<Props, 'mode'>) {
+function CompactDiagram({ architecture, locale, title, className, labels, vertical }: Omit<Props, 'mode'>) {
   const uid = useSafeId();
   const t = useTranslations(locale as UiLocale);
   const curated = isCurated(architecture);
   const layout = useMemo(() => (curated ? null : computeLayout(architecture, locale, 'compact')), [architecture, locale, curated]);
   const cLayout = useMemo(
-    () => (curated ? computeCurated(architecture, locale, { orientation: 'horizontal', compact: true }) : null),
-    [architecture, locale, curated],
+    () => (curated ? computeCurated(architecture, locale, vertical ? { orientation: 'vertical', nodeW: vertical.nodeW } : { orientation: 'horizontal', compact: true }) : null),
+    [architecture, locale, curated, vertical],
   );
   const flow0 = useMemo(() => new Set(architecture.flows[0]?.edges ?? []), [architecture]);
   const flow0Map = useMemo(() => new Map([...flow0].map((id, i) => [id, i + 1])), [flow0]);
@@ -46,7 +50,7 @@ function CompactDiagram({ architecture, locale, title, className }: Omit<Props, 
   return (
     <div className={`canvas dg-compact ${className ?? ''}`}>
       {cLayout
-        ? <CuratedSvg arch={architecture} layout={cLayout} locale={locale} uid={uid} compact stepNo={flow0Map} />
+        ? <CuratedSvg arch={architecture} layout={cLayout} locale={locale} uid={uid} compact labels={labels} stepNo={flow0Map} />
         : <DiagramSvg arch={architecture} layout={layout!} locale={locale} mode="compact" uid={uid} flowEdges={flow0} />}
       <span className="sr-only">{title ? `${title}. ` : ''}{alt}</span>
     </div>
@@ -137,7 +141,7 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
         {flow && <p className="dg-desc">{flow.description[locale]}</p>}
       </div>
 
-      <div className="dg-body">
+      <div className={`dg-body ${natural > 1400 ? 'wide' : ''}`}>
         <div className="canvas dg-full on-canvas">
           <div className="dg-bar">
             <span className="dg-eyebrow">

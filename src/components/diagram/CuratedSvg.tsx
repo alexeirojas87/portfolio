@@ -12,6 +12,8 @@ export interface CuratedSvgProps {
   locale: Locale;
   uid: string;
   compact?: boolean;
+  /** Compact view with node titles and tech chips (hero). Never edge labels or sublabels. */
+  labels?: boolean;
   boundaryLabel?: string;
   progress?: Progress;
   /** Edge id -> 1-based step number for the selected flow. */
@@ -105,7 +107,7 @@ export default function CuratedSvg(p: CuratedSvgProps) {
           const dim = !!p.hoverNode && !connected.has(n.id) && !hov;
           const style = { '--k': color } as CSSProperties;
           const own = n.owned ? 'owned' : 'outside';
-          if (compact) {
+          if (compact && !p.labels) {
             return (
               <g key={n.id} className={`dg-node compact ${own} st-${st}`} style={style} transform={`translate(${n.x} ${n.y})`}>
                 <rect width={n.w} height={n.h} rx={18} className="dg-box" />
@@ -117,14 +119,15 @@ export default function CuratedSvg(p: CuratedSvgProps) {
           const sub = n.node.sublabel[locale];
           const narrow = n.w < 120;
           const textW = n.w - (narrow ? 16 : 24);
-          const tl = wrapText(title, Math.floor(textW / (narrow ? 6.6 : 7.4)), 2);
+          const tl = wrapText(title, Math.floor(textW / (narrow ? 6.2 : 7.0)), 3);
           const lh = narrow ? 14 : 16;
           const room = n.h - (narrow ? 40 : 36) - tl.length * lh - 6;
-          const sl = narrow || room < 12 ? [] : wrapText(sub, Math.floor(textW / 6.1), room >= 26 ? 2 : 1);
+          const subLines = Math.min(3, Math.floor(room / 13));
+          const sl = narrow || p.compact || subLines < 1 ? [] : wrapText(sub, Math.floor(textW / 5.7), subLines);
           const tech = n.node.tech ?? '';
-          const techMax = narrow ? Math.floor((n.w - 8 - 24 - 6) / 6.2) : Math.floor((n.w - 34 - 20 - 6) / 6.4);
+          const techMax = narrow ? Math.floor((n.w - 16 - 10) / 5.8) : Math.floor((n.w - 34 - 20 - 6) / 6.4);
           const techText = trunc(tech, techMax);
-          const techW = techText.length * 6.4 + 12;
+          const techW = techText.length * (narrow ? 5.8 : 6.4) + 12;
           const iconX = narrow ? 8 : 12;
           const titleY = narrow ? 50 : 44;
           return (
@@ -136,9 +139,9 @@ export default function CuratedSvg(p: CuratedSvgProps) {
               onClick={() => p.onSelect?.(n.id)}
               onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); p.onSelect?.(n.id); } }}>
               <rect width={n.w} height={n.h} rx={16} className="dg-box" />
-              <Icon x={iconX} y={11} size={16} strokeWidth={2} color={color} />
+              {!narrow && <Icon x={iconX} y={11} size={16} strokeWidth={2} color={color} />}
               {tech && (
-                <g transform={`translate(${iconX + 22} 9)`}>
+                <g transform={`translate(${narrow ? 8 : iconX + 22} 9)`}>
                   <rect width={techW} height={19} rx={9.5} className="dg-tech-bg" />
                   <text x={6} y={13} className="dg-tech">{techText}</text>
                 </g>

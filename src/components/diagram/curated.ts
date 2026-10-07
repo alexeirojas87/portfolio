@@ -29,11 +29,11 @@ export interface CuratedLayout {
 const PAD = 16, PAD_V = 10, PAD_TOP = 32;
 
 export function curatedDims(o: CuratedOptions) {
-  if (o.compact) return { nodeW: 160, nodeH: 112, gapAlong: 40, gapAcross: 40, margin: 32 };
-  if (o.orientation === 'horizontal') return { nodeW: 160, nodeH: 112, gapAlong: 40, gapAcross: 40, margin: 32 };
+  if (o.compact) return { nodeW: 160, nodeH: 128, gapAlong: 40, gapAcross: 40, margin: 32 };
+  if (o.orientation === 'horizontal') return { nodeW: 160, nodeH: 128, gapAlong: 40, gapAcross: 40, margin: 32 };
   const nodeW = o.nodeW ?? 144;
   // Narrow cards (phones) drop the sublabel, so they can be shorter.
-  return { nodeW, nodeH: nodeW < 120 ? 96 : 112, gapAlong: 40, gapAcross: 16, margin: 16 };
+  return { nodeW, nodeH: nodeW < 120 ? 112 : 128, gapAlong: 40, gapAcross: 16, margin: 16 };
 }
 
 /** Column count when transposed, and the node width that fits `width` px without scrolling. */

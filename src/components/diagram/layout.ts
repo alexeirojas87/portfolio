@@ -125,18 +125,20 @@ const r2 = (n: number) => Math.round(n * 10) / 10;
 
 /** Greedy word wrap with ellipsis, used for SVG text which cannot wrap on its own. */
 export function wrapText(text: string, maxChars: number, maxLines: number): string[] {
-  const words = text.split(/\s+/).filter(Boolean);
+  // Break at spaces and after hyphens ("Backend-for-frontend" can wrap).
+  const words = text.split(/(?<=-)(?=\S)|\s+/).filter(Boolean);
+  const join = (a: string, w: string) => (a.endsWith('-') ? a + w : a + ' ' + w);
   const lines: string[] = [];
   let cur = '';
   for (const w of words) {
     if (!cur) cur = w;
-    else if ((cur + ' ' + w).length <= maxChars) cur += ' ' + w;
+    else if (join(cur, w).length <= maxChars) cur = join(cur, w);
     else { lines.push(cur); cur = w; }
   }
   if (cur) lines.push(cur);
   if (lines.length <= maxLines) return lines.map((l) => clip(l, maxChars));
   const kept = lines.slice(0, maxLines);
-  const rest = lines.slice(maxLines - 1).join(' ');
+  const rest = lines.slice(maxLines - 1).reduce((acc, l) => (acc ? join(acc, l) : l), '');
   kept[maxLines - 1] = clip(rest, maxChars - 1).replace(/[\s,.;:]+$/, '') + '…';
   return kept.map((l) => clip(l, maxChars));
 }

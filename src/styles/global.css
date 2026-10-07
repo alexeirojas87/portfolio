@@ -290,7 +290,7 @@ body {
 .dg-caption .what::before { content: '· '; }
 .dg-curated .dg-label { font-size: 14.5px; }
 .dg-node.narrow .dg-label { font-size: 12px; }
-.dg-node.narrow .dg-tech { font-size: 10px; }
+.dg-node.narrow .dg-tech { font-size: 9.5px; }
 .dg-curated .dg-sub { font-size: 11px; }
 .dg-pill { fill: rgb(15 27 45 / 0.94); stroke: #3a5078; }
 .dg-num { fill: #3a5078; }
@@ -314,6 +314,10 @@ body {
   .dg-body { grid-template-columns: minmax(0, 1fr) clamp(300px, 24vw, 420px); align-items: start; gap: 24px; }
   .dg-steps-wrap { position: sticky; top: 76px; max-height: calc(100vh - 96px); overflow-y: auto; padding-right: 4px; }
   .dg-steps { grid-template-columns: 1fr; }
+  /* Very wide diagrams get the full width; steps move underneath. */
+  .dg-body.wide { grid-template-columns: minmax(0, 1fr); }
+  .dg-body.wide .dg-steps-wrap { position: static; max-height: none; overflow: visible; }
+  .dg-body.wide .dg-steps { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
 }
 .dg-foot[data-overflow='true'] .dg-scrollhint { display: inline; }
 .dg-glance { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0 0 14px; padding: 0; }

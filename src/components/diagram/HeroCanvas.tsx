@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ArchitectureDiagram from './ArchitectureDiagram.tsx';
 import { useTranslations, type Locale as UiLocale } from '../../i18n/ui.ts';
-import type { Architecture, Locale } from './types.ts';
+import { computeCurated, fitNodeW, gridRows } from './curated.ts';
+import { isCurated, type Architecture, type Locale } from './types.ts';
 
 interface Item { slug: string; title: string; href: string; architecture: Architecture }
 interface Props { items: Item[]; locale: Locale }
@@ -11,6 +12,31 @@ export default function HeroCanvas({ items, locale }: Props) {
   const t = useTranslations(locale as UiLocale);
   const [i, setI] = useState(0);
   const [reduced, setReduced] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(0);
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setW(el.clientWidth));
+    ro.observe(el); setW(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  // Phones: lay the diagram out top to bottom at a readable size; the stage grows to fit the tallest.
+  const phone = w > 0 && w < 720;
+  const verticals = useMemo(() => items.map((it) => (phone && isCurated(it.architecture) ? { nodeW: fitNodeW(gridRows(it.architecture), w - 8) } : undefined)), [items, phone, w]);
+  const aspect = useMemo(() => {
+    if (!phone) return null;
+    let ratio = Infinity;
+    items.forEach((it, n) => {
+      const v = verticals[n];
+      if (!v) return;
+      const l = computeCurated(it.architecture, locale, { orientation: 'vertical', nodeW: v.nodeW });
+      ratio = Math.min(ratio, l.width / l.height);
+    });
+    return Number.isFinite(ratio) ? ratio : null;
+  }, [phone, items, verticals, locale]);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -29,10 +55,10 @@ export default function HeroCanvas({ items, locale }: Props) {
   const cur = items[i];
   return (
     <div className="hero-canvas">
-      <div className="hero-stage">
+      <div className="hero-stage" ref={stageRef} style={aspect ? { aspectRatio: String(aspect) } : undefined}>
         {items.map((it, n) => (
           <div key={it.slug} className={`hero-layer ${n === i ? 'on' : ''}`} aria-hidden={n === i ? undefined : true}>
-            <ArchitectureDiagram architecture={it.architecture} locale={locale} mode="compact" title={it.title} className="hero-diagram" />
+            <ArchitectureDiagram architecture={it.architecture} locale={locale} mode="compact" labels vertical={verticals[n]} title={it.title} className="hero-diagram" />
           </div>
         ))}
       </div>
