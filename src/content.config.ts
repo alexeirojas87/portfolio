@@ -14,7 +14,10 @@ const architecture = z.object({
   nodes: z.array(
     z.object({
       id: z.string(),
-      label: z.string(),
+      label: z.union([z.string(), text]),
+      tech: z.string().nullish(),
+      pos: z.object({ col: z.number(), row: z.number() }).nullish(),
+      owned: z.boolean().nullish(),
       sublabel: text,
       kind: nodeKind,
       group: z.string(),
@@ -33,6 +36,7 @@ const architecture = z.object({
   flows: z.array(
     z.object({ id: z.string(), name: text, description: text, edges: z.array(z.string()) }),
   ),
+  glance: z.array(text).nullish(),
 });
 
 const projects = defineCollection({

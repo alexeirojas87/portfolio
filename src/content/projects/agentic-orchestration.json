@@ -249,170 +249,311 @@
     "nodes": [
       {
         "id": "portal",
-        "label": "Agent Portal",
+        "label": {
+          "en": "Agent portal",
+          "es": "Portal de agentes"
+        },
         "sublabel": {
-          "en": "Real-time lifecycle view, gates, approvals and run history",
-          "es": "Vista en tiempo real del ciclo, puertas, aprobaciones e historial"
+          "en": "Live run view, approvals",
+          "es": "Vista en vivo y aprobaciones"
         },
         "kind": "client",
-        "group": "entry"
+        "group": "entry",
+        "tech": "React/SignalR",
+        "pos": {
+          "col": 1,
+          "row": 2
+        },
+        "owned": true
       },
       {
         "id": "chat",
-        "label": "Chat Bot Channel",
+        "label": {
+          "en": "Team chat bot",
+          "es": "Bot de chat del equipo"
+        },
         "sublabel": {
-          "en": "Commands, approval cards and clarifications in team chat",
-          "es": "Comandos, tarjetas de aprobación y aclaraciones en el chat del equipo"
+          "en": "Commands, approval cards",
+          "es": "Comandos y tarjetas de aprobación"
         },
         "kind": "client",
-        "group": "entry"
+        "group": "entry",
+        "tech": "Teams bot",
+        "pos": {
+          "col": 1,
+          "row": 0
+        },
+        "owned": true
       },
       {
         "id": "orchestrator",
-        "label": "Workflow Orchestrator",
+        "label": {
+          "en": "Workflow orchestrator",
+          "es": "Orquestador de flujo"
+        },
         "sublabel": {
-          "en": "Persisted state machine: dispatch, park, resume, recover",
-          "es": "Máquina de estados persistida: despachar, estacionar, reanudar, recuperar"
+          "en": "Persisted state machine",
+          "es": "Máquina de estados persistida"
         },
         "kind": "service",
-        "group": "orch"
+        "group": "orch",
+        "tech": ".NET 10",
+        "pos": {
+          "col": 2,
+          "row": 1
+        }
       },
       {
         "id": "runstore",
-        "label": "Run & Lease Store",
+        "label": {
+          "en": "Run & lease store",
+          "es": "Almacén de ejecuciones y leases"
+        },
         "sublabel": {
-          "en": "Couchbase: runs, pending work, leases, notifications",
-          "es": "Couchbase: ejecuciones, trabajo pendiente, leases, notificaciones"
+          "en": "Runs, work, leases",
+          "es": "Ejecuciones, trabajo, leases"
         },
         "kind": "db",
-        "group": "data"
+        "group": "data",
+        "tech": "Couchbase",
+        "pos": {
+          "col": 2,
+          "row": 0
+        }
       },
       {
         "id": "defagent",
-        "label": "Definition Agent",
+        "label": {
+          "en": "Definition agent",
+          "es": "Agente de definición"
+        },
         "sublabel": {
-          "en": "Drafts AI-ready work items from requests",
-          "es": "Redacta ítems listos para IA a partir de solicitudes"
+          "en": "Drafts AI-ready items",
+          "es": "Redacta items listos para IA"
         },
         "kind": "worker",
-        "group": "orch"
+        "group": "orch",
+        "tech": "LLM agent",
+        "pos": {
+          "col": 3,
+          "row": 0
+        }
       },
       {
         "id": "qaagent",
-        "label": "QA Agent",
+        "label": {
+          "en": "QA agent",
+          "es": "Agente de QA"
+        },
         "sublabel": {
-          "en": "Generates test plans and suites",
-          "es": "Genera planes y suites de pruebas"
+          "en": "Test plans and suites",
+          "es": "Planes y suites de prueba"
         },
         "kind": "worker",
-        "group": "orch"
+        "group": "orch",
+        "tech": "LLM agent",
+        "pos": {
+          "col": 3,
+          "row": 1
+        }
       },
       {
         "id": "devagent",
-        "label": "Dev Agent",
+        "label": {
+          "en": "Dev agent",
+          "es": "Agente de desarrollo"
+        },
         "sublabel": {
-          "en": "Plans, edits code, runs tests, handles rework and CI fixes",
-          "es": "Planifica, edita código, ejecuta pruebas, atiende retrabajo y arreglos de CI"
+          "en": "Plans, codes, tests",
+          "es": "Planifica, programa, prueba"
         },
         "kind": "worker",
-        "group": "orch"
+        "group": "orch",
+        "tech": "LLM agent",
+        "pos": {
+          "col": 3,
+          "row": 2
+        }
       },
       {
         "id": "reviewagent",
-        "label": "Review Agent",
+        "label": {
+          "en": "Review agent",
+          "es": "Agente de revisión"
+        },
         "sublabel": {
-          "en": "Adversarial pull-request review on a separate role",
-          "es": "Revisión adversarial de pull requests en un rol separado"
+          "en": "Adversarial PR review",
+          "es": "Revisión adversarial de PR"
         },
         "kind": "worker",
-        "group": "orch"
+        "group": "orch",
+        "tech": "LLM agent",
+        "pos": {
+          "col": 3,
+          "row": 3
+        }
       },
       {
         "id": "mcp",
-        "label": "MCP Tool Server",
+        "label": {
+          "en": "MCP tool server",
+          "es": "Servidor de herramientas MCP"
+        },
         "sublabel": {
-          "en": "Role-scoped tools: work items, repos, PRs, memory, code graph, tests",
-          "es": "Herramientas por rol: ítems, repos, PRs, memoria, grafo de código, pruebas"
+          "en": "Role-scoped tools",
+          "es": "Herramientas por rol"
         },
         "kind": "gateway",
-        "group": "tools"
+        "group": "tools",
+        "tech": "MCP",
+        "pos": {
+          "col": 4,
+          "row": 2
+        }
       },
       {
         "id": "workspace",
-        "label": "Containerized Workspace Worker",
+        "label": {
+          "en": "Sandboxed workspace",
+          "es": "Espacio de trabajo aislado"
+        },
         "sublabel": {
-          "en": "Clones, edits, builds and tests repositories in isolation",
-          "es": "Clona, edita, compila y prueba repositorios de forma aislada"
+          "en": "Isolated build and test",
+          "es": "Compila y prueba aislado"
         },
         "kind": "worker",
-        "group": "tools"
+        "group": "tools",
+        "tech": "Docker",
+        "pos": {
+          "col": 5,
+          "row": 0
+        }
       },
       {
         "id": "indexer",
-        "label": "Code-to-Graph Indexer",
+        "label": {
+          "en": "Code-graph indexer",
+          "es": "Indexador de grafo de código"
+        },
         "sublabel": {
-          "en": "Roslyn structural graph emitted per commit",
-          "es": "Grafo estructural con Roslyn emitido por commit"
+          "en": "Graph per commit",
+          "es": "Grafo por commit"
         },
         "kind": "worker",
-        "group": "tools"
+        "group": "tools",
+        "tech": "Roslyn",
+        "pos": {
+          "col": 4,
+          "row": 0
+        }
       },
       {
         "id": "vector",
-        "label": "Vector Memory",
+        "label": {
+          "en": "Vector memory",
+          "es": "Memoria vectorial"
+        },
         "sublabel": {
-          "en": "Curated episodic memory with embeddings",
-          "es": "Memoria episódica curada con embeddings"
+          "en": "Episodic memory",
+          "es": "Memoria episódica"
         },
         "kind": "db",
-        "group": "data"
+        "group": "data",
+        "tech": "Qdrant",
+        "pos": {
+          "col": 5,
+          "row": 1
+        }
       },
       {
         "id": "gateway",
-        "label": "LLM Gateway",
+        "label": {
+          "en": "LLM gateway",
+          "es": "Gateway de LLM"
+        },
         "sublabel": {
-          "en": "Input analysis, rate limits, routing, continuation, audit",
-          "es": "Análisis de entrada, límites, enrutamiento, continuación, auditoría"
+          "en": "Routing, limits, audit",
+          "es": "Enrutamiento, límites, auditoría"
         },
         "kind": "gateway",
-        "group": "gw"
+        "group": "gw",
+        "tech": ".NET",
+        "pos": {
+          "col": 4,
+          "row": 3
+        }
       },
       {
         "id": "safety",
-        "label": "Cerberus",
-        "sublabel": { "en": "Prompt-safety layer · input analysis", "es": "Capa de seguridad de prompts · análisis de entrada" },
+        "label": {
+          "en": "Prompt-safety layer",
+          "es": "Capa de seguridad de prompts"
+        },
+        "sublabel": {
+          "en": "Scans prompts first",
+          "es": "Analiza prompts antes"
+        },
         "kind": "ai",
-        "group": "gw"
+        "group": "gw",
+        "tech": "Cerberus",
+        "pos": {
+          "col": 5,
+          "row": 3
+        }
       },
       {
         "id": "provider",
-        "label": "LLM Providers",
+        "label": {
+          "en": "LLM providers",
+          "es": "Proveedores de LLM"
+        },
         "sublabel": {
-          "en": "Primary, fallback and self-hosted models with output validation",
-          "es": "Modelos primario, de respaldo y autoalojado con validación de salida"
+          "en": "Primary, fallback, self-hosted",
+          "es": "Principal, respaldo, autoalojado"
         },
         "kind": "external",
-        "group": "ext"
+        "group": "ext",
+        "tech": "LLM APIs",
+        "pos": {
+          "col": 4,
+          "row": 4
+        }
       },
       {
         "id": "audit",
-        "label": "Audit Log & Payload Archive",
+        "label": {
+          "en": "Audit & archive",
+          "es": "Auditoría y archivo"
+        },
         "sublabel": {
-          "en": "Couchbase audit records and blob payload archive",
-          "es": "Registros de auditoría en Couchbase y archivo de payloads en blob"
+          "en": "Allowed and rejected calls",
+          "es": "Llamadas permitidas y rechazadas"
         },
         "kind": "storage",
-        "group": "data"
+        "group": "data",
+        "tech": "Couchbase",
+        "pos": {
+          "col": 5,
+          "row": 2
+        }
       },
       {
         "id": "ado",
-        "label": "Work-Tracking & Repos System",
+        "label": {
+          "en": "Work tracking & repos",
+          "es": "Seguimiento y repositorios"
+        },
         "sublabel": {
-          "en": "Work items, branches, pull requests, pipelines",
-          "es": "Ítems de trabajo, ramas, pull requests, pipelines"
+          "en": "Items, branches, PRs",
+          "es": "Items, ramas, PRs"
         },
         "kind": "external",
-        "group": "ext"
+        "group": "ext",
+        "tech": "Azure DevOps",
+        "pos": {
+          "col": 0,
+          "row": 1
+        }
       }
     ],
     "edges": [
@@ -675,6 +816,28 @@
           "e9",
           "e12"
         ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "4 role-specific AI agents",
+        "es": "4 agentes de IA por rol"
+      },
+      {
+        "en": "Persisted state machine with leases",
+        "es": "Máquina de estados persistida con leases"
+      },
+      {
+        "en": "MCP tool server",
+        "es": "Servidor de herramientas MCP"
+      },
+      {
+        "en": "Multi-provider LLM gateway with prompt safety",
+        "es": "Gateway de LLM multiproveedor con seguridad de prompts"
+      },
+      {
+        "en": "Human approval gates",
+        "es": "Aprobaciones humanas"
       }
     ]
   }

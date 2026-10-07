@@ -35,7 +35,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T2 Scaffold: Astro + React islands + Tailwind, en/es routing, design tokens, privacy scan script. Route: delegated writer.
 - [x] T3 Animated architecture diagram component (SVG nodes/edges, flow pulses, groups, legend). Route: delegated writer.
 - [x] T4 Pages: Home, project lists, project detail, About me, language switch. Route: delegated writer.
-- [ ] T5 Visual review with user, iterate on design.
+- [x] T5 Visual review with user, iterate on design.
 - [ ] T6 (later) Backend design.
 
 ## Acceptance criteria
@@ -48,6 +48,8 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - T3 done: ArchitectureDiagram (full: flow tabs, narrated step list, play/pause/step, comets, hover trace, legend; compact: ambient CSS comets, decorative with text alt), pure `layout.ts`/`flow.ts` with `npm test` (4 passing). Route: delegated writer. Evidence: check 0 errors, build ok, privacy 0 hits. Decision: edge labels on canvas only for active/hovered edges; every label is in the narrated step list.
 - T4 done: home (hero cycling 3 featured architectures, capability strip, personal/client sections with compact-diagram cards), project detail (diagram + narrated player first, what/built/decisions/stack/video slot/prev-next), about, en+es. Route: delegated writer. Evidence: check 0 errors; build 28 pages (12 projects x en/es + 4); privacy 0 hits; preview curl 200 for /, /es/, /about, /projects/smartvalue, /es/projects/wagering-platform; visual check via headless Chrome at 1280/1360 and 360px (no page-level horizontal scroll). Deviation: narrated step list sits below the canvas (not beside) so the canvas keeps full width and legible text.
 - Repo initialized (`8fb4204`), branch `feat/portfolio-mockups`.
+
+- T5 (owner feedback, pilot on crypto-payments + agentic-orchestration): curated grid layout (`pos`), orthogonal A* edge routing with rounded corners, "What I built" boundary (`owned`), node anatomy (role title + `tech` chip), `glance` strip, numbered flow badges, sticky narrated steps at >=1280px, vertical orientation under 720px. Other projects keep the auto-layout renderer. Evidence: check 0 errors; npm test 12 pass; build ok; privacy 0 hits; screenshots at 1440/1024/390. Commit: `9e0bb3d`.
 
 ## Next step
 T1.

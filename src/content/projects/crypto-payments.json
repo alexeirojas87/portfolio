@@ -176,123 +176,217 @@
     "nodes": [
       {
         "id": "merchant",
-        "label": "Merchant checkout / client",
+        "label": {
+          "en": "Merchant checkout",
+          "es": "Checkout del comercio"
+        },
         "sublabel": {
-          "en": "Integrates and receives results",
-          "es": "Integra y recibe resultados"
+          "en": "Sends requests, receives results",
+          "es": "Envía solicitudes y recibe resultados"
         },
         "kind": "client",
-        "group": "client"
+        "group": "client",
+        "pos": {
+          "col": 0,
+          "row": 1
+        }
       },
       {
         "id": "api",
-        "label": "Payment API",
+        "label": {
+          "en": "Payment intake",
+          "es": "Recepción de pagos"
+        },
         "sublabel": {
           "en": "Validates and accepts requests",
           "es": "Valida y acepta solicitudes"
         },
         "kind": "gateway",
-        "group": "svc"
+        "group": "svc",
+        "tech": "ASP.NET Core",
+        "pos": {
+          "col": 1,
+          "row": 1
+        }
       },
       {
         "id": "executor",
-        "label": "Payment Executor",
+        "label": {
+          "en": "Payment executor",
+          "es": "Ejecutor de pagos"
+        },
         "sublabel": {
           "en": "Executes payments on-chain",
-          "es": "Ejecuta pagos on-chain"
+          "es": "Ejecuta pagos en la cadena"
         },
         "kind": "worker",
-        "group": "svc"
+        "group": "svc",
+        "tech": ".NET worker",
+        "pos": {
+          "col": 3,
+          "row": 1
+        }
       },
       {
         "id": "adapters",
-        "label": "Coin adapters",
+        "label": {
+          "en": "Coin adapters",
+          "es": "Adaptadores de monedas"
+        },
         "sublabel": {
-          "en": "Bitcoin, Ethereum, Litecoin",
-          "es": "Bitcoin, Ethereum, Litecoin"
+          "en": "One adapter per coin",
+          "es": "Un adaptador por moneda"
         },
         "kind": "service",
-        "group": "svc"
+        "group": "svc",
+        "tech": "BTC/ETH/LTC",
+        "pos": {
+          "col": 4,
+          "row": 1
+        }
       },
       {
         "id": "watcher",
-        "label": "Confirmation Watcher",
+        "label": {
+          "en": "Confirmation watcher",
+          "es": "Vigilante de confirmaciones"
+        },
         "sublabel": {
           "en": "Tracks confirmations to finality",
           "es": "Sigue confirmaciones hasta la finalidad"
         },
         "kind": "worker",
-        "group": "svc"
+        "group": "svc",
+        "tech": ".NET worker",
+        "pos": {
+          "col": 4,
+          "row": 2
+        }
       },
       {
         "id": "notifier",
-        "label": "Real-time Notifier",
+        "label": {
+          "en": "Real-time notifier",
+          "es": "Notificador en tiempo real"
+        },
         "sublabel": {
-          "en": "SignalR hub",
-          "es": "Hub de SignalR"
+          "en": "Pushes results to the merchant",
+          "es": "Envía resultados al comercio"
         },
         "kind": "service",
-        "group": "svc"
+        "group": "svc",
+        "tech": "SignalR",
+        "pos": {
+          "col": 1,
+          "row": 3
+        }
       },
       {
         "id": "reqq",
-        "label": "Payment requests queue",
+        "label": {
+          "en": "Request queue",
+          "es": "Cola de solicitudes"
+        },
         "sublabel": {
-          "en": "RabbitMQ",
-          "es": "RabbitMQ"
+          "en": "Buffers payment requests",
+          "es": "Almacena solicitudes de pago"
         },
         "kind": "queue",
-        "group": "bus"
+        "group": "bus",
+        "tech": "RabbitMQ",
+        "pos": {
+          "col": 2,
+          "row": 1
+        }
       },
       {
         "id": "dlq",
-        "label": "Dead-letter queue",
+        "label": {
+          "en": "Dead-letter queue",
+          "es": "Cola de mensajes fallidos"
+        },
         "sublabel": {
           "en": "Failed messages for review",
           "es": "Mensajes fallidos para revisión"
         },
         "kind": "queue",
-        "group": "bus"
+        "group": "bus",
+        "tech": "RabbitMQ",
+        "pos": {
+          "col": 2,
+          "row": 0
+        }
       },
       {
         "id": "evtq",
-        "label": "Payment events queue",
+        "label": {
+          "en": "Event queue",
+          "es": "Cola de eventos"
+        },
         "sublabel": {
-          "en": "RabbitMQ",
-          "es": "RabbitMQ"
+          "en": "Payment-confirmed events",
+          "es": "Eventos de pago confirmado"
         },
         "kind": "queue",
-        "group": "bus"
+        "group": "bus",
+        "tech": "RabbitMQ",
+        "pos": {
+          "col": 4,
+          "row": 3
+        }
       },
       {
         "id": "db",
-        "label": "SQL Server",
+        "label": {
+          "en": "Payments store",
+          "es": "Almacén de pagos"
+        },
         "sublabel": {
-          "en": "Payments, status history",
-          "es": "Pagos, historial de estados"
+          "en": "Payments and status history",
+          "es": "Pagos e historial de estados"
         },
         "kind": "db",
-        "group": "data"
+        "group": "data",
+        "tech": "SQL Server",
+        "pos": {
+          "col": 3,
+          "row": 2
+        }
       },
       {
         "id": "wallet",
-        "label": "User wallet",
+        "label": {
+          "en": "User wallet",
+          "es": "Billetera del usuario"
+        },
         "sublabel": {
           "en": "Funds and signing",
           "es": "Fondos y firma"
         },
         "kind": "external",
-        "group": "chain"
+        "group": "chain",
+        "pos": {
+          "col": 5,
+          "row": 0
+        }
       },
       {
         "id": "chain",
-        "label": "Blockchain nodes",
+        "label": {
+          "en": "Blockchain nodes",
+          "es": "Nodos blockchain"
+        },
         "sublabel": {
-          "en": "RPC for each supported coin",
-          "es": "RPC por cada moneda soportada"
+          "en": "Network for each supported coin",
+          "es": "Red de cada moneda soportada"
         },
         "kind": "external",
-        "group": "chain"
+        "group": "chain",
+        "tech": "RPC per coin",
+        "pos": {
+          "col": 5,
+          "row": 1
+        }
       }
     ],
     "edges": [
@@ -500,6 +594,28 @@
           "e14",
           "e15"
         ]
+      }
+    ],
+    "glance": [
+      {
+        "en": "Bitcoin · Ethereum · Litecoin",
+        "es": "Bitcoin · Ethereum · Litecoin"
+      },
+      {
+        "en": "Event-driven .NET microservices",
+        "es": "Microservicios .NET orientados a eventos"
+      },
+      {
+        "en": "RabbitMQ message bus",
+        "es": "Bus de mensajes RabbitMQ"
+      },
+      {
+        "en": "SQL Server persistence",
+        "es": "Persistencia en SQL Server"
+      },
+      {
+        "en": "SignalR real-time push",
+        "es": "Notificación en tiempo real con SignalR"
       }
     ]
   }

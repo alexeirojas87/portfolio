@@ -7,9 +7,18 @@ export type NodeKind =
   | 'ai' | 'cache' | 'client' | 'db' | 'external' | 'gateway'
   | 'queue' | 'scheduler' | 'service' | 'storage' | 'worker';
 
+export interface GridPos { col: number; row: number }
+
 export interface ArchNode {
   id: string;
-  label: string;
+  /** Role title. Plain string (shared) or bilingual. */
+  label: string | LText;
+  /** Technology chip, e.g. "RabbitMQ". */
+  tech?: string | null;
+  /** Curated grid position; when every node has one, the curated renderer is used. */
+  pos?: GridPos | null;
+  /** Inside the "What I built" boundary. Defaults to true except for client/external. */
+  owned?: boolean | null;
   sublabel: LText;
   kind: NodeKind;
   group: string;
@@ -23,4 +32,14 @@ export interface Architecture {
   nodes: ArchNode[];
   edges: ArchEdge[];
   flows: ArchFlow[];
+  glance?: LText[] | null;
 }
+
+export const nodeLabel = (n: ArchNode, locale: Locale): string =>
+  typeof n.label === 'string' ? n.label : n.label[locale] ?? n.label.en;
+
+export const isOwned = (n: ArchNode): boolean =>
+  n.owned ?? (n.kind !== 'client' && n.kind !== 'external');
+
+export const isCurated = (a: Architecture): boolean =>
+  a.nodes.length > 0 && a.nodes.every((n) => !!n.pos);

@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { KIND_ICON } from './icons.tsx';
 import { kindColor } from './kinds.ts';
 import { wrapText, type Layout } from './layout.ts';
-import type { Architecture, Locale, Mode } from './types.ts';
+import { nodeLabel, type Architecture, type Locale, type Mode } from './types.ts';
 import type { Progress } from './flow.ts';
 
 export interface DiagramSvgProps {
@@ -120,7 +120,7 @@ export default function DiagramSvg(p: DiagramSvgProps) {
               </g>
             );
           }
-          const label = wrapText(n.node.label, 17, 2);
+          const label = wrapText(nodeLabel(n.node, locale), 17, 2);
           const subl = wrapText(sub, 23, 3);
           const lineH = 16, subH = 13.5;
           const total = label.length * lineH + subl.length * subH + 2;
@@ -129,7 +129,7 @@ export default function DiagramSvg(p: DiagramSvgProps) {
           return (
             <g key={n.id} className={`dg-node st-${st} ${hov ? 'is-hover' : ''} ${dim ? 'is-dim' : ''}`} style={style}
               transform={`translate(${n.x} ${n.y})`} tabIndex={0} role="img"
-              aria-label={`${n.node.label}: ${sub}`}
+              aria-label={`${nodeLabel(n.node, locale)}: ${sub}`}
               onMouseEnter={() => p.onHover?.(n.id)} onMouseLeave={() => p.onHover?.(null)}
               onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}>
               <rect width={n.w} height={n.h} rx={16} className="dg-box" />
