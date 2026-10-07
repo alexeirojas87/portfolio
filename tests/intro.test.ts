@@ -7,6 +7,8 @@ test('uptime: calendar years, months, days and clock since January of the start 
   assert.equal(formatUptime(2013, new Date(2013, 0, 1, 0, 0, 0)), '0y 00m 00d 00:00:00');
   assert.equal(formatUptime(2013, new Date(2026, 0, 1, 23, 59, 59)), '13y 00m 00d 23:59:59');
   assert.equal(formatUptime(2020, new Date(2024, 2, 31, 10, 0, 0)), '4y 02m 30d 10:00:00');
+  assert.equal(formatUptime(2013, new Date(2026, 9, 7, 12, 0, 0), 9), '13y 01m 06d 12:00:00');
+  assert.equal(formatUptime(2013, new Date(2014, 2, 1, 0, 0, 0), 9), '0y 06m 00d 00:00:00');
 });
 
 test('uptime ticks with the clock', () => {

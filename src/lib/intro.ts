@@ -2,10 +2,10 @@
 
 export const INTRO_STORAGE_KEY = 'intro-played';
 
-/** Calendar uptime since Jan 1 of `sinceYear`: "12y 09m 14d 03:21:07". Computed from `now`, never hard-coded. */
-export function formatUptime(sinceYear: number, now: Date): string {
+/** Calendar uptime since the 1st of `sinceMonth` (1-12) in `sinceYear`: "12y 09m 14d 03:21:07". Computed from `now`, never hard-coded. */
+export function formatUptime(sinceYear: number, now: Date, sinceMonth = 1): string {
   let y = now.getFullYear() - sinceYear;
-  let m = now.getMonth(); // months since Jan 1
+  let m = now.getMonth() - (sinceMonth - 1); // months since the start month
   let d = now.getDate() - 1; // days since the 1st
   if (d < 0) { m -= 1; d += daysInMonth(now.getFullYear(), now.getMonth() - 1); }
   if (m < 0) { y -= 1; m += 12; }

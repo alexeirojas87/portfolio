@@ -4,14 +4,14 @@ import {
   BEAT_MS, INTRO_STORAGE_KEY, formatUptime, markPlayed, typedLines, type Beat, type IntroCounts,
 } from '../lib/intro.ts';
 
-interface Props { locale: Locale; counts: IntroCounts; sinceYear: number }
+interface Props { locale: Locale; counts: IntroCounts; sinceYear: number; sinceMonth: number }
 
 /**
  * Boot-sequence intro, home page only. The page renders underneath; this is an aria-hidden overlay.
  * The inline script in HomeView decides (once per session, no reduced motion) by adding
  * `html.intro-pending`; without JS nothing is added and nothing plays.
  */
-export default function BootIntro({ locale, counts, sinceYear }: Props) {
+export default function BootIntro({ locale, counts, sinceYear, sinceMonth }: Props) {
   const t = useTranslations(locale);
   const [beat, setBeat] = useState<Beat | 'off'>('off');
   const [chars, setChars] = useState(0);
@@ -115,7 +115,7 @@ export default function BootIntro({ locale, counts, sinceYear }: Props) {
               <span className="intro-sticker">{t('intro.sticker')}</span>
               <div className="intro-status">
                 <b>{t('intro.live')}</b>
-                <span>{t('intro.since', { year: sinceYear })} · {formatUptime(sinceYear, now)}</span>
+                <span>{t('intro.since', { year: sinceYear })} · {formatUptime(sinceYear, now, sinceMonth)}</span>
               </div>
               <div className="intro-card">
                 <p className="intro-eyebrow">{t('intro.eyebrow')}</p>

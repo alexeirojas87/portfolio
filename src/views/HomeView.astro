@@ -5,7 +5,7 @@ import ProjectCard from '../components/ProjectCard.astro';
 import { useTranslations, localePath, type Locale } from '../i18n/ui';
 import { getProjects, t as tx } from '../lib/projects';
 import { CLASS_COLOR } from '../components/diagram/kinds';
-import { capabilityGroups, CAREER_START_YEAR } from '../lib/profile';
+import { capabilityGroups, CAREER_START_YEAR, CAREER_START_MONTH } from '../lib/profile';
 import BootIntro from '../components/BootIntro.tsx';
 import { countProjects } from '../lib/intro';
 
@@ -37,7 +37,7 @@ const featured = featuredSlugs
       } catch (e) {}
     })();
   </script>
-  <BootIntro client:load locale={locale} counts={countProjects(all)} sinceYear={CAREER_START_YEAR} />
+  <BootIntro client:load locale={locale} counts={countProjects(all)} sinceYear={CAREER_START_YEAR} sinceMonth={CAREER_START_MONTH} />
   <section class="wrap grid items-center gap-10 pb-14 pt-10 lg:grid-cols-[5fr_7fr] lg:gap-14 lg:pt-14">
     <div>
       <p class="eyebrow">{t('hero.eyebrow')}</p>
