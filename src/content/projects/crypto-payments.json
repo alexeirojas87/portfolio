@@ -1,0 +1,506 @@
+{
+  "slug": "crypto-payments",
+  "category": "corporate",
+  "title": {
+    "en": "Crypto Payments Platform",
+    "es": "Plataforma de pagos con criptomonedas"
+  },
+  "tagline": {
+    "en": "Distributed platform for merchants to accept payments in any cryptocurrency",
+    "es": "Plataforma distribuida para que comercios acepten pagos en cualquier criptomoneda"
+  },
+  "summary": {
+    "en": "A distributed payments platform that any merchant could integrate to accept payments in Bitcoin, Ethereum, Litecoin and other cryptocurrencies. Microservices on C#/.NET communicate through RabbitMQ: one receives and enqueues payment requests, another executes the payment on-chain with the user's wallet, and a third waits for confirmation and pushes the result to the client in real time through SignalR. State lives in SQL Server.",
+    "es": "Una plataforma de pagos distribuida que cualquier comercio podía integrar para aceptar pagos en Bitcoin, Ethereum, Litecoin y otras criptomonedas. Los microservicios en C#/.NET se comunican mediante RabbitMQ: uno recibe y encola solicitudes de pago, otro ejecuta el pago en la blockchain con la wallet del usuario, y un tercero espera la confirmación y entrega el resultado al cliente en tiempo real mediante SignalR. El estado vive en SQL Server."
+  },
+  "problem": {
+    "en": "Merchants wanted to accept cryptocurrency without building blockchain integrations themselves, yet on-chain payments are slow to confirm and can fail. The platform had to accept requests reliably, execute them safely, and tell clients the outcome as soon as it was final.",
+    "es": "Los comercios querían aceptar criptomonedas sin construir integraciones con blockchains, pero los pagos on-chain tardan en confirmarse y pueden fallar. La plataforma debía aceptar solicitudes de forma fiable, ejecutarlas con seguridad e informar al cliente el resultado en cuanto fuera definitivo."
+  },
+  "role": {
+    "en": "Backend engineer: microservices, messaging, real-time notifications",
+    "es": "Ingeniero backend: microservicios, mensajería, notificaciones en tiempo real"
+  },
+  "status": "production",
+  "year": "2021–2023",
+  "links": {
+    "live": null,
+    "github": null
+  },
+  "stack": [
+    {
+      "name": "C#",
+      "category": "language"
+    },
+    {
+      "name": ".NET",
+      "category": "backend"
+    },
+    {
+      "name": "ASP.NET Core",
+      "category": "backend"
+    },
+    {
+      "name": "RabbitMQ",
+      "category": "messaging"
+    },
+    {
+      "name": "SQL Server",
+      "category": "data"
+    },
+    {
+      "name": "SignalR",
+      "category": "backend"
+    },
+    {
+      "name": "Bitcoin, Ethereum, Litecoin nodes (RPC)",
+      "category": "other"
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Microservices decoupled by RabbitMQ: request intake, on-chain execution, confirmation tracking and notification scale and fail independently.",
+      "es": "Microservicios desacoplados por RabbitMQ: la recepción, la ejecución on-chain, el seguimiento de confirmaciones y la notificación escalan y fallan de forma independiente."
+    },
+    {
+      "en": "Payment API accepts and enqueues requests quickly, so merchants get an immediate acknowledgement while heavy work happens asynchronously.",
+      "es": "La API de pagos acepta y encola solicitudes rápidamente, de modo que el comercio recibe un acuse inmediato mientras el trabajo pesado ocurre de forma asíncrona."
+    },
+    {
+      "en": "Idempotent message processing so redelivered messages never submit the same payment twice.",
+      "es": "Procesamiento idempotente de mensajes para que un mensaje reentregado nunca envíe dos veces el mismo pago."
+    },
+    {
+      "en": "Execution separated from confirmation: a Confirmation Watcher tracks blockchain finality, which can take minutes, without blocking the executor.",
+      "es": "Ejecución separada de confirmación: un Confirmation Watcher sigue la finalidad en la blockchain, que puede tardar minutos, sin bloquear al ejecutor."
+    },
+    {
+      "en": "Real-time results pushed to clients through a SignalR hub instead of client polling.",
+      "es": "Resultados en tiempo real entregados al cliente mediante un hub de SignalR en lugar de polling."
+    },
+    {
+      "en": "Coin adapters give Bitcoin, Ethereum and Litecoin a common execution contract, and every payment state transition is persisted in SQL Server.",
+      "es": "Los adaptadores de moneda dan a Bitcoin, Ethereum y Litecoin un contrato de ejecución común, y cada transición de estado del pago se persiste en SQL Server."
+    }
+  ],
+  "decisions": [
+    {
+      "title": {
+        "en": "RabbitMQ as the bus between microservices",
+        "es": "RabbitMQ como bus entre microservicios"
+      },
+      "why": {
+        "en": "Queues absorb bursts, let each service scale on its own and keep accepted requests safe if a downstream service is down; failed messages go to a dead-letter queue for inspection.",
+        "es": "Las colas absorben picos, permiten escalar cada servicio por separado y mantienen seguras las solicitudes aceptadas si un servicio posterior cae; los mensajes fallidos van a una dead-letter queue para su revisión."
+      }
+    },
+    {
+      "title": {
+        "en": "Idempotent processing",
+        "es": "Procesamiento idempotente"
+      },
+      "why": {
+        "en": "Messaging is at-least-once, so each payment carries a unique key and handlers check persisted state before acting, preventing duplicate on-chain transactions.",
+        "es": "La mensajería es at-least-once, así que cada pago lleva una clave única y los handlers revisan el estado persistido antes de actuar, evitando transacciones on-chain duplicadas."
+      }
+    },
+    {
+      "title": {
+        "en": "Separate execution from confirmation",
+        "es": "Separar ejecución de confirmación"
+      },
+      "why": {
+        "en": "Broadcasting a transaction is quick but finality is slow and variable per chain. A dedicated watcher polls for confirmations and emits an event, so executors stay free.",
+        "es": "Emitir una transacción es rápido, pero la finalidad es lenta y variable según la cadena. Un watcher dedicado consulta las confirmaciones y emite un evento, así los ejecutores quedan libres."
+      }
+    },
+    {
+      "title": {
+        "en": "SignalR push instead of polling",
+        "es": "Push con SignalR en lugar de polling"
+      },
+      "why": {
+        "en": "Clients learn the outcome the moment the confirmation event arrives, with less load and lower latency than repeated status requests.",
+        "es": "Los clientes conocen el resultado en cuanto llega el evento de confirmación, con menos carga y menor latencia que consultas repetidas de estado."
+      }
+    },
+    {
+      "title": {
+        "en": "SQL Server as the system of record",
+        "es": "SQL Server como sistema de registro"
+      },
+      "why": {
+        "en": "Payment state and its history are relational and transactional, which makes recovery, reconciliation and auditing straightforward.",
+        "es": "El estado del pago y su historial son relacionales y transaccionales, lo que facilita recuperación, conciliación y auditoría."
+      }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      {
+        "id": "client",
+        "label": {
+          "en": "Merchant side",
+          "es": "Lado del comercio"
+        }
+      },
+      {
+        "id": "svc",
+        "label": {
+          "en": "Microservices",
+          "es": "Microservicios"
+        }
+      },
+      {
+        "id": "bus",
+        "label": {
+          "en": "Messaging",
+          "es": "Mensajería"
+        }
+      },
+      {
+        "id": "data",
+        "label": {
+          "en": "Data",
+          "es": "Datos"
+        }
+      },
+      {
+        "id": "chain",
+        "label": {
+          "en": "Blockchain",
+          "es": "Blockchain"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "merchant",
+        "label": "Merchant checkout / client",
+        "sublabel": {
+          "en": "Integrates and receives results",
+          "es": "Integra y recibe resultados"
+        },
+        "kind": "client",
+        "group": "client"
+      },
+      {
+        "id": "api",
+        "label": "Payment API",
+        "sublabel": {
+          "en": "Validates and accepts requests",
+          "es": "Valida y acepta solicitudes"
+        },
+        "kind": "gateway",
+        "group": "svc"
+      },
+      {
+        "id": "executor",
+        "label": "Payment Executor",
+        "sublabel": {
+          "en": "Executes payments on-chain",
+          "es": "Ejecuta pagos on-chain"
+        },
+        "kind": "worker",
+        "group": "svc"
+      },
+      {
+        "id": "adapters",
+        "label": "Coin adapters",
+        "sublabel": {
+          "en": "Bitcoin, Ethereum, Litecoin",
+          "es": "Bitcoin, Ethereum, Litecoin"
+        },
+        "kind": "service",
+        "group": "svc"
+      },
+      {
+        "id": "watcher",
+        "label": "Confirmation Watcher",
+        "sublabel": {
+          "en": "Tracks confirmations to finality",
+          "es": "Sigue confirmaciones hasta la finalidad"
+        },
+        "kind": "worker",
+        "group": "svc"
+      },
+      {
+        "id": "notifier",
+        "label": "Real-time Notifier",
+        "sublabel": {
+          "en": "SignalR hub",
+          "es": "Hub de SignalR"
+        },
+        "kind": "service",
+        "group": "svc"
+      },
+      {
+        "id": "reqq",
+        "label": "Payment requests queue",
+        "sublabel": {
+          "en": "RabbitMQ",
+          "es": "RabbitMQ"
+        },
+        "kind": "queue",
+        "group": "bus"
+      },
+      {
+        "id": "dlq",
+        "label": "Dead-letter queue",
+        "sublabel": {
+          "en": "Failed messages for review",
+          "es": "Mensajes fallidos para revisión"
+        },
+        "kind": "queue",
+        "group": "bus"
+      },
+      {
+        "id": "evtq",
+        "label": "Payment events queue",
+        "sublabel": {
+          "en": "RabbitMQ",
+          "es": "RabbitMQ"
+        },
+        "kind": "queue",
+        "group": "bus"
+      },
+      {
+        "id": "db",
+        "label": "SQL Server",
+        "sublabel": {
+          "en": "Payments, status history",
+          "es": "Pagos, historial de estados"
+        },
+        "kind": "db",
+        "group": "data"
+      },
+      {
+        "id": "wallet",
+        "label": "User wallet",
+        "sublabel": {
+          "en": "Funds and signing",
+          "es": "Fondos y firma"
+        },
+        "kind": "external",
+        "group": "chain"
+      },
+      {
+        "id": "chain",
+        "label": "Blockchain nodes",
+        "sublabel": {
+          "en": "RPC for each supported coin",
+          "es": "RPC por cada moneda soportada"
+        },
+        "kind": "external",
+        "group": "chain"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "merchant",
+        "to": "api",
+        "label": {
+          "en": "payment request",
+          "es": "solicitud de pago"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "api",
+        "to": "db",
+        "label": {
+          "en": "persist as pending",
+          "es": "persiste como pendiente"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "api",
+        "to": "reqq",
+        "label": {
+          "en": "enqueue request",
+          "es": "encola solicitud"
+        },
+        "async": true
+      },
+      {
+        "id": "e4",
+        "from": "reqq",
+        "to": "executor",
+        "label": {
+          "en": "consume request",
+          "es": "consume solicitud"
+        },
+        "async": true
+      },
+      {
+        "id": "e5",
+        "from": "executor",
+        "to": "wallet",
+        "label": {
+          "en": "sign with user wallet",
+          "es": "firma con wallet del usuario"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "executor",
+        "to": "adapters",
+        "label": {
+          "en": "select coin",
+          "es": "selecciona moneda"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "adapters",
+        "to": "chain",
+        "label": {
+          "en": "broadcast transaction",
+          "es": "emite transacción"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "executor",
+        "to": "db",
+        "label": {
+          "en": "record tx hash, submitted",
+          "es": "registra hash, enviado"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "reqq",
+        "to": "dlq",
+        "label": {
+          "en": "failed after retries",
+          "es": "fallido tras reintentos"
+        },
+        "async": true
+      },
+      {
+        "id": "e10",
+        "from": "watcher",
+        "to": "db",
+        "label": {
+          "en": "read submitted payments",
+          "es": "lee pagos enviados"
+        },
+        "async": false
+      },
+      {
+        "id": "e11",
+        "from": "watcher",
+        "to": "chain",
+        "label": {
+          "en": "poll confirmations",
+          "es": "consulta confirmaciones"
+        },
+        "async": false
+      },
+      {
+        "id": "e12",
+        "from": "watcher",
+        "to": "db",
+        "label": {
+          "en": "mark confirmed",
+          "es": "marca confirmado"
+        },
+        "async": false
+      },
+      {
+        "id": "e13",
+        "from": "watcher",
+        "to": "evtq",
+        "label": {
+          "en": "publish payment confirmed",
+          "es": "publica pago confirmado"
+        },
+        "async": true
+      },
+      {
+        "id": "e14",
+        "from": "evtq",
+        "to": "notifier",
+        "label": {
+          "en": "consume event",
+          "es": "consume evento"
+        },
+        "async": true
+      },
+      {
+        "id": "e15",
+        "from": "notifier",
+        "to": "merchant",
+        "label": {
+          "en": "push result via SignalR",
+          "es": "entrega resultado por SignalR"
+        },
+        "async": true
+      }
+    ],
+    "flows": [
+      {
+        "id": "f1",
+        "name": {
+          "en": "Payment request intake",
+          "es": "Recepción de solicitud de pago"
+        },
+        "description": {
+          "en": "The merchant client submits a payment request; the API validates and stores it as pending, then enqueues it and acknowledges immediately.",
+          "es": "El cliente del comercio envía una solicitud de pago; la API la valida y la guarda como pendiente, luego la encola y responde de inmediato."
+        },
+        "edges": [
+          "e1",
+          "e2",
+          "e3"
+        ]
+      },
+      {
+        "id": "f2",
+        "name": {
+          "en": "On-chain execution",
+          "es": "Ejecución on-chain"
+        },
+        "description": {
+          "en": "The executor consumes the request, signs with the user's wallet, selects the coin adapter, broadcasts the transaction through the node and records the transaction hash.",
+          "es": "El ejecutor consume la solicitud, firma con la wallet del usuario, selecciona el adaptador de moneda, emite la transacción por el nodo y registra el hash."
+        },
+        "edges": [
+          "e4",
+          "e5",
+          "e6",
+          "e7",
+          "e8"
+        ]
+      },
+      {
+        "id": "f3",
+        "name": {
+          "en": "Confirmation and real-time notification",
+          "es": "Confirmación y notificación en tiempo real"
+        },
+        "description": {
+          "en": "The watcher polls the chain until the payment is confirmed, updates SQL Server, publishes an event, and the notifier pushes the result to the client over SignalR.",
+          "es": "El watcher consulta la cadena hasta que el pago se confirma, actualiza SQL Server, publica un evento y el notificador entrega el resultado al cliente por SignalR."
+        },
+        "edges": [
+          "e10",
+          "e11",
+          "e12",
+          "e13",
+          "e14",
+          "e15"
+        ]
+      }
+    ]
+  }
+}

@@ -22,7 +22,7 @@
     "es": "Ingeniero líder y arquitecto: máquina de estados de flujos, gateway de LLM, integración de seguridad de prompts, superficie de herramientas MCP, memoria vectorial, diseño del indexador, portal y forma de despliegue."
   },
   "status": "production",
-  "year": "2026",
+  "year": "2024–2026",
   "links": {
     "live": null,
     "github": null
@@ -119,8 +119,8 @@
       "es": "Construí un gateway de LLM multi-proveedor con enrutamiento por rol, límites de tasa por rol, fallback entre proveedores con circuit breaker, continuación automática de respuestas truncadas, monitoreo de salud con alertas operativas y auditoría completa con archivado opcional de payloads."
     },
     {
-      "en": "Integrated an in-process prompt-safety layer driven by shared detection rules that blocks secrets, credentials and personal or payment data before any request leaves the trust boundary.",
-      "es": "Integré una capa de seguridad de prompts en proceso, guiada por reglas de detección compartidas, que bloquea secretos, credenciales y datos personales o de pago antes de que cualquier solicitud salga del límite de confianza."
+      "en": "Integrated Cerberus, an in-process prompt-safety layer driven by shared detection rules that blocks secrets, credentials and personal or payment data before any request leaves the trust boundary.",
+      "es": "Integré Cerberus, una capa de seguridad de prompts en proceso, guiada por reglas de detección compartidas, que bloquea secretos, credenciales y datos personales o de pago antes de que cualquier solicitud salga del límite de confianza."
     },
     {
       "en": "Implemented an MCP server exposing least-privilege tools for work-item reading and tagging, branch, file and pull-request operations, code-graph queries, vector memory and test execution, with role-scoped permissions and audit records enforced at runtime.",
@@ -166,8 +166,8 @@
         "es": "Seguridad de prompts como compuerta previa en proceso"
       },
       "why": {
-        "en": "Scanning before routing means sensitive content never reaches an external provider, with no extra network hop. Rules are shared data, so they evolve without redeploying the gateway.",
-        "es": "Escanear antes del enrutamiento garantiza que el contenido sensible nunca llegue a un proveedor externo, sin salto de red adicional. Las reglas son datos compartidos, por lo que evolucionan sin redesplegar el gateway."
+        "en": "Scanning with Cerberus before routing means sensitive content never reaches an external provider, with no extra network hop. Rules are shared data, so they evolve without redeploying the gateway.",
+        "es": "Escanear con Cerberus antes del enrutamiento garantiza que el contenido sensible nunca llegue a un proveedor externo, sin salto de red adicional. Las reglas son datos compartidos, por lo que evolucionan sin redesplegar el gateway."
       }
     },
     {
@@ -379,11 +379,8 @@
       },
       {
         "id": "safety",
-        "label": "Prompt Safety Scanner",
-        "sublabel": {
-          "en": "In-process detection of secrets and sensitive data",
-          "es": "Detección en proceso de secretos y datos sensibles"
-        },
+        "label": "Cerberus",
+        "sublabel": { "en": "Prompt-safety layer · input analysis", "es": "Capa de seguridad de prompts · análisis de entrada" },
         "kind": "ai",
         "group": "gw"
       },

@@ -1,68 +1,685 @@
 {
-"slug":"player-mesh","category":"personal",
-"title":{"en":"PlayerMesh — Global Player Identity Platform","es":"PlayerMesh — Plataforma de Identidad Global de Jugadores"},
-"tagline":{"en":"Docker-first identity platform for games, with built-in observability","es":"Plataforma de identidad para juegos, Docker-first, con observabilidad integrada"},
-"summary":{"en":"PlayerMesh is a portfolio platform specified as a single global player identity shared across multiple games, with per-game accounts, devices and security-sensitive account changes. It is driven by a detailed build specification and built milestone by milestone. So far the repo holds a Spring Boot identity-core skeleton, a local dependency and observability tier, and a Next.js clickable mockup of the player portal and Control Center.","es":"PlayerMesh es una plataforma de portafolio especificada como una identidad global única de jugador compartida entre varios juegos, con cuentas por juego, dispositivos y cambios de cuenta sensibles. Se construye por hitos a partir de una especificación detallada. Hoy el repositorio contiene un esqueleto Spring Boot de identity-core, un nivel local de dependencias y observabilidad, y un mockup navegable en Next.js del portal y el Control Center."},
-"problem":{"en":"Players want one durable identity across games and devices, while operators need safety, reliability and visibility into failures. The project explores how to model and operate that with honest, measurable evidence rather than invented dashboards.","es":"Los jugadores quieren una identidad duradera entre juegos y dispositivos, y los operadores necesitan seguridad, fiabilidad y visibilidad de fallos. El proyecto explora cómo modelarlo y operarlo con evidencia medible y honesta, sin paneles inventados."},
-"role":{"en":"Solo: specification, architecture, backend foundation, infrastructure, portal mockup","es":"Individual: especificación, arquitectura, base del backend, infraestructura, mockup del portal"},
-"status":"in-progress","year":"2026",
-"links":{"live":null,"github":null},
-"stack":[
-{"name":"Java 21","category":"language"},
-{"name":"Spring Boot 4","category":"backend"},
-{"name":"Gradle (Kotlin DSL)","category":"devops"},
-{"name":"Next.js 16 / React 19","category":"frontend"},
-{"name":"Tailwind CSS 4","category":"frontend"},
-{"name":"DynamoDB Local","category":"data"},
-{"name":"Redis","category":"data"},
-{"name":"Redpanda (Kafka API)","category":"messaging"},
-{"name":"OpenTelemetry Collector","category":"devops"},
-{"name":"Prometheus / Loki / Tempo / Grafana","category":"devops"},
-{"name":"Docker Compose","category":"devops"},
-{"name":"Mailpit","category":"other"}],
-"highlights":[
-{"en":"Single root compose.yaml runs the whole local platform: identity-core, portal, pinned tools container, DynamoDB Local, Redis, Redpanda with console, mail sink and a full observability stack.","es":"Un compose.yaml raíz levanta toda la plataforma local: identity-core, portal, contenedor de herramientas fijado, DynamoDB Local, Redis, Redpanda con consola, sink de correo y stack completo de observabilidad."},
-{"en":"Reproducible, supply-chain-conscious builds: every image tag verified for amd64 and arm64, none on latest, Gradle distribution checksum pinned, non-root multi-stage Dockerfile whose build stage runs the tests.","es":"Builds reproducibles y conscientes de la cadena de suministro: cada tag verificado para amd64 y arm64, ninguno en latest, checksum de Gradle fijado, Dockerfile multi-stage no-root cuyo build ejecuta los tests."},
-{"en":"Least-exposure networking: data services publish nothing to the host; only the console, mail UI and Grafana bind to 127.0.0.1.","es":"Red con mínima exposición: los servicios de datos no publican nada al host; solo la consola, la UI de correo y Grafana escuchan en 127.0.0.1."},
-{"en":"Real health checks, such as a wire-level DynamoDB ListTables probe and Redis PING, rather than port checks.","es":"Health checks reales, como una sonda ListTables a nivel de protocolo en DynamoDB y PING en Redis, en lugar de simples chequeos de puerto."},
-{"en":"Clickable portal and Control Center mockup (identity, sessions, account linking, OTP, MFA, games, events, traces, incidents, chaos) with a typed fixture and state registry.","es":"Mockup navegable del portal y Control Center (identidad, sesiones, vinculación de cuentas, OTP, MFA, juegos, eventos, trazas, incidentes, caos) con registro tipado de fixtures y estados."},
-{"en":"Domain-first identity code: a tested player-handle policy with request-ID filter and OpenTelemetry log correlation.","es":"Código de identidad orientado al dominio: política de handles de jugador con tests, filtro de request-ID y correlación de logs con OpenTelemetry."}],
-"decisions":[
-{"title":{"en":"Spec-first, milestone-gated delivery","es":"Entrega guiada por especificación e hitos"},"why":{"en":"A 1,100-line master spec with stable requirement IDs and evidence mapping prevents building empty services; each milestone must produce a verifiable vertical slice.","es":"Una especificación maestra de más de 1.100 líneas con IDs de requisito y mapeo de evidencia evita construir servicios vacíos; cada hito debe producir un corte vertical verificable."}},
-{"title":{"en":"Docker-first with pinned toolchains","es":"Docker-first con toolchains fijados"},"why":{"en":"The host only needs Docker; JDK, Gradle and images are pinned so anyone can reproduce the same build and test result.","es":"El host solo necesita Docker; JDK, Gradle e imágenes están fijados para que cualquiera reproduzca el mismo build y resultado de tests."}},
-{"title":{"en":"DynamoDB access-pattern design with Redpanda events","es":"Diseño por patrones de acceso en DynamoDB con eventos en Redpanda"},"why":{"en":"The specification plans conditional writes, an outbox and idempotent consumers over a Kafka-compatible broker; the dependency tier is already provisioned for it, while the services using it are still to be built.","es":"La especificación prevé escrituras condicionales, outbox y consumidores idempotentes sobre un broker compatible con Kafka; el nivel de dependencias ya está listo, aunque los servicios que lo usan aún no se construyen."}},
-{"title":{"en":"Mockup before implementation","es":"Mockup antes de la implementación"},"why":{"en":"Account, security and operator flows are validated visually, with states and accessibility audited, before backend contracts are committed.","es":"Los flujos de cuenta, seguridad y operador se validan visualmente, con estados y accesibilidad auditados, antes de fijar los contratos del backend."}},
-{"title":{"en":"Observability from the foundation","es":"Observabilidad desde la base"},"why":{"en":"Collector, metrics, logs and traces exist before the first game integration, so reliability claims can be measured.","es":"Colector, métricas, logs y trazas existen antes de la primera integración con un juego, de modo que las afirmaciones de fiabilidad puedan medirse."}}],
-"architecture":{
-"groups":[{"id":"client","label":{"en":"Clients","es":"Clientes"}},{"id":"app","label":{"en":"Application tier","es":"Nivel de aplicación"}},{"id":"deps","label":{"en":"Dependency tier","es":"Nivel de dependencias"}},{"id":"obs","label":{"en":"Observability","es":"Observabilidad"}}],
-"nodes":[
-{"id":"browser","label":"Browser","sublabel":{"en":"Player and operator","es":"Jugador y operador"},"kind":"client","group":"client"},
-{"id":"portal","label":"Portal (Next.js)","sublabel":{"en":"Identity UI and Control Center mockup","es":"UI de identidad y mockup del Control Center"},"kind":"service","group":"app"},
-{"id":"identity","label":"identity-core (Spring Boot)","sublabel":{"en":"Handle policy, health, request-ID, OTel logs","es":"Política de handles, health, request-ID, logs OTel"},"kind":"service","group":"app"},
-{"id":"ddb","label":"DynamoDB Local","sublabel":{"en":"Planned identity store","es":"Almacén de identidad planificado"},"kind":"db","group":"deps"},
-{"id":"redis","label":"Redis","sublabel":{"en":"Planned cache","es":"Caché planificada"},"kind":"cache","group":"deps"},
-{"id":"redpanda","label":"Redpanda","sublabel":{"en":"Planned event backbone","es":"Backbone de eventos planificado"},"kind":"queue","group":"deps"},
-{"id":"mail","label":"Mailpit","sublabel":{"en":"Local email sink for OTP","es":"Sink local de correo para OTP"},"kind":"external","group":"deps"},
-{"id":"otel","label":"OTel Collector","sublabel":{"en":"Receives telemetry","es":"Recibe telemetría"},"kind":"worker","group":"obs"},
-{"id":"prom","label":"Prometheus","sublabel":{"en":"Metrics and rules","es":"Métricas y reglas"},"kind":"db","group":"obs"},
-{"id":"loki","label":"Loki","sublabel":{"en":"Logs","es":"Logs"},"kind":"db","group":"obs"},
-{"id":"tempo","label":"Tempo","sublabel":{"en":"Traces","es":"Trazas"},"kind":"db","group":"obs"},
-{"id":"grafana","label":"Grafana","sublabel":{"en":"Dashboards","es":"Dashboards"},"kind":"service","group":"obs"}],
-"edges":[
-{"id":"e1","from":"browser","to":"portal","label":{"en":"HTTP :3000","es":"HTTP :3000"},"async":false},
-{"id":"e2","from":"portal","to":"identity","label":{"en":"identity API (planned)","es":"API de identidad (planificada)"},"async":false},
-{"id":"e3","from":"identity","to":"ddb","label":{"en":"conditional writes (planned)","es":"escrituras condicionales (planificado)"},"async":false},
-{"id":"e4","from":"identity","to":"redis","label":{"en":"cache (planned)","es":"caché (planificado)"},"async":false},
-{"id":"e5","from":"identity","to":"redpanda","label":{"en":"outbox events (planned)","es":"eventos outbox (planificado)"},"async":true},
-{"id":"e6","from":"identity","to":"mail","label":{"en":"OTP email (planned)","es":"correo OTP (planificado)"},"async":true},
-{"id":"e7","from":"identity","to":"otel","label":{"en":"traces, metrics, logs","es":"trazas, métricas, logs"},"async":true},
-{"id":"e8","from":"otel","to":"prom","label":{"en":"metrics","es":"métricas"},"async":true},
-{"id":"e9","from":"otel","to":"loki","label":{"en":"logs","es":"logs"},"async":true},
-{"id":"e10","from":"otel","to":"tempo","label":{"en":"traces","es":"trazas"},"async":true},
-{"id":"e11","from":"grafana","to":"prom","label":{"en":"query","es":"consulta"},"async":false},
-{"id":"e12","from":"grafana","to":"loki","label":{"en":"query","es":"consulta"},"async":false},
-{"id":"e13","from":"grafana","to":"tempo","label":{"en":"query","es":"consulta"},"async":false}],
-"flows":[
-{"id":"f1","name":{"en":"Telemetry path (implemented)","es":"Ruta de telemetría (implementada)"},"description":{"en":"identity-core emits telemetry to the collector, which fans out to the metric, log and trace backends that Grafana queries.","es":"identity-core emite telemetría al colector, que la distribuye a los backends de métricas, logs y trazas que consulta Grafana."},"edges":["e7","e8","e9","e10","e11","e12","e13"]},
-{"id":"f2","name":{"en":"Planned sign-in and event flow","es":"Flujo planificado de inicio de sesión y eventos"},"description":{"en":"Per the specification: a player signs in via the portal, identity-core persists and caches state, sends an OTP email and publishes events. Not yet implemented.","es":"Según la especificación: el jugador inicia sesión en el portal, identity-core persiste y cachea estado, envía un OTP y publica eventos. Aún no implementado."},"edges":["e1","e2","e3","e4","e6","e5"]}]}
+  "slug": "player-mesh",
+  "category": "personal",
+  "title": {
+    "en": "PlayerMesh — Global Player Identity Platform",
+    "es": "PlayerMesh — Plataforma de Identidad Global de Jugadores"
+  },
+  "tagline": {
+    "en": "Docker-first global player identity platform with built-in observability",
+    "es": "Plataforma de identidad global de jugadores, Docker-first, con observabilidad integrada"
+  },
+  "summary": {
+    "en": "PlayerMesh is a global player identity platform: one durable identity shared across multiple games, with per-game accounts, devices, OTP and MFA, and security-sensitive account changes. Identity Core, Game Services and a Risk Service sit behind per-app BFF endpoints, persist to DynamoDB with Redis caching, and publish outbox events through Redpanda to a platform worker. A Control Center and a full observability stack make failures visible and measurable.",
+    "es": "PlayerMesh es una plataforma de identidad global de jugadores: una identidad duradera compartida entre varios juegos, con cuentas por juego, dispositivos, OTP y MFA, y cambios de cuenta sensibles. Identity Core, Game Services y un Risk Service están detrás de endpoints BFF por aplicación, persisten en DynamoDB con caché Redis y publican eventos outbox mediante Redpanda hacia un worker de plataforma. Un Control Center y un stack completo de observabilidad hacen visibles y medibles los fallos."
+  },
+  "problem": {
+    "en": "Players want one durable identity across games and devices, while operators need safety, reliability and visibility into failures. The project explores how to model and operate that with honest, measurable evidence rather than invented dashboards.",
+    "es": "Los jugadores quieren una identidad duradera entre juegos y dispositivos, y los operadores necesitan seguridad, fiabilidad y visibilidad de fallos. El proyecto explora cómo modelarlo y operarlo con evidencia medible y honesta, sin paneles inventados."
+  },
+  "role": {
+    "en": "Solo: specification, architecture, backend foundation, infrastructure, portal mockup",
+    "es": "Individual: especificación, arquitectura, base del backend, infraestructura, mockup del portal"
+  },
+  "status": "in-progress",
+  "year": "2026",
+  "links": {
+    "live": null,
+    "github": null
+  },
+  "stack": [
+    {
+      "name": "Java 21",
+      "category": "language"
+    },
+    {
+      "name": "Spring Boot 4",
+      "category": "backend"
+    },
+    {
+      "name": "Gradle (Kotlin DSL)",
+      "category": "devops"
+    },
+    {
+      "name": "Next.js 16 / React 19",
+      "category": "frontend"
+    },
+    {
+      "name": "Tailwind CSS 4",
+      "category": "frontend"
+    },
+    {
+      "name": "Redis",
+      "category": "data"
+    },
+    {
+      "name": "Redpanda (Kafka API)",
+      "category": "messaging"
+    },
+    {
+      "name": "OpenTelemetry Collector",
+      "category": "devops"
+    },
+    {
+      "name": "Prometheus / Loki / Tempo / Grafana",
+      "category": "devops"
+    },
+    {
+      "name": "Docker Compose",
+      "category": "devops"
+    },
+    {
+      "name": "DynamoDB",
+      "category": "data"
+    },
+    {
+      "name": "Email provider (SMTP sink in local dev)",
+      "category": "other"
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Identity Core owns OTP, sessions, handle claims and the game-link registry; Game Services, Risk Service and a Platform Worker each own their own data and never read another service's tables.",
+      "es": "Identity Core gestiona OTP, sesiones, handles y el registro de vínculos con juegos; Game Services, Risk Service y un Platform Worker son dueños de sus propios datos y nunca leen tablas ajenas."
+    },
+    {
+      "en": "DynamoDB access-pattern design with conditional writes, plus a transactional outbox publishing to Redpanda and idempotent consumers.",
+      "es": "Diseño por patrones de acceso en DynamoDB con escrituras condicionales, más un outbox transaccional que publica en Redpanda y consumidores idempotentes."
+    },
+    {
+      "en": "Ports-and-adapters Java modules with dependency tests that forbid identity from importing game implementation classes.",
+      "es": "Módulos Java con puertos y adaptadores y tests de dependencias que prohíben a identity importar clases de implementación de juegos."
+    },
+    {
+      "en": "Control Center backed by an Observability API with fixed, authorized queries over Prometheus, Loki and Tempo, plus traces, incidents and chaos experiments.",
+      "es": "Control Center respaldado por una API de observabilidad con consultas fijas y autorizadas sobre Prometheus, Loki y Tempo, además de trazas, incidentes y experimentos de caos."
+    },
+    {
+      "en": "Reproducible, supply-chain-conscious builds: every image tag verified for amd64 and arm64, none on latest, pinned Gradle checksum, non-root multi-stage Dockerfile whose build stage runs the tests.",
+      "es": "Builds reproducibles y conscientes de la cadena de suministro: cada tag verificado para amd64 y arm64, ninguno en latest, checksum de Gradle fijado, Dockerfile multi-stage no-root cuyo build ejecuta los tests."
+    },
+    {
+      "en": "Least-exposure networking and real health checks (wire-level DynamoDB ListTables, Redis PING) instead of simple port checks.",
+      "es": "Red con mínima exposición y health checks reales (ListTables a nivel de protocolo en DynamoDB, PING en Redis) en lugar de simples chequeos de puerto."
+    }
+  ],
+  "decisions": [
+    {
+      "title": {
+        "en": "Spec-first, milestone-gated delivery",
+        "es": "Entrega guiada por especificación e hitos"
+      },
+      "why": {
+        "en": "A 1,100-line master spec with stable requirement IDs and evidence mapping prevents building empty services; each milestone produces a verifiable vertical slice.",
+        "es": "Una especificación maestra de más de 1.100 líneas con IDs de requisito y mapeo de evidencia evita construir servicios vacíos; cada hito produce un corte vertical verificable."
+      }
+    },
+    {
+      "title": {
+        "en": "Few cohesive deployables, strong module boundaries",
+        "es": "Pocos despliegables cohesivos, fronteras de módulo firmes"
+      },
+      "why": {
+        "en": "Identity, game-link registry and sessions share a transaction boundary so ownership checks are atomic, while services communicate only through APIs or events.",
+        "es": "Identity, el registro de vínculos y las sesiones comparten frontera transaccional para que las verificaciones de propiedad sean atómicas, y los servicios se comunican solo mediante APIs o eventos."
+      }
+    },
+    {
+      "title": {
+        "en": "Synchronous for authorization, asynchronous for everything else",
+        "es": "Síncrono para autorización, asíncrono para el resto"
+      },
+      "why": {
+        "en": "Audit, notifications and projections flow through Redpanda, so a broker outage delays projections but never erases already-committed player changes.",
+        "es": "Auditoría, notificaciones y proyecciones fluyen por Redpanda, de modo que una caída del broker retrasa proyecciones pero nunca borra cambios de jugador ya confirmados."
+      }
+    },
+    {
+      "title": {
+        "en": "Docker-first with pinned toolchains",
+        "es": "Docker-first con toolchains fijados"
+      },
+      "why": {
+        "en": "The host only needs Docker; JDK, Gradle and images are pinned so anyone can reproduce the same build and test result.",
+        "es": "El host solo necesita Docker; JDK, Gradle e imágenes están fijados para que cualquiera reproduzca el mismo build y resultado de tests."
+      }
+    },
+    {
+      "title": {
+        "en": "Observability from the foundation",
+        "es": "Observabilidad desde la base"
+      },
+      "why": {
+        "en": "Collector, metrics, logs and traces exist before the first game integration, so reliability claims are measured rather than asserted.",
+        "es": "Colector, métricas, logs y trazas existen antes de la primera integración con un juego, de modo que las afirmaciones de fiabilidad se miden en lugar de afirmarse."
+      }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      {
+        "id": "client",
+        "label": {
+          "en": "Clients",
+          "es": "Clientes"
+        }
+      },
+      {
+        "id": "app",
+        "label": {
+          "en": "Application tier",
+          "es": "Nivel de aplicación"
+        }
+      },
+      {
+        "id": "deps",
+        "label": {
+          "en": "Data and messaging",
+          "es": "Datos y mensajería"
+        }
+      },
+      {
+        "id": "obs",
+        "label": {
+          "en": "Observability",
+          "es": "Observabilidad"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "browser",
+        "label": "Browser",
+        "sublabel": {
+          "en": "Player and operator",
+          "es": "Jugador y operador"
+        },
+        "kind": "client",
+        "group": "client"
+      },
+      {
+        "id": "portal",
+        "label": "Portal & Control Center (Next.js)",
+        "sublabel": {
+          "en": "Identity UI and operator console",
+          "es": "UI de identidad y consola de operador"
+        },
+        "kind": "service",
+        "group": "app"
+      },
+      {
+        "id": "bff",
+        "label": "Per-app BFF",
+        "sublabel": {
+          "en": "Server-held sessions, credential mediation",
+          "es": "Sesiones en servidor, mediación de credenciales"
+        },
+        "kind": "gateway",
+        "group": "app"
+      },
+      {
+        "id": "identity",
+        "label": "Identity Core (Spring Boot)",
+        "sublabel": {
+          "en": "OTP, sessions, handles, game links",
+          "es": "OTP, sesiones, handles, vínculos con juegos"
+        },
+        "kind": "service",
+        "group": "app"
+      },
+      {
+        "id": "games",
+        "label": "Game Services (Spring Boot)",
+        "sublabel": {
+          "en": "Per-game accounts, progress, receipts",
+          "es": "Cuentas por juego, progreso, recibos"
+        },
+        "kind": "service",
+        "group": "app"
+      },
+      {
+        "id": "risk",
+        "label": "Risk Service (Spring Boot)",
+        "sublabel": {
+          "en": "Rules, assessments, trusted devices",
+          "es": "Reglas, evaluaciones, dispositivos de confianza"
+        },
+        "kind": "service",
+        "group": "app"
+      },
+      {
+        "id": "worker",
+        "label": "Platform Worker",
+        "sublabel": {
+          "en": "Audit, notifications, projections",
+          "es": "Auditoría, notificaciones, proyecciones"
+        },
+        "kind": "worker",
+        "group": "app"
+      },
+      {
+        "id": "obsapi",
+        "label": "Observability API",
+        "sublabel": {
+          "en": "Fixed authorized queries, incidents, chaos",
+          "es": "Consultas fijas autorizadas, incidentes, caos"
+        },
+        "kind": "service",
+        "group": "app"
+      },
+      {
+        "id": "ddb",
+        "label": "DynamoDB",
+        "sublabel": {
+          "en": "Identity, game, risk and projection tables",
+          "es": "Tablas de identidad, juegos, riesgo y proyecciones"
+        },
+        "kind": "db",
+        "group": "deps"
+      },
+      {
+        "id": "redis",
+        "label": "Redis",
+        "sublabel": {
+          "en": "Cache and quotas",
+          "es": "Caché y cuotas"
+        },
+        "kind": "cache",
+        "group": "deps"
+      },
+      {
+        "id": "redpanda",
+        "label": "Redpanda (Kafka API)",
+        "sublabel": {
+          "en": "Outbox event backbone",
+          "es": "Backbone de eventos outbox"
+        },
+        "kind": "queue",
+        "group": "deps"
+      },
+      {
+        "id": "mail",
+        "label": "Email provider",
+        "sublabel": {
+          "en": "OTP and notification delivery",
+          "es": "Entrega de OTP y notificaciones"
+        },
+        "kind": "external",
+        "group": "deps"
+      },
+      {
+        "id": "otel",
+        "label": "OTel Collector",
+        "sublabel": {
+          "en": "Receives traces, metrics, logs",
+          "es": "Recibe trazas, métricas y logs"
+        },
+        "kind": "worker",
+        "group": "obs"
+      },
+      {
+        "id": "prom",
+        "label": "Prometheus",
+        "sublabel": {
+          "en": "Metrics and rules",
+          "es": "Métricas y reglas"
+        },
+        "kind": "db",
+        "group": "obs"
+      },
+      {
+        "id": "loki",
+        "label": "Loki",
+        "sublabel": {
+          "en": "Logs",
+          "es": "Logs"
+        },
+        "kind": "db",
+        "group": "obs"
+      },
+      {
+        "id": "tempo",
+        "label": "Tempo",
+        "sublabel": {
+          "en": "Traces",
+          "es": "Trazas"
+        },
+        "kind": "db",
+        "group": "obs"
+      },
+      {
+        "id": "grafana",
+        "label": "Grafana",
+        "sublabel": {
+          "en": "Dashboards",
+          "es": "Dashboards"
+        },
+        "kind": "service",
+        "group": "obs"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "browser",
+        "to": "portal",
+        "label": {
+          "en": "HTTP :3000",
+          "es": "HTTP :3000"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "portal",
+        "to": "bff",
+        "label": {
+          "en": "session-bound requests",
+          "es": "solicitudes ligadas a sesión"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "bff",
+        "to": "identity",
+        "label": {
+          "en": "identity API",
+          "es": "API de identidad"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "bff",
+        "to": "games",
+        "label": {
+          "en": "game API",
+          "es": "API de juegos"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "identity",
+        "to": "risk",
+        "label": {
+          "en": "risk assessment",
+          "es": "evaluación de riesgo"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "identity",
+        "to": "ddb",
+        "label": {
+          "en": "conditional writes",
+          "es": "escrituras condicionales"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "games",
+        "to": "ddb",
+        "label": {
+          "en": "game-owned tables",
+          "es": "tablas propias del juego"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "identity",
+        "to": "redis",
+        "label": {
+          "en": "cache and quotas",
+          "es": "caché y cuotas"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "identity",
+        "to": "redpanda",
+        "label": {
+          "en": "outbox events",
+          "es": "eventos outbox"
+        },
+        "async": true
+      },
+      {
+        "id": "e10",
+        "from": "games",
+        "to": "redpanda",
+        "label": {
+          "en": "outbox events",
+          "es": "eventos outbox"
+        },
+        "async": true
+      },
+      {
+        "id": "e11",
+        "from": "redpanda",
+        "to": "worker",
+        "label": {
+          "en": "consume (idempotent)",
+          "es": "consume (idempotente)"
+        },
+        "async": true
+      },
+      {
+        "id": "e12",
+        "from": "redpanda",
+        "to": "risk",
+        "label": {
+          "en": "device signals",
+          "es": "señales de dispositivo"
+        },
+        "async": true
+      },
+      {
+        "id": "e13",
+        "from": "worker",
+        "to": "mail",
+        "label": {
+          "en": "OTP email",
+          "es": "correo OTP"
+        },
+        "async": true
+      },
+      {
+        "id": "e14",
+        "from": "worker",
+        "to": "ddb",
+        "label": {
+          "en": "audit and projections",
+          "es": "auditoría y proyecciones"
+        },
+        "async": false
+      },
+      {
+        "id": "e15",
+        "from": "portal",
+        "to": "obsapi",
+        "label": {
+          "en": "operator queries",
+          "es": "consultas de operador"
+        },
+        "async": false
+      },
+      {
+        "id": "e16",
+        "from": "obsapi",
+        "to": "prom",
+        "label": {
+          "en": "metric queries",
+          "es": "consultas de métricas"
+        },
+        "async": false
+      },
+      {
+        "id": "e17",
+        "from": "obsapi",
+        "to": "loki",
+        "label": {
+          "en": "log queries",
+          "es": "consultas de logs"
+        },
+        "async": false
+      },
+      {
+        "id": "e18",
+        "from": "obsapi",
+        "to": "tempo",
+        "label": {
+          "en": "trace queries",
+          "es": "consultas de trazas"
+        },
+        "async": false
+      },
+      {
+        "id": "e19",
+        "from": "identity",
+        "to": "otel",
+        "label": {
+          "en": "traces, metrics, logs",
+          "es": "trazas, métricas, logs"
+        },
+        "async": true
+      },
+      {
+        "id": "e20",
+        "from": "games",
+        "to": "otel",
+        "label": {
+          "en": "traces, metrics, logs",
+          "es": "trazas, métricas, logs"
+        },
+        "async": true
+      },
+      {
+        "id": "e21",
+        "from": "otel",
+        "to": "prom",
+        "label": {
+          "en": "metrics",
+          "es": "métricas"
+        },
+        "async": true
+      },
+      {
+        "id": "e22",
+        "from": "otel",
+        "to": "loki",
+        "label": {
+          "en": "logs",
+          "es": "logs"
+        },
+        "async": true
+      },
+      {
+        "id": "e23",
+        "from": "otel",
+        "to": "tempo",
+        "label": {
+          "en": "traces",
+          "es": "trazas"
+        },
+        "async": true
+      },
+      {
+        "id": "e24",
+        "from": "grafana",
+        "to": "prom",
+        "label": {
+          "en": "query",
+          "es": "consulta"
+        },
+        "async": false
+      },
+      {
+        "id": "e25",
+        "from": "grafana",
+        "to": "loki",
+        "label": {
+          "en": "query",
+          "es": "consulta"
+        },
+        "async": false
+      },
+      {
+        "id": "e26",
+        "from": "grafana",
+        "to": "tempo",
+        "label": {
+          "en": "query",
+          "es": "consulta"
+        },
+        "async": false
+      }
+    ],
+    "flows": [
+      {
+        "id": "f1",
+        "name": {
+          "en": "Player sign-in and events",
+          "es": "Inicio de sesión y eventos"
+        },
+        "description": {
+          "en": "A player signs in through the portal and BFF; Identity Core persists state with conditional writes, caches it, publishes an outbox event, and the Platform Worker consumes it to send the OTP email.",
+          "es": "El jugador inicia sesión mediante el portal y el BFF; Identity Core persiste con escrituras condicionales, cachea, publica un evento outbox y el Platform Worker lo consume para enviar el correo OTP."
+        },
+        "edges": [
+          "e1",
+          "e2",
+          "e3",
+          "e6",
+          "e8",
+          "e9",
+          "e11",
+          "e13"
+        ]
+      },
+      {
+        "id": "f2",
+        "name": {
+          "en": "Telemetry path",
+          "es": "Ruta de telemetría"
+        },
+        "description": {
+          "en": "Services emit telemetry to the collector, which fans out to the metric, log and trace backends that Grafana queries.",
+          "es": "Los servicios emiten telemetría al colector, que la distribuye a los backends de métricas, logs y trazas que consulta Grafana."
+        },
+        "edges": [
+          "e19",
+          "e21",
+          "e22",
+          "e23",
+          "e24",
+          "e25",
+          "e26"
+        ]
+      },
+      {
+        "id": "f3",
+        "name": {
+          "en": "Operator diagnostics",
+          "es": "Diagnóstico de operador"
+        },
+        "description": {
+          "en": "An operator opens the Control Center, which asks the Observability API for fixed, authorized queries over metrics, logs and traces.",
+          "es": "El operador abre el Control Center, que pide a la API de observabilidad consultas fijas y autorizadas sobre métricas, logs y trazas."
+        },
+        "edges": [
+          "e1",
+          "e15",
+          "e16",
+          "e17",
+          "e18"
+        ]
+      }
+    ]
+  }
 }

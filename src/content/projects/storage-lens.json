@@ -1,47 +1,515 @@
 {
-"slug":"storage-lens","category":"personal",
-"title":{"en":"StorageLens","es":"StorageLens"},
-"tagline":{"en":"Native macOS app that shows where disk space went and reclaims it safely","es":"App nativa de macOS que muestra a dónde se fue el disco y lo recupera con seguridad"},
-"summary":{"en":"StorageLens is a native macOS app, planned as a trustworthy disk analyzer paired with a curated, evidence-backed cleanup catalog. It is early-stage: the measurement kit (volume capacity, physical file size, Full Disk Access detection) and a first SwiftUI capacity screen are built and tested. The scanner, treemap and cleanup catalog are still on the plan.","es":"StorageLens es una app nativa de macOS, planificada como analizador de disco confiable junto a un catálogo de limpieza curado y respaldado por evidencia. Está en etapa temprana: el kit de medición (capacidad de volumen, tamaño físico de archivos, detección de Full Disk Access) y una primera pantalla SwiftUI de capacidad están construidos y probados. El escáner, el treemap y el catálogo de limpieza siguen en el plan."},
-"problem":{"en":"macOS Storage settings hide what uses the disk and report several free-space numbers that disagree. Existing cleaners are opaque. StorageLens aims to show accurate numbers first and only then offer informed, recoverable cleanup.","es":"Los ajustes de Almacenamiento de macOS ocultan qué ocupa el disco e informan varias cifras de espacio libre que no coinciden. Los limpiadores existentes son opacos. StorageLens busca mostrar números exactos primero y solo después ofrecer una limpieza informada y recuperable."},
-"role":{"en":"Solo: product plan, architecture, Swift implementation","es":"Individual: plan de producto, arquitectura, implementación en Swift"},
-"status":"prototype","year":"2026",
-"links":{"live":null,"github":null},
-"stack":[
-{"name":"Swift 6","category":"language"},
-{"name":"SwiftUI","category":"frontend"},
-{"name":"Swift Package Manager","category":"devops"},
-{"name":"XcodeGen","category":"devops"},
-{"name":"Darwin APIs (statfs)","category":"backend"},
-{"name":"XCTest","category":"testing"}],
-"highlights":[
-{"en":"Capacity accounting surfaces the distinct free-space figures macOS reports (including purgeable space) instead of collapsing them into one misleading number.","es":"La contabilidad de capacidad muestra las distintas cifras de espacio libre que reporta macOS (incluido el espacio purgable) en lugar de reducirlas a un número engañoso."},
-{"en":"Measurement logic lives in a dependency-free local Swift package (StorageLensKit), separate from the SwiftUI app target, and covered by unit tests including comparison against system output.","es":"La lógica de medición vive en un paquete Swift local sin dependencias (StorageLensKit), separado del target SwiftUI, y está cubierta por tests unitarios, incluida la comparación con la salida del sistema."},
-{"en":"Full Disk Access probe returns a tri-state (granted, denied, unknown) rather than a Bool, so the UI can degrade honestly when it cannot tell.","es":"La sonda de Full Disk Access devuelve tres estados (concedido, denegado, desconocido) en lugar de un Bool, para que la UI degrade con honestidad cuando no puede saberlo."},
-{"en":"Xcode project is generated from a versioned XcodeGen spec, with Swift 6 strict settings, so the project file is never hand-edited.","es":"El proyecto Xcode se genera desde una especificación XcodeGen versionada, con ajustes estrictos de Swift 6, por lo que nunca se edita a mano."},
-{"en":"A written product and technical plan defines MVP scope, non-goals and conservative deletion semantics (Trash by default, dry-run, undo) before any deletion code exists.","es":"Un plan técnico y de producto escrito define el alcance del MVP, los no-objetivos y una semántica de borrado conservadora (Papelera por defecto, dry-run, deshacer) antes de escribir código de borrado."}],
-"decisions":[
-{"title":{"en":"Native Swift instead of a cross-platform stack","es":"Swift nativo en lugar de un stack multiplataforma"},"why":{"en":"Correct file semantics need low-level APIs: physical allocation via st_blocks, fast traversal via getattrlistbulk, and accurate volume stats via statfs.","es":"La semántica correcta de archivos requiere APIs de bajo nivel: asignación física con st_blocks, recorrido rápido con getattrlistbulk y estadísticas de volumen exactas con statfs."}},
-{"title":{"en":"Measurement kit separated from the UI","es":"Kit de medición separado de la UI"},"why":{"en":"A package with no external dependencies keeps the core testable and reusable, while formatting stays a UI concern.","es":"Un paquete sin dependencias externas mantiene el núcleo testeable y reutilizable, y el formateo queda como responsabilidad de la UI."}},
-{"title":{"en":"The catalog is the product, not the treemap","es":"El catálogo es el producto, no el treemap"},"why":{"en":"Visualizers and cleaners already exist; the differentiator planned is a versioned catalog of cleanup targets with risk tiers and plain-language consequences.","es":"Ya existen visualizadores y limpiadores; el diferenciador planeado es un catálogo versionado de objetivos de limpieza con niveles de riesgo y consecuencias explicadas."}},
-{"title":{"en":"Non-sandboxed, Developer ID distribution","es":"Distribución sin sandbox, con Developer ID"},"why":{"en":"Scanning the whole disk requires Full Disk Access, which does not fit the App Store sandbox; the plan targets a notarized DMG.","es":"Escanear todo el disco requiere Full Disk Access, que no encaja en el sandbox de la App Store; el plan apunta a un DMG notarizado."}}],
-"architecture":{
-"groups":[{"id":"app","label":{"en":"SwiftUI app","es":"App SwiftUI"}},{"id":"kit","label":{"en":"StorageLensKit package","es":"Paquete StorageLensKit"}},{"id":"os","label":{"en":"macOS","es":"macOS"}}],
-"nodes":[
-{"id":"view","label":"DiskSummaryView","sublabel":{"en":"Capacity screen and access banner","es":"Pantalla de capacidad y banner de acceso"},"kind":"client","group":"app"},
-{"id":"model","label":"DiskSummaryModel","sublabel":{"en":"Presentation state","es":"Estado de presentación"},"kind":"service","group":"app"},
-{"id":"vol","label":"VolumeStats","sublabel":{"en":"Capacity accounting per volume","es":"Contabilidad de capacidad por volumen"},"kind":"service","group":"kit"},
-{"id":"size","label":"FileSize","sublabel":{"en":"Physical allocation measurement","es":"Medición de asignación física"},"kind":"service","group":"kit"},
-{"id":"fda","label":"FullDiskAccess","sublabel":{"en":"Tri-state permission probe","es":"Sonda de permiso de tres estados"},"kind":"service","group":"kit"},
-{"id":"sys","label":"statfs / file attributes","sublabel":{"en":"Darwin system calls","es":"Llamadas de sistema Darwin"},"kind":"external","group":"os"},
-{"id":"tcc","label":"Full Disk Access (TCC)","sublabel":{"en":"Privacy permission","es":"Permiso de privacidad"},"kind":"external","group":"os"}],
-"edges":[
-{"id":"e1","from":"view","to":"model","label":{"en":"observes","es":"observa"},"async":false},
-{"id":"e2","from":"model","to":"vol","label":{"en":"load capacity","es":"carga capacidad"},"async":false},
-{"id":"e3","from":"model","to":"fda","label":{"en":"probe access","es":"sondea acceso"},"async":false},
-{"id":"e4","from":"vol","to":"sys","label":{"en":"statfs","es":"statfs"},"async":false},
-{"id":"e5","from":"fda","to":"tcc","label":{"en":"attempt protected read","es":"intenta lectura protegida"},"async":false},
-{"id":"e6","from":"size","to":"sys","label":{"en":"read allocated blocks","es":"lee bloques asignados"},"async":false}],
-"flows":[
-{"id":"f1","name":{"en":"Show disk capacity","es":"Mostrar capacidad del disco"},"description":{"en":"The view asks the model for capacity; the kit calls statfs and returns the distinct free-space figures, and the model also checks Full Disk Access to show a banner if needed.","es":"La vista pide la capacidad al modelo; el kit llama a statfs y devuelve las cifras de espacio libre, y el modelo también revisa Full Disk Access para mostrar un banner si hace falta."},"edges":["e1","e2","e4","e3","e5"]}]}
+  "slug": "storage-lens",
+  "category": "personal",
+  "title": {
+    "en": "StorageLens",
+    "es": "StorageLens"
+  },
+  "tagline": {
+    "en": "Native macOS app that shows where disk space went and reclaims it safely",
+    "es": "App nativa de macOS que muestra a dónde se fue el disco y lo recupera con seguridad"
+  },
+  "summary": {
+    "en": "StorageLens is a native macOS app that explains where disk space went. It reports the distinct free-space figures macOS exposes, scans the volume into a squarified treemap and category bar, and offers a curated, versioned catalog of cleanup targets with risk tiers and plain-language consequences. Deletion goes to the Trash by default, with a dry-run plan, an operation log and a verified space delta.",
+    "es": "StorageLens es una app nativa de macOS que explica a dónde se fue el espacio en disco. Muestra las distintas cifras de espacio libre que expone macOS, escanea el volumen en un treemap escuadrado y una barra de categorías, y ofrece un catálogo curado y versionado de objetivos de limpieza con niveles de riesgo y consecuencias explicadas. El borrado va a la Papelera por defecto, con plan en dry-run, registro de operaciones y delta de espacio verificado."
+  },
+  "problem": {
+    "en": "macOS Storage settings hide what uses the disk and report several free-space numbers that disagree. Existing cleaners are opaque. StorageLens shows accurate numbers first and only then offers informed, recoverable cleanup.",
+    "es": "Los ajustes de Almacenamiento de macOS ocultan qué usa el disco y muestran varias cifras de espacio libre que no coinciden. Los limpiadores existentes son opacos. StorageLens muestra primero números exactos y solo después ofrece una limpieza informada y recuperable."
+  },
+  "role": {
+    "en": "Solo: product plan, architecture, Swift implementation",
+    "es": "Individual: plan de producto, arquitectura, implementación en Swift"
+  },
+  "status": "in-progress",
+  "year": "2026",
+  "links": {
+    "live": null,
+    "github": null
+  },
+  "stack": [
+    {
+      "name": "Swift 6",
+      "category": "language"
+    },
+    {
+      "name": "SwiftUI",
+      "category": "frontend"
+    },
+    {
+      "name": "Swift Package Manager",
+      "category": "devops"
+    },
+    {
+      "name": "XcodeGen",
+      "category": "devops"
+    },
+    {
+      "name": "Darwin APIs (statfs)",
+      "category": "backend"
+    },
+    {
+      "name": "XCTest",
+      "category": "testing"
+    },
+    {
+      "name": "SMAppService + XPC",
+      "category": "backend"
+    },
+    {
+      "name": "getattrlistbulk",
+      "category": "backend"
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Capacity accounting surfaces the distinct free-space figures macOS reports (including purgeable space) instead of collapsing them into one misleading number.",
+      "es": "La contabilidad de capacidad muestra las distintas cifras de espacio libre que reporta macOS (incluido el espacio purgable) en lugar de reducirlas a un número engañoso."
+    },
+    {
+      "en": "Streaming, cancellable scanner built on getattrlistbulk with bounded concurrency, measuring physical allocation, feeding a squarified treemap and a category bar.",
+      "es": "Escáner en streaming y cancelable sobre getattrlistbulk con concurrencia acotada, que mide la asignación física y alimenta un treemap escuadrado y una barra de categorías."
+    },
+    {
+      "en": "Versioned JSON catalog of cleanup targets with risk tiers (safe, low, judgment, never), regeneration cost and evidence for every claim, correctable without shipping a new binary.",
+      "es": "Catálogo JSON versionado de objetivos de limpieza con niveles de riesgo (seguro, bajo, criterio, nunca), costo de regeneración y evidencia para cada afirmación, corregible sin publicar un nuevo binario."
+    },
+    {
+      "en": "Conservative deletion semantics: Trash by default, dry-run plan, operation log, undo, and a re-stat of the volume to report the real reclaimed delta.",
+      "es": "Semántica de borrado conservadora: Papelera por defecto, plan en dry-run, registro de operaciones, deshacer y un nuevo stat del volumen para informar el delta real recuperado."
+    },
+    {
+      "en": "Measurement logic lives in a dependency-free local Swift package (StorageLensKit), separate from the SwiftUI target, with fixture-based unit tests and comparison against system output.",
+      "es": "La lógica de medición vive en un paquete Swift local sin dependencias (StorageLensKit), separado del target SwiftUI, con tests unitarios sobre fixtures y comparación con la salida del sistema."
+    },
+    {
+      "en": "Full Disk Access probe returns a tri-state (granted, denied, unknown) so the UI degrades honestly; Xcode project is generated from a versioned XcodeGen spec.",
+      "es": "La sonda de Full Disk Access devuelve tres estados (concedido, denegado, desconocido) para que la UI degrade con honestidad; el proyecto Xcode se genera desde una especificación XcodeGen versionada."
+    }
+  ],
+  "decisions": [
+    {
+      "title": {
+        "en": "Native Swift instead of a cross-platform stack",
+        "es": "Swift nativo en lugar de un stack multiplataforma"
+      },
+      "why": {
+        "en": "Correct file semantics need low-level APIs: physical allocation via st_blocks, fast traversal via getattrlistbulk, and accurate volume stats via statfs.",
+        "es": "La semántica correcta de archivos requiere APIs de bajo nivel: asignación física con st_blocks, recorrido rápido con getattrlistbulk y estadísticas de volumen exactas con statfs."
+      }
+    },
+    {
+      "title": {
+        "en": "Measurement kit separated from the UI",
+        "es": "Kit de medición separado de la UI"
+      },
+      "why": {
+        "en": "A package with no external dependencies keeps scanner, accounting math and catalog matching testable on synthetic trees, without a real multi-hundred-GB disk.",
+        "es": "Un paquete sin dependencias externas mantiene escáner, matemática de contabilidad y coincidencia de catálogo testeables sobre árboles sintéticos, sin un disco real de cientos de GB."
+      }
+    },
+    {
+      "title": {
+        "en": "The catalog is the product, not the treemap",
+        "es": "El catálogo es el producto, no el treemap"
+      },
+      "why": {
+        "en": "Visualizers and cleaners already exist; the differentiator is a versioned catalog of cleanup targets with risk tiers, evidence and plain-language consequences.",
+        "es": "Ya existen visualizadores y limpiadores; el diferenciador es un catálogo versionado de objetivos de limpieza con niveles de riesgo, evidencia y consecuencias explicadas."
+      }
+    },
+    {
+      "title": {
+        "en": "Trash-first deletion with verified results",
+        "es": "Borrado con Papelera primero y resultados verificados"
+      },
+      "why": {
+        "en": "Recoverable removal via NSWorkspace, exact paths shown before acting, and a re-stat after cleanup so success is never claimed from a return code alone; root-owned paths use a minimal privileged helper.",
+        "es": "Eliminación recuperable mediante NSWorkspace, rutas exactas antes de actuar y un nuevo stat tras la limpieza, de modo que el éxito nunca se afirma solo por un código de retorno; las rutas de root usan un helper privilegiado mínimo."
+      }
+    },
+    {
+      "title": {
+        "en": "Non-sandboxed, Developer ID distribution",
+        "es": "Distribución sin sandbox, con Developer ID"
+      },
+      "why": {
+        "en": "Scanning the whole disk requires Full Disk Access, which does not fit the App Store sandbox; the app ships as a notarized DMG.",
+        "es": "Escanear todo el disco requiere Full Disk Access, que no encaja en el sandbox de la App Store; la app se distribuye como DMG notarizado."
+      }
+    }
+  ],
+  "architecture": {
+    "groups": [
+      {
+        "id": "app",
+        "label": {
+          "en": "SwiftUI app",
+          "es": "App SwiftUI"
+        }
+      },
+      {
+        "id": "kit",
+        "label": {
+          "en": "StorageLensKit package",
+          "es": "Paquete StorageLensKit"
+        }
+      },
+      {
+        "id": "res",
+        "label": {
+          "en": "Resources",
+          "es": "Recursos"
+        }
+      },
+      {
+        "id": "os",
+        "label": {
+          "en": "macOS",
+          "es": "macOS"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "view",
+        "label": "Treemap & Cleanup UI",
+        "sublabel": {
+          "en": "Treemap, category bar, cleanup sheets",
+          "es": "Treemap, barra de categorías, hojas de limpieza"
+        },
+        "kind": "client",
+        "group": "app"
+      },
+      {
+        "id": "model",
+        "label": "App model",
+        "sublabel": {
+          "en": "Observable presentation state",
+          "es": "Estado de presentación observable"
+        },
+        "kind": "service",
+        "group": "app"
+      },
+      {
+        "id": "vol",
+        "label": "VolumeProbe",
+        "sublabel": {
+          "en": "Capacity accounting per volume",
+          "es": "Contabilidad de capacidad por volumen"
+        },
+        "kind": "service",
+        "group": "kit"
+      },
+      {
+        "id": "scanner",
+        "label": "ScannerEngine",
+        "sublabel": {
+          "en": "Bounded, streaming, cancellable scan",
+          "es": "Escaneo acotado, en streaming y cancelable"
+        },
+        "kind": "worker",
+        "group": "kit"
+      },
+      {
+        "id": "catengine",
+        "label": "CatalogEngine",
+        "sublabel": {
+          "en": "Load, match, size, safety",
+          "es": "Carga, coincidencia, tamaño, seguridad"
+        },
+        "kind": "service",
+        "group": "kit"
+      },
+      {
+        "id": "cleanup",
+        "label": "CleanupEngine",
+        "sublabel": {
+          "en": "Dry-run, remove, verify delta, undo",
+          "es": "Dry-run, eliminar, verificar delta, deshacer"
+        },
+        "kind": "service",
+        "group": "kit"
+      },
+      {
+        "id": "fda",
+        "label": "FullDiskAccess",
+        "sublabel": {
+          "en": "Tri-state permission probe",
+          "es": "Sonda de permiso de tres estados"
+        },
+        "kind": "service",
+        "group": "kit"
+      },
+      {
+        "id": "catalog",
+        "label": "Cleanup catalog",
+        "sublabel": {
+          "en": "Versioned JSON: targets, risk tiers, evidence",
+          "es": "JSON versionado: objetivos, riesgo, evidencia"
+        },
+        "kind": "storage",
+        "group": "res"
+      },
+      {
+        "id": "oplog",
+        "label": "Operation log",
+        "sublabel": {
+          "en": "Paths, sizes, timestamps",
+          "es": "Rutas, tamaños, marcas de tiempo"
+        },
+        "kind": "storage",
+        "group": "res"
+      },
+      {
+        "id": "helper",
+        "label": "Privileged helper",
+        "sublabel": {
+          "en": "SMAppService XPC, known paths only",
+          "es": "SMAppService XPC, solo rutas conocidas"
+        },
+        "kind": "service",
+        "group": "os"
+      },
+      {
+        "id": "trash",
+        "label": "Trash (NSWorkspace)",
+        "sublabel": {
+          "en": "Recoverable removal",
+          "es": "Eliminación recuperable"
+        },
+        "kind": "external",
+        "group": "os"
+      },
+      {
+        "id": "sys",
+        "label": "statfs / getattrlistbulk",
+        "sublabel": {
+          "en": "Darwin system calls",
+          "es": "Llamadas de sistema Darwin"
+        },
+        "kind": "external",
+        "group": "os"
+      },
+      {
+        "id": "tcc",
+        "label": "Full Disk Access (TCC)",
+        "sublabel": {
+          "en": "Privacy permission",
+          "es": "Permiso de privacidad"
+        },
+        "kind": "external",
+        "group": "os"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "view",
+        "to": "model",
+        "label": {
+          "en": "observes",
+          "es": "observa"
+        },
+        "async": false
+      },
+      {
+        "id": "e2",
+        "from": "model",
+        "to": "vol",
+        "label": {
+          "en": "load capacity",
+          "es": "carga capacidad"
+        },
+        "async": false
+      },
+      {
+        "id": "e3",
+        "from": "model",
+        "to": "fda",
+        "label": {
+          "en": "probe access",
+          "es": "sondea acceso"
+        },
+        "async": false
+      },
+      {
+        "id": "e4",
+        "from": "model",
+        "to": "scanner",
+        "label": {
+          "en": "start scan",
+          "es": "inicia escaneo"
+        },
+        "async": false
+      },
+      {
+        "id": "e5",
+        "from": "model",
+        "to": "catengine",
+        "label": {
+          "en": "match catalog",
+          "es": "coincide catálogo"
+        },
+        "async": false
+      },
+      {
+        "id": "e6",
+        "from": "model",
+        "to": "cleanup",
+        "label": {
+          "en": "confirmed plan",
+          "es": "plan confirmado"
+        },
+        "async": false
+      },
+      {
+        "id": "e7",
+        "from": "vol",
+        "to": "sys",
+        "label": {
+          "en": "statfs",
+          "es": "statfs"
+        },
+        "async": false
+      },
+      {
+        "id": "e8",
+        "from": "scanner",
+        "to": "sys",
+        "label": {
+          "en": "read allocated blocks",
+          "es": "lee bloques asignados"
+        },
+        "async": false
+      },
+      {
+        "id": "e9",
+        "from": "fda",
+        "to": "tcc",
+        "label": {
+          "en": "attempt protected read",
+          "es": "intenta lectura protegida"
+        },
+        "async": false
+      },
+      {
+        "id": "e10",
+        "from": "catengine",
+        "to": "catalog",
+        "label": {
+          "en": "load targets",
+          "es": "carga objetivos"
+        },
+        "async": false
+      },
+      {
+        "id": "e11",
+        "from": "catengine",
+        "to": "scanner",
+        "label": {
+          "en": "size matched paths",
+          "es": "mide rutas coincidentes"
+        },
+        "async": false
+      },
+      {
+        "id": "e12",
+        "from": "cleanup",
+        "to": "trash",
+        "label": {
+          "en": "move to Trash",
+          "es": "mueve a la Papelera"
+        },
+        "async": false
+      },
+      {
+        "id": "e13",
+        "from": "cleanup",
+        "to": "helper",
+        "label": {
+          "en": "root-owned paths",
+          "es": "rutas de root"
+        },
+        "async": false
+      },
+      {
+        "id": "e14",
+        "from": "cleanup",
+        "to": "oplog",
+        "label": {
+          "en": "record action",
+          "es": "registra acción"
+        },
+        "async": false
+      },
+      {
+        "id": "e15",
+        "from": "cleanup",
+        "to": "vol",
+        "label": {
+          "en": "re-stat for real delta",
+          "es": "nuevo stat para delta real"
+        },
+        "async": false
+      }
+    ],
+    "flows": [
+      {
+        "id": "f1",
+        "name": {
+          "en": "Show disk capacity",
+          "es": "Mostrar capacidad del disco"
+        },
+        "description": {
+          "en": "The view asks the model for capacity; the kit calls statfs and returns the distinct free-space figures, and the model checks Full Disk Access to show a banner when needed.",
+          "es": "La vista pide la capacidad al modelo; el kit llama a statfs y devuelve las cifras de espacio libre, y el modelo revisa Full Disk Access para mostrar un banner si hace falta."
+        },
+        "edges": [
+          "e1",
+          "e2",
+          "e7",
+          "e3",
+          "e9"
+        ]
+      },
+      {
+        "id": "f2",
+        "name": {
+          "en": "Scan into a treemap",
+          "es": "Escanear a un treemap"
+        },
+        "description": {
+          "en": "The scanner walks the volume with getattrlistbulk, streaming physical sizes to the model, which renders the squarified treemap and category bar.",
+          "es": "El escáner recorre el volumen con getattrlistbulk y envía tamaños físicos en streaming al modelo, que dibuja el treemap escuadrado y la barra de categorías."
+        },
+        "edges": [
+          "e1",
+          "e4",
+          "e8"
+        ]
+      },
+      {
+        "id": "f3",
+        "name": {
+          "en": "Curated cleanup",
+          "es": "Limpieza curada"
+        },
+        "description": {
+          "en": "Catalog targets are matched and sized, shown with risk and consequences, then removed to the Trash (or via the helper), logged, and verified by re-measuring the volume.",
+          "es": "Los objetivos del catálogo se emparejan y miden, se muestran con riesgo y consecuencias, y luego se mueven a la Papelera (o vía helper), se registran y se verifican midiendo de nuevo el volumen."
+        },
+        "edges": [
+          "e5",
+          "e10",
+          "e11",
+          "e6",
+          "e12",
+          "e13",
+          "e14",
+          "e15"
+        ]
+      }
+    ]
+  }
 }
