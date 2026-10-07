@@ -17,7 +17,6 @@ const title = tx(p.title, locale);
   <div class="flex flex-1 flex-col gap-3 p-5">
     <div class="flex flex-wrap items-center gap-2">
       <StatusPill status={p.status} locale={locale} />
-      <span class="font-mono text-xs text-ink-2">{p.year}</span>
     </div>
     <h3 class="display-md text-xl">
       <a href={localePath(locale, `/projects/${p.slug}`)} class="after:absolute after:inset-0 after:content-[''] focus-visible:after:rounded-[18px]">{title}</a>

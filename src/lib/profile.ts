@@ -1,3 +1,6 @@
+/** Single source for "since" wording; never hard-code years of experience. */
+export const CAREER_START_YEAR = 2013;
+
 import type { KindClass } from '../components/diagram/kinds.ts';
 
 export interface CapabilityGroup {

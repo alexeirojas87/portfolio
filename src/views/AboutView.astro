@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { useTranslations, type Locale, type UiKey } from '../i18n/ui';
-import { capabilityGroups } from '../lib/profile';
+import { capabilityGroups, CAREER_START_YEAR } from '../lib/profile';
 import { CLASS_COLOR } from '../components/diagram/kinds';
 
 interface Props { locale: Locale }
@@ -10,11 +10,11 @@ const t = useTranslations(locale);
 const career = [1, 2, 3, 4].map((n) => ({ when: t(`about.career.${n}.when` as UiKey), what: t(`about.career.${n}.what` as UiKey) }));
 const research = [1, 2, 3, 4].map((n) => t(`about.research.${n}` as UiKey));
 ---
-<Base locale={locale} title={t('about.title')} description={t('about.lead')}>
+<Base locale={locale} title={t('about.title')} description={t('about.lead', { year: CAREER_START_YEAR })}>
   <div class="wrap pt-14">
     <p class="eyebrow">{t('about.eyebrow')}</p>
     <h1 class="display mt-3 text-[clamp(2.2rem,5vw,3.6rem)]">{t('about.title')}</h1>
-    <p class="mt-5 max-w-3xl font-display text-2xl font-bold leading-snug tracking-tight">{t('about.lead')}</p>
+    <p class="mt-5 max-w-3xl font-display text-2xl font-bold leading-snug tracking-tight">{t('about.lead', { year: CAREER_START_YEAR })}</p>
     <div class="mt-5 grid max-w-3xl gap-4 text-ink-2">
       <p>{t('about.summary.1')}</p>
       <p>{t('about.summary.2')}</p>

@@ -38,9 +38,8 @@ const links = [
         <p class="mt-2 max-w-3xl text-base text-ink-2 md:text-lg">{tx(p.tagline, locale)}</p>
       </div>
       <dl class="meta flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-        <div><dt class="eyebrow">{t('detail.year')}</dt><dd class="font-mono">{p.year}</dd></div>
-        <div><dt class="eyebrow">Status</dt><dd class="mt-0.5"><StatusPill status={p.status} locale={locale} /></dd></div>
-        <div class="max-w-md"><dt class="eyebrow">{t('detail.role')}</dt><dd class="text-[0.82rem] leading-snug">{tx(p.role, locale)}</dd></div>
+        <div><dt class="eyebrow">{t('detail.status')}</dt><dd class="mt-0.5"><StatusPill status={p.status} locale={locale} /></dd></div>
+        <div class="max-w-lg"><dt class="eyebrow">{t('detail.role')}</dt><dd class="text-[0.82rem] leading-snug">{tx(p.role, locale)}</dd></div>
         {links.map((l) => <a class="btn btn-ghost !px-3 !py-1.5 text-sm" href={l.href} rel="noopener" target="_blank">{l.label} <span aria-hidden="true">↗</span></a>)}
       </dl>
     </header>

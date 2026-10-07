@@ -57,6 +57,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - T5c done (`39abf7a`): 11 project files + agentic node details integrated; externals re-placed outside the boundary; crypto split into two 3-row views; layout tests now run over every project/view (<=10 nodes, <=3 rows, no route through a node, 390px fit). The "10 min" in apagones is a cache TTL, not the cron; the cron wording already says 30.
 - T5d done: hero shows titles + tech chips (vertical on phones), 3-line titles / up to 3-line sublabels with 128px nodes, hyphen-aware wrapping, very wide diagrams (>1400px) use full width with steps below. Commit `8fc42ed`.
 - T5e done: edge labels via `badges.ts` (dot for every step; wrapped, never truncated pill only for active/hovered/emphasised edge on a collision-free spot, else caption only; unit-tested over all projects), min diagram scale 0.85 (gap 32, steps move below, last resort scroll + hint), titles step down font then hyphenate, 24px edge attachment spacing, agentic title renamed (`27c8126`). Commit: `c25d21a`.
+- T5e addendum: hero copy rewritten (software engineer, two-voice headline, no name line), years of experience replaced by "since {year}" from `CAREER_START_YEAR` in `src/lib/profile.ts`, project years no longer rendered (data kept), meta band rebalanced.
 
 ## Next step
 T1.

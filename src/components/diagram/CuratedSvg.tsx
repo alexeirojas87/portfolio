@@ -64,7 +64,7 @@ export default function CuratedSvg(p: CuratedSvgProps) {
   return (
     <svg className="dg-svg dg-curated" viewBox={`${layout.vb.x} ${layout.vb.y} ${layout.vb.w} ${layout.vb.h}`}
       width={p.fixedWidth ? layout.width : undefined} height={p.fixedWidth ? layout.height : undefined}
-      preserveAspectRatio="xMidYMid meet" aria-hidden={compact ? true : undefined}
+      preserveAspectRatio={compact && layout.orientation === 'vertical' ? 'xMidYMin meet' : 'xMidYMid meet'} aria-hidden={compact ? true : undefined}
       role={compact ? undefined : 'group'} focusable="false">
       <defs>
         {(['base', 'async', 'flow', 'done', 'active'] as const).map((k) => (

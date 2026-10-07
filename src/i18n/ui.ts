@@ -4,9 +4,10 @@ export const defaultLocale: Locale = 'en';
 
 const en = {
   'site.name': 'Alexei Rojas Quiroga',
-  'site.role': 'Senior .NET backend engineer',
+  'site.role':
+    'Software engineer',
   'site.description':
-    'Portfolio of distributed .NET systems and AI platform engineering: architecture, flows and decisions.',
+    'Portfolio of backend, distributed-systems and AI-platform architectures: diagrams, flows and design decisions.',
   'nav.projects': 'Projects',
   'nav.about': 'About',
   'nav.primary': 'Primary',
@@ -18,13 +19,15 @@ const en = {
   'footer.contact': 'Contact',
 
   'hero.eyebrow':
-    'Senior .NET backend engineer · distributed systems · AI platforms',
+    'Software engineer · Backend, distributed systems & AI platforms',
   'hero.title':
     'I build distributed systems — here is how they work inside.',
   'hero.lead':
-    'Twelve years of .NET services that handle payments, live odds and real-time messaging, and now the gateways and agents that put LLMs into production safely. Every project below comes with a diagram you can play.',
-  'hero.title.a': 'I build distributed systems',
-  'hero.title.b': 'here is how they work inside.',
+    'Since {year} I\'ve built the backends behind payments, live odds and real-time data — and lately, the platforms that put AI agents to work safely in production. Open any project to see its architecture in action.',
+  'hero.title.a':
+    'Software engineer.',
+  'hero.title.b':
+    'I design and build systems end to end.',
   'hero.cta.projects': 'See the systems',
   'hero.cta.about': 'About me',
   'hero.trace': 'trace',
@@ -60,7 +63,7 @@ const en = {
 
   'detail.back': 'All projects',
   'detail.role': 'Role',
-  'detail.year': 'Year',
+  'detail.status': 'Status',
   'detail.links': 'Links',
   'detail.link.live': 'Live site',
   'detail.link.github': 'GitHub',
@@ -131,7 +134,7 @@ const en = {
   'about.title': 'About me',
   'about.eyebrow': 'Profile',
   'about.lead':
-    'I build distributed .NET systems: microservices, real-time processing and payment gateways, with 12+ years in production.',
+    'I build distributed .NET systems: microservices, real-time processing and payment gateways, in production since {year}.',
   'about.summary.1':
     'I own backend architecture and end-to-end delivery, from service design to Azure deployment and CI/CD. My daily stack is C# and .NET up to .NET 10, SQL Server and T-SQL, Redis, Kafka and RabbitMQ.',
   'about.summary.2':
@@ -173,9 +176,10 @@ export type UiKey = keyof typeof en;
 
 const es: Record<UiKey, string> = {
   'site.name': 'Alexei Rojas Quiroga',
-  'site.role': 'Ingeniero backend y de plataformas de IA',
+  'site.role':
+    'Ingeniero de software',
   'site.description':
-    'Portafolio de sistemas distribuidos en .NET e ingeniería de plataformas de IA: arquitectura, flujos y decisiones.',
+    'Portafolio de arquitecturas de backend, sistemas distribuidos y plataformas de IA: diagramas, flujos y decisiones de diseño.',
   'nav.projects': 'Proyectos',
   'nav.about': 'Sobre mí',
   'nav.primary': 'Principal',
@@ -187,13 +191,15 @@ const es: Record<UiKey, string> = {
   'footer.contact': 'Contacto',
 
   'hero.eyebrow':
-    'Ingeniero backend .NET senior · sistemas distribuidos · plataformas de IA',
+    'Ingeniero de software · Backend, sistemas distribuidos y plataformas de IA',
   'hero.title':
     'Construyo sistemas distribuidos: así funcionan por dentro.',
   'hero.lead':
-    'Doce años de servicios .NET que manejan pagos, cuotas en vivo y mensajería en tiempo real, y ahora los gateways y agentes que llevan los LLM a producción con seguridad. Cada proyecto incluye un diagrama que puedes reproducir.',
-  'hero.title.a': 'Construyo sistemas distribuidos',
-  'hero.title.b': 'así funcionan por dentro.',
+    'Desde {year} construyo los backends detrás de pagos, cuotas en vivo y datos en tiempo real, y últimamente las plataformas que ponen agentes de IA a trabajar de forma segura en producción. Abre cualquier proyecto para ver su arquitectura en acción.',
+  'hero.title.a':
+    'Ingeniero de software.',
+  'hero.title.b':
+    'Diseño y construyo sistemas de punta a punta.',
   'hero.cta.projects': 'Ver los sistemas',
   'hero.cta.about': 'Sobre mí',
   'hero.trace': 'traza',
@@ -230,7 +236,7 @@ const es: Record<UiKey, string> = {
 
   'detail.back': 'Todos los proyectos',
   'detail.role': 'Rol',
-  'detail.year': 'Año',
+  'detail.status': 'Estado',
   'detail.links': 'Enlaces',
   'detail.link.live': 'Sitio en vivo',
   'detail.link.github': 'GitHub',
@@ -301,7 +307,7 @@ const es: Record<UiKey, string> = {
   'about.title': 'Sobre mí',
   'about.eyebrow': 'Perfil',
   'about.lead':
-    'Construyo sistemas distribuidos en .NET: microservicios, procesamiento en tiempo real y pasarelas de pago, con más de 12 años en producción.',
+    'Construyo sistemas distribuidos en .NET: microservicios, procesamiento en tiempo real y pasarelas de pago, en producción desde {year}.',
   'about.summary.1':
     'Soy responsable de la arquitectura backend y de la entrega de extremo a extremo, desde el diseño de servicios hasta el despliegue en Azure y CI/CD. Mi stack diario es C# y .NET hasta .NET 10, SQL Server y T-SQL, Redis, Kafka y RabbitMQ.',
   'about.summary.2':

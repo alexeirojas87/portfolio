@@ -75,7 +75,7 @@ body {
   letter-spacing: -0.02em;
   line-height: 1.03;
 }
-.display .soft { font-weight: 500; font-stretch: 100%; letter-spacing: -0.01em; color: var(--ink-2); }
+.display.soft { font-weight: 500; font-stretch: 100%; letter-spacing: -0.01em; color: var(--ink-2); line-height: 1.15; }
 .display-md {
   font-family: var(--font-display);
   font-weight: 700;

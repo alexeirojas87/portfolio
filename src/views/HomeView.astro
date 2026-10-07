@@ -5,7 +5,7 @@ import ProjectCard from '../components/ProjectCard.astro';
 import { useTranslations, localePath, type Locale } from '../i18n/ui';
 import { getProjects, t as tx } from '../lib/projects';
 import { CLASS_COLOR } from '../components/diagram/kinds';
-import { capabilityGroups } from '../lib/profile';
+import { capabilityGroups, CAREER_START_YEAR } from '../lib/profile';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -23,9 +23,8 @@ const featured = featuredSlugs
   <section class="wrap grid items-center gap-10 pb-14 pt-10 lg:grid-cols-[5fr_7fr] lg:gap-14 lg:pt-14">
     <div>
       <p class="eyebrow">{t('hero.eyebrow')}</p>
-      <h1 class="display mt-5 text-[clamp(2rem,3.5vw,3.9rem)]">{t('hero.title.a')} <span class="soft">— {t('hero.title.b')}</span></h1>
-      <p class="mt-4 font-display text-lg font-bold tracking-tight text-cobalt" style="font-stretch:112%">{t('site.name')}</p>
-      <p class="mt-5 max-w-xl text-lg text-ink-2 xl:text-xl">{t('hero.lead')}</p>
+      <h1 class="mt-5"><span class="display block text-[clamp(2.4rem,4.4vw,4.6rem)]">{t('hero.title.a')}</span><span class="display soft mt-2 block text-[clamp(1.35rem,2.1vw,2.2rem)]">{t('hero.title.b')}</span></h1>
+      <p class="mt-6 max-w-xl text-lg text-ink-2 xl:text-xl">{t('hero.lead', { year: CAREER_START_YEAR })}</p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a class="btn btn-primary" href="#work">{t('hero.cta.projects')} <span aria-hidden="true">↓</span></a>
         <a class="btn btn-ghost" href={localePath(locale, '/about')}>{t('hero.cta.about')}</a>
