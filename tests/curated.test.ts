@@ -221,6 +221,18 @@ test('wagering: Live bet placement shows a single live path to the live engine',
   assert.equal((live.label as { en: string }).en, 'Live engine · bet API');
   assert.equal((live.label as { es: string }).es, 'API de apuestas del motor en vivo');
   // the legacy ledger API stays available, renamed, in the views that use it
+  // the live-bet delay and the ticket-writer view are gone
+  assert.ok(!a.edges.some((e) => e.id === 'e8'), 're-queue edge removed');
+  assert.ok(proj.additionalViews.every((v: { id: string }) => v.id !== 'persistence'));
+  assert.ok(!/delay|retardo/i.test(JSON.stringify(proj)), 'no live-delay wording left');
+  // the validation service only reads from the live DB; the live engine API inserts
+  const read = a.edges.find((e) => e.id === 'e7')!;
+  assert.deepEqual([read.from, read.to], ['core', 'livedb']);
+  assert.ok(!/insert/i.test(read.label.en));
+  const ins = a.edges.find((e) => e.id === 'e24')!;
+  assert.deepEqual([ins.from, ins.to, ins.label.en], ['liveapi', 'livedb', 'Insert live wager']);
+  const flow = a.flows.find((f) => f.id === 'flow-live')!.edges;
+  assert.ok(flow.indexOf('e21') < flow.indexOf('e24'), 'API persists after the hand-off');
   const other = proj.additionalViews.flatMap((v: { architecture: Architecture }) => v.architecture.nodes).find((n: { id: string }) => n.id === 'legacy');
   assert.equal(other.label.en, 'Legacy ledger API');
 });
