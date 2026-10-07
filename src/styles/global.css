@@ -381,27 +381,33 @@ body {
 .np-link { margin-top: 10px !important; }
 
 /* ---------- Boot intro (home only) ---------- */
+html.intro-pending { background: var(--canvas); }
 html.intro-pending body::before { content: ''; position: fixed; inset: 0; background: var(--canvas); z-index: 90; }
 .intro { position: fixed; inset: 0; z-index: 100; background: var(--canvas); color: var(--canvas-text); font-family: var(--font-mono); cursor: pointer;
-  transition: clip-path .4s cubic-bezier(.7, 0, .2, 1); clip-path: inset(0 0 0 0 round 0); }
-.intro-inner { position: absolute; inset: 0; padding: clamp(20px, 4vw, 56px); transition: opacity .18s; }
+  transition: clip-path .8s cubic-bezier(.65, 0, .35, 1); clip-path: inset(0 0 0 0 round 0); }
+.intro.is-exit { animation: intro-out .3s .5s ease-in forwards; }
+@keyframes intro-out { to { opacity: 0; } }
+.intro-inner { position: absolute; inset: 0; padding: clamp(20px, 4vw, 56px); transition: opacity .3s; }
 .intro-inner.fade { opacity: 0; }
 .intro-term p { margin: 0 0 6px; font-size: clamp(0.9rem, 1.6vw, 1.25rem); letter-spacing: .02em; }
 .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: 2px; vertical-align: -0.15em; background: var(--canvas-text); animation: intro-blink .9s steps(1) infinite; }
 @keyframes intro-blink { 50% { opacity: 0; } }
+.cur.fast { animation-duration: .32s; }
 .intro-title { position: absolute; inset: 0; display: grid; place-items: center; padding: clamp(20px, 4vw, 56px); }
-.intro-card { max-width: 100%; text-align: left; animation: intro-pop .45s cubic-bezier(.2, .9, .2, 1) both; }
-@keyframes intro-pop { from { transform: translateY(14px) scale(.98); opacity: 0; } }
+.intro-card { max-width: 100%; text-align: left; }
+.intro-eyebrow, .intro-name, .intro-ready, .intro-status { animation: intro-in .5s cubic-bezier(.2, .9, .2, 1) both; }
+@keyframes intro-in { from { transform: translateY(14px); opacity: 0; } }
 .intro-eyebrow { margin: 0 0 14px; color: #9db8ff; font-size: clamp(0.62rem, 1.1vw, 0.85rem); letter-spacing: .14em; }
 .intro-name { margin: 0; font-family: var(--font-display); font-weight: 800; font-stretch: 125%; text-transform: uppercase; letter-spacing: -0.01em; line-height: .98;
   font-size: clamp(2.1rem, 8.4vw, 8rem); color: #fff; text-shadow: 0.06em 0.06em 0 var(--cobalt); overflow-wrap: anywhere; }
 .intro-ready { margin: 18px 0 0; color: var(--canvas-muted); font-size: clamp(0.8rem, 1.2vw, 1rem); }
 .intro-sticker { position: absolute; top: clamp(18px, 4vw, 44px); left: clamp(18px, 4vw, 56px); transform: rotate(-4deg); background: #f2a93b; color: #0e1726; padding: 6px 12px;
-  font-weight: 600; font-size: clamp(0.62rem, 1.1vw, 0.85rem); letter-spacing: .06em; border: 2px solid #0e1726; box-shadow: 3px 3px 0 #0e1726; animation: intro-sticker .4s .1s cubic-bezier(.2, .9, .2, 1) both; }
+  font-weight: 600; font-size: clamp(0.62rem, 1.1vw, 0.85rem); letter-spacing: .06em; border: 2px solid #0e1726; box-shadow: 3px 3px 0 #0e1726; animation: intro-sticker .5s cubic-bezier(.2, .9, .2, 1) both; }
 @keyframes intro-sticker { from { transform: rotate(-12deg) scale(.7); opacity: 0; } }
 .intro-status { position: absolute; top: clamp(18px, 4vw, 44px); right: clamp(18px, 4vw, 56px); text-align: right; display: grid; gap: 4px; font-size: clamp(0.58rem, 1vw, 0.78rem); letter-spacing: .08em; color: var(--canvas-muted); }
 .intro-status b { color: #4ade9a; font-weight: 500; }
 .intro-skip { position: absolute; right: clamp(16px, 3vw, 40px); bottom: clamp(16px, 3vw, 36px); padding: 8px 14px; border-radius: 10px; border: 1px solid var(--canvas-line); background: rgb(255 255 255 / .06); color: var(--canvas-text); font: 500 .8rem var(--font-mono); cursor: pointer; }
 .intro-skip:hover { border-color: #7fa2ff; }
 @media (max-width: 600px) { .intro-status { top: 74px; left: clamp(18px, 4vw, 56px); right: auto; text-align: left; } }
-@media (prefers-reduced-motion: reduce) { .intro { display: none; } html.intro-pending body::before { display: none; } }
+@media (prefers-reduced-motion: reduce) { .intro { display: none; } html.intro-pending { background: var(--canvas); }
+html.intro-pending body::before { display: none; } }

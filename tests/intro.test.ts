@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatUptime, countProjects, typedLines, hasPlayed, markPlayed, shouldPlayIntro, beatAt, INTRO_TOTAL_MS, INTRO_STORAGE_KEY } from '../src/lib/intro.ts';
+import { formatUptime, countProjects, typedLines, hasPlayed, markPlayed, shouldPlayIntro, beatAt, introTotalMs, terminalDuration, charsTypedAt, CHAR_MS, LINE_PAUSE_MS, READY_PAUSE_MS, CURSOR_MS, TITLE_HOLD_MS, TERMINAL_END_MS, EXIT_MS, INTRO_STORAGE_KEY } from '../src/lib/intro.ts';
 
 test('uptime: calendar years, months, days and clock since January of the start year', () => {
   assert.equal(formatUptime(2013, new Date(2025, 9, 15, 3, 21, 7)), '12y 09m 14d 03:21:07');
@@ -60,13 +60,42 @@ test('never plays on deep links or with reduced motion', () => {
   assert.equal(shouldPlayIntro({ isHome: true, reducedMotion: true, storage: fakeStorage() }), false);
 });
 
-test('beats follow the timeline, stay under 3s, and skip ends immediately', () => {
-  assert.equal(beatAt(0), 'cursor');
-  assert.equal(beatAt(299), 'cursor');
-  assert.equal(beatAt(300), 'terminal');
-  assert.equal(beatAt(1500), 'title');
-  assert.equal(beatAt(2600), 'exit');
-  assert.equal(beatAt(INTRO_TOTAL_MS), 'done');
-  assert.equal(beatAt(100, true), 'done');
-  assert.ok(INTRO_TOTAL_MS <= 3000);
+const LINES = ['> booting portfolio…', '> loading engineer: alexei_rojas_quiroga', '> mapping 13 systems · 4 client · 9 personal', '> ready'];
+
+test('typing runs at CHAR_MS per character with pauses between lines', () => {
+  const l = ['> ab', '> cd', '> ready'];
+  assert.equal(charsTypedAt(l, 0), 0);
+  assert.equal(charsTypedAt(l, CHAR_MS * 2), 2);
+  assert.equal(charsTypedAt(l, 4 * CHAR_MS), 4); // first line done
+  assert.equal(charsTypedAt(l, 4 * CHAR_MS + LINE_PAUSE_MS - 1), 4); // still pausing
+  assert.equal(charsTypedAt(l, 4 * CHAR_MS + LINE_PAUSE_MS + 2 * CHAR_MS), 6);
+  // the pause before the last line is the longer READY pause
+  const afterSecond = 4 * CHAR_MS + LINE_PAUSE_MS + 4 * CHAR_MS;
+  assert.equal(charsTypedAt(l, afterSecond + READY_PAUSE_MS - 1), 8);
+  assert.equal(charsTypedAt(l, afterSecond + READY_PAUSE_MS + CHAR_MS), 9);
+  assert.equal(charsTypedAt(l, 1e6), 4 + 4 + 7);
+  assert.equal(terminalDuration(l), 15 * CHAR_MS + LINE_PAUSE_MS + READY_PAUSE_MS);
+});
+
+test('constants are within the readable ranges', () => {
+  assert.ok(CHAR_MS >= 35 && CHAR_MS <= 45);
+  assert.ok(CURSOR_MS >= 600 && CURSOR_MS <= 800);
+  assert.ok(TITLE_HOLD_MS >= 2400);
+  assert.ok(TERMINAL_END_MS >= 1000, 'last line readable for >= 1s');
+  assert.ok(EXIT_MS >= 700 && EXIT_MS <= 900);
+});
+
+test('beats follow the timeline and skip ends immediately', () => {
+  assert.equal(beatAt(0, LINES), 'cursor');
+  assert.equal(beatAt(CURSOR_MS - 1, LINES), 'cursor');
+  assert.equal(beatAt(CURSOR_MS, LINES), 'terminal');
+  const termEnd = CURSOR_MS + terminalDuration(LINES);
+  assert.equal(beatAt(termEnd - 1, LINES), 'terminal');
+  assert.equal(beatAt(termEnd + 400, LINES), 'terminal'); // finished terminal stays readable
+  assert.equal(beatAt(termEnd + TERMINAL_END_MS + 10, LINES), 'title');
+  const total = introTotalMs(LINES);
+  assert.equal(beatAt(total - EXIT_MS + 1, LINES), 'exit');
+  assert.equal(beatAt(total, LINES), 'done');
+  assert.equal(beatAt(100, LINES, true), 'done');
+  assert.ok(total >= 8000 && total <= 11000, `total ${total}`);
 });

@@ -49,15 +49,56 @@ export function shouldPlayIntro(o: { isHome: boolean; reducedMotion: boolean; st
 }
 
 export type Beat = 'cursor' | 'terminal' | 'title' | 'exit' | 'done';
-export const BEAT_MS = { cursor: 300, terminal: 1100, title: 1100, exit: 400 } as const;
-export const INTRO_TOTAL_MS = BEAT_MS.cursor + BEAT_MS.terminal + BEAT_MS.title + BEAT_MS.exit;
+
+// Timings (ms). Tuned so every beat can be read; skip is always available.
+export const CURSOR_MS = 700; // cursor alone: a few blinks
+export const CHAR_MS = 35; // typing speed per character
+export const LINE_PAUSE_MS = 250; // pause after each terminal line
+export const READY_PAUSE_MS = 400; // slightly longer pause before the last ("> ready") line
+export const TERMINAL_END_MS = 1100; // hold on the finished terminal so the last line is readable
+export const TITLE_ENTER_MS = 900; // staged entrance: eyebrow, name, sticker, uptime
+export const TITLE_HOLD_MS = 2500; // everything visible, uptime visibly ticking
+export const EXIT_MS = 800; // morph / wipe, ease-in-out
+/** Delay of each title element's entrance (CSS animation-delay). */
+export const TITLE_STAGGER_MS = { eyebrow: 0, name: 250, sticker: 500, uptime: 700, ready: 900 } as const;
+
+/** Time to type all lines, including the pauses between them (none after the last line). */
+export function terminalDuration(lines: string[]): number {
+  let t = 0;
+  lines.forEach((l, i) => {
+    t += l.length * CHAR_MS;
+    if (i < lines.length - 1) t += i === lines.length - 2 ? READY_PAUSE_MS : LINE_PAUSE_MS;
+  });
+  return t;
+}
+
+/** Characters typed (across all lines) `elapsed` ms into the terminal beat, honouring line pauses. */
+export function charsTypedAt(lines: string[], elapsed: number): number {
+  let t = elapsed;
+  let chars = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const typeMs = lines[i].length * CHAR_MS;
+    if (t <= typeMs) return chars + Math.max(0, Math.floor(t / CHAR_MS));
+    chars += lines[i].length;
+    t -= typeMs;
+    if (i < lines.length - 1) t -= i === lines.length - 2 ? READY_PAUSE_MS : LINE_PAUSE_MS;
+    if (t < 0) return chars;
+  }
+  return chars;
+}
+
+export const terminalBeatMs = (lines: string[]) => terminalDuration(lines) + TERMINAL_END_MS;
+export const titleBeatMs = () => TITLE_ENTER_MS + TITLE_HOLD_MS;
+export const introTotalMs = (lines: string[]) => CURSOR_MS + terminalBeatMs(lines) + titleBeatMs() + EXIT_MS;
 
 /** Beat for the elapsed time since the intro started (skip jumps straight to 'done'). */
-export function beatAt(elapsed: number, skipped = false): Beat {
+export function beatAt(elapsed: number, lines: string[], skipped = false): Beat {
   if (skipped) return 'done';
-  if (elapsed < BEAT_MS.cursor) return 'cursor';
-  if (elapsed < BEAT_MS.cursor + BEAT_MS.terminal) return 'terminal';
-  if (elapsed < BEAT_MS.cursor + BEAT_MS.terminal + BEAT_MS.title) return 'title';
-  if (elapsed < INTRO_TOTAL_MS) return 'exit';
+  const term = CURSOR_MS + terminalBeatMs(lines);
+  const title = term + titleBeatMs();
+  if (elapsed < CURSOR_MS) return 'cursor';
+  if (elapsed < term) return 'terminal';
+  if (elapsed < title) return 'title';
+  if (elapsed < title + EXIT_MS) return 'exit';
   return 'done';
 }

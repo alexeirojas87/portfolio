@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations, type Locale } from '../i18n/ui.ts';
 import {
-  BEAT_MS, INTRO_STORAGE_KEY, formatUptime, markPlayed, typedLines, type Beat, type IntroCounts,
+  CURSOR_MS, EXIT_MS, TITLE_STAGGER_MS, charsTypedAt, formatUptime, introTotalMs, markPlayed,
+  terminalBeatMs, titleBeatMs, typedLines, type Beat, type IntroCounts,
 } from '../lib/intro.ts';
 
 interface Props { locale: Locale; counts: IntroCounts; sinceYear: number; sinceMonth: number }
@@ -27,7 +28,6 @@ export default function BootIntro({ locale, counts, sinceYear, sinceMonth }: Pro
     t('intro.l3', { total: counts.total, client: counts.client, personal: counts.personal }),
     t('intro.l4'),
   ];
-  const total = lines.reduce((n, l) => n + l.length, 0);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -59,18 +59,21 @@ export default function BootIntro({ locale, counts, sinceYear, sinceMonth }: Pro
           ? `inset(${Math.max(0, stage!.top)}px ${Math.max(0, window.innerWidth - stage!.right)}px ${Math.max(0, window.innerHeight - stage!.bottom)}px ${Math.max(0, stage!.left)}px round 18px)`
           : 'inset(0 0 100% 0)');
       }));
-      window.setTimeout(finish, BEAT_MS.exit + 60);
+      window.setTimeout(finish, EXIT_MS + 60);
     };
 
+    const termStart = CURSOR_MS;
+    const titleStart = termStart + terminalBeatMs(lines);
+    const exitStart = titleStart + titleBeatMs();
     const timers: number[] = [];
-    timers.push(window.setTimeout(() => setBeat('terminal'), BEAT_MS.cursor));
-    timers.push(window.setTimeout(() => setBeat('title'), BEAT_MS.cursor + BEAT_MS.terminal));
-    timers.push(window.setTimeout(exit, BEAT_MS.cursor + BEAT_MS.terminal + BEAT_MS.title));
-    // Typing: a steady rate over the terminal beat.
+    timers.push(window.setTimeout(() => setBeat('terminal'), termStart));
+    timers.push(window.setTimeout(() => setBeat('title'), titleStart));
+    timers.push(window.setTimeout(exit, exitStart));
+    // Typing: fixed ms per character with pauses between lines.
     const typing = window.setInterval(() => {
-      const el = performance.now() - startRef.current - BEAT_MS.cursor;
-      setChars(Math.min(total, Math.max(0, (el / (BEAT_MS.terminal - 150)) * total)));
-    }, 24);
+      const el = performance.now() - startRef.current - termStart;
+      setChars(charsTypedAt(lines, Math.max(0, el)));
+    }, 20);
     const tick = window.setInterval(() => setNow(new Date()), 250);
 
     const skip = () => finish();
@@ -78,7 +81,7 @@ export default function BootIntro({ locale, counts, sinceYear, sinceMonth }: Pro
     window.addEventListener('keydown', onKey);
     window.addEventListener('wheel', skip, { passive: true });
     window.addEventListener('touchmove', skip, { passive: true });
-    const safety = window.setTimeout(finish, 4500);
+    const safety = window.setTimeout(finish, introTotalMs(lines) + 1500);
 
     function cleanup() {
       timers.forEach(clearTimeout); clearTimeout(safety);
@@ -107,20 +110,20 @@ export default function BootIntro({ locale, counts, sinceYear, sinceMonth }: Pro
               {shown.map((l, i) => (
                 <p key={i}>{l}{i === shown.length - 1 && typing ? <span className="cur" /> : null}</p>
               ))}
-              {shown.length === 0 && <p><span className="cur" /></p>}
+              {shown.length === 0 && <p><span className="cur fast" /></p>}
             </div>
           )}
           {showTitle && (
             <div className="intro-title">
-              <span className="intro-sticker">{t('intro.sticker')}</span>
-              <div className="intro-status">
+              <span className="intro-sticker" style={{ animationDelay: `${TITLE_STAGGER_MS.sticker}ms` }}>{t('intro.sticker')}</span>
+              <div className="intro-status" style={{ animationDelay: `${TITLE_STAGGER_MS.uptime}ms` }}>
                 <b>{t('intro.live')}</b>
                 <span>{t('intro.since', { year: sinceYear })} · {formatUptime(sinceYear, now, sinceMonth)}</span>
               </div>
               <div className="intro-card">
-                <p className="intro-eyebrow">{t('intro.eyebrow')}</p>
-                <p className="intro-name">{t('site.name').toUpperCase()}</p>
-                <p className="intro-ready">{lines[3]}<span className="cur" /></p>
+                <p className="intro-eyebrow" style={{ animationDelay: `${TITLE_STAGGER_MS.eyebrow}ms` }}>{t('intro.eyebrow')}</p>
+                <p className="intro-name" style={{ animationDelay: `${TITLE_STAGGER_MS.name}ms` }}>{t('site.name').toUpperCase()}</p>
+                <p className="intro-ready" style={{ animationDelay: `${TITLE_STAGGER_MS.ready}ms` }}>{lines[3]}<span className="cur" /></p>
               </div>
             </div>
           )}
