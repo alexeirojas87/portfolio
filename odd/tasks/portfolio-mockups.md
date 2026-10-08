@@ -49,7 +49,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T6 Backend: dropped by owner (static content, no backend needed).
 - [~] T8 (pilot agentic-orchestration done on feat/project-stories; rest pending) Project story slides (beatdeck) replace the video slot: per project, beats explaining the system and why the architecture was chosen; pilot on agentic-orchestration, then the rest. Video slot hidden until a story exists. Route: delegated writer.
 - [x] T9 SEO: per-page title/description, Open Graph + Twitter cards with generated images, hreflang en/es, canonical, favicon, robots.txt, sitemap.xml, 404 page, structured data (Person). Route: delegated writer.
-- [ ] T10 Publish: GitHub repo, merge to main, Cloudflare Pages deploy (pages.dev until alexeirojas.dev is bought). Route: inline (remote ops need owner authorization).
+- [x] T10 Publish: github.com/alexeirojas87/portfolio (public); Cloudflare Workers static assets (wrangler.jsonc) auto-deploys main to https://alexeirojas.dev; www 301 to apex; http 301 to https. Verified live: pages, stories, sitemap, robots, OG images, 404.
 
 ## Acceptance criteria
 - `astro build` passes; privacy scan returns zero hits.
