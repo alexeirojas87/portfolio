@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import { useTranslations } from '../i18n/ui';
+const en = useTranslations('en');
+const es = useTranslations('es');
+---
+<!-- Cloudflare Pages serves this file for every unknown URL, so it is bilingual and noindex. -->
+<Base locale="en" title={en('404.title')} description={en('404.body')} noindex>
+  <section class="wrap py-24 text-center">
+    <p class="eyebrow">404</p>
+    <h1 class="display mt-4 text-[clamp(2.2rem,5vw,4rem)]">{en('404.title')}</h1>
+    <p class="mx-auto mt-4 max-w-lg text-lg text-ink-2">{en('404.body')}</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a class="btn btn-primary" href="/">{en('404.home')}</a>
+      <a class="btn btn-ghost" href="/#work">{en('nav.projects')}</a>
+    </div>
+    <div lang="es" class="mx-auto mt-16 max-w-lg border-t border-rule pt-10">
+      <h2 class="display-md text-2xl">{es('404.title')}</h2>
+      <p class="mt-2 text-ink-2">{es('404.body')}</p>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <a class="btn btn-ghost" href="/es/">{es('404.home')}</a>
+        <a class="btn btn-ghost" href="/es/#work">{es('nav.projects')}</a>
+      </div>
+    </div>
+  </section>
+</Base>
