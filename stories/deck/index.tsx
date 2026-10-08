@@ -9,12 +9,13 @@ import { lang } from './shared/lang';
  * Adding a story: create deck/stories/<slug>/ with a default-exported deck, then add it here and set `story: true`
  * on the project's JSON in the site.
  */
-const STORIES: Record<string, () => Promise<{ default: DeckDefinition }>> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const STORIES: Record<string, () => Promise<{ default: DeckDefinition<any> }>> = {
   'agentic-orchestration': () => import('./stories/agentic-orchestration'),
 };
 
 /** Resolve `?story=<slug>` (default story when missing or unknown) and add the portrait-phone hint. */
-export async function loadDeck(): Promise<DeckDefinition> {
+export async function loadDeck(): Promise<DeckDefinition<any>> {
   const asked = new URLSearchParams(location.search).get('story') ?? '';
   const slug = Object.hasOwn(STORIES, asked) ? asked : config.defaultStory;
   addPortraitHint();
