@@ -79,3 +79,57 @@ and `shared/arch.ts` throws on an unknown node or edge id. `npm run verify` ther
 - Minimum stage text is 28 px (tech tags) and 34 px or more for labels and captions, so it stays above 18 px effective in the project page embed (about 0.5 to 0.7 scale).
 - Decision "why" text is shown in full rather than shortened, to avoid rewording the claims.
 - Tolerances: none. The canvas particle layer draws nothing in `?capture=1`, so verify frames are deterministic.
+
+## apagones-habana (8 scenes, 31 beats)
+
+Kinds: **C** condensed from the JSON, **V** verbatim, **A** authored UI words/rhythm, **I** illustrative (invented to make the mechanism visible, always flagged).
+
+| Beat | On stage | JSON source | Kind |
+| --- | --- | --- | --- |
+| 1.1 | Standby: black, one flickering street light | none | A |
+| 1.2 | Boot terminal types a command, hard cut (automatic) | nodes `ingest`, `enrich`; `links.live` (host); command text | I |
+| 1.3 | Title, tagline, start hint | `title`, `tagline` | V |
+| 2.1 | "Is there power on my block?" with a flickering bulb | `users` node (people asking whether their block has power) | C |
+| 2.2 | Scattered across a Telegram channel: post, comment and voice-note cards (placeholder lines, no text) | `problem`; node `tg` (posts, comments, voice notes) | C |
+| 2.3 | A 3 counts up: current state, hours without power per circuit, the history | `problem` | C |
+| 3.1 | Cron tick every 30 min, packet to the runner, tests run and pass (automatic) | `architecture.glance[0]`; nodes `cron`, `gha` (tests first); edge `e1` | C |
+| 3.2 | Pull since the last id, upsert into the store (automatic) | nodes `tg`, `ingest`, `db`; `decisions[1]` | C |
+| 3.3 | Rules turn posts into typed events (automatic) | node `extract`; `decisions[3]` | C |
+| 3.4 | LLM: voice to text, structured parts, embeddings (automatic) | node `enrich`, `llm`; `decisions[3]` | C |
+| 3.5 | Build, deploy, outage map (automatic) | nodes `build`, `pages`, `web`; `highlights[0]` | C |
+| 4.1 | Ten map zones light up (automatic) | node `web`; geometry and zones | I |
+| 4.2 | Four zones go dark, one unknown (automatic) | node `extract` (events); states | I |
+| 4.3 | Two relight; 24 h strip of one circuit (automatic) | `problem` (hours per circuit, history); strip | I |
+| 4.4 | Neighbor reports, privately (dots) | node `pages` (Havana box, salted hashed IP, 6 h, ~110 m cells) | C (dots: I) |
+| 5.1 | Sample question types out; world drops to the assistant (automatic) | additional view `assistant`; question text | I |
+| 5.2 | Vector search, three fragments come back (automatic) | edge `e16`; node `db` (`buscar_fragmentos`); `decisions[4]` | C |
+| 5.3 | Answer types out (automatic) | node `bot` (why: figures come from tools); answer text | C (answer: I) |
+| 5.4 | Tools first, vectors last, max 4 rounds | node `bot` responsibilities | C |
+| 6.1 | Watchdog gauge: age of published data (automatic) | additional view `watchdog`; node `cron` (45 min stale) | C |
+| 6.2 | Over 45 min: zombie run cancelled, ingest dispatched (automatic) | node `cron` (15 min queued, 22 min in progress); `decisions[2]` | C |
+| 6.3 | Over 120 min: single guardian issue (automatic) | node `cron` (why: 18-hour stall); node `gh` | C |
+| 6.4 | Weekly digest by email (automatic) | node `digest` (Friday, offline, inline chart), `mail` | C |
+| 6.5 | Daily verification: purge bad geocodes, one issue (automatic) | node `verify`, `gh` | C |
+| 7.1 to 7.5 | Decisions: index, title (equals JSON title), `why` verbatim, vignette | `decisions[0..4]` | V (vignettes: A) |
+| 8.1 | A 30 counts up, then the five glance facts | `architecture.glance[0..4]` | V |
+| 8.2 | Structured. Searchable. Live. plus the live address and tagline | `problem`; `links.live`; `tagline` | C |
+
+### Illustrative content (not data)
+
+- **Boot command** (`$ apagones ingest --since last_id`): invented; it restates the JSON pieces.
+- **Map**: shape, ten zones, their order and which go dark or unknown, report dots, and the 24 h strip are all invented. Flagged on stage ("Illustrative positions"). No real circuit or neighborhood is named.
+- **Sample chat** (4.x/5.x): question and answer are invented, flagged "Illustrative example"; no personal data, no real place or circuit.
+- **Watchdog gauge positions** (12, 52, 6, 132 min): thresholds 45 and 120 min come from the JSON; the marker values are staged examples.
+- **Fragment chips** ("fragment 1..3"): placeholders for "top-k fragments".
+- **Live host** `apagoneshabana.lat` is written in `copy.ts` (it equals the host of `links.live`; the full URL would trip the offline check).
+
+### Deliberately cut
+
+- No usage numbers (users, messages, outages): the JSON has none and none are invented.
+- Stack list, retention table, rate limits, role, year: on the project page already.
+
+### Decisions taken on the owner's behalf
+
+- Amber (`--warning`) as the story's accent for outages, over the shared cobalt.
+- The JSON keeps the extra views under `architecture.additionalViews`; `copy.ts` adapts that shape.
+- No tolerances; canvas particles and ambient loops stop in `?capture=1`.
