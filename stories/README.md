@@ -42,6 +42,8 @@ npm run dev     # http://127.0.0.1:5173/?story=agentic-orchestration&lang=en#1.1
 npm run build   # typecheck + bundle + offline check -> dist/
 npm run verify  # every beat forwards/back/from URL, frame diff, text/overlap audit -> artifacts/verify/contact.png
 BEATDECK_QUERY="story=agentic-orchestration&lang=es" npm run verify   # same, for another story/language
+npm run verify -- --source=docs/cerberus-prompts.md   # also checks the Cerberus demo text verbatim
+node scripts/record.mjs dist --lang=en   # screen recordings of the automatic beats -> artifacts/rec/ (needs `npx playwright-core install ffmpeg` once)
 ```
 
 From the repo root, `npm run build:stories` installs, builds and copies `stories/dist` to `public/stories`
