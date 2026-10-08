@@ -6,8 +6,6 @@ import StatusPill from '../components/StatusPill.astro';
 import StackChip from '../components/StackChip.astro';
 import { useTranslations, localePath, type Locale, type UiKey } from '../i18n/ui';
 import { getProjects, t as tx, type Project } from '../lib/projects';
-import { PERSON, SITE_URL } from '../lib/site';
-import { clampDescription, ogImagePath, projectJsonLd } from '../lib/seo';
 
 interface Props { project: Project; locale: Locale }
 const { project: p, locale } = Astro.props;
@@ -24,13 +22,13 @@ const stackKey = (c: string) => `stack.${c}` as UiKey;
 
 const video = p.video;
 const isFile = video ? /\.(mp4|webm)(\?|$)/i.test(video.url) : false;
+const storyUrl = `/stories/?story=${p.slug}&lang=${locale}`;
 const links = [
   p.links.live && { href: p.links.live, label: t('detail.link.live') },
   p.links.github && { href: p.links.github, label: t('detail.link.github') },
 ].filter((l): l is { href: string; label: string } => !!l);
-const projectLd = projectJsonLd({ site: SITE_URL, locale, slug: p.slug, name: title, description: clampDescription(tx(p.summary, locale), 300), image: SITE_URL + ogImagePath('project', p.slug, locale), github: p.links.github, live: p.links.live, keywords: p.stack.map((x) => x.name), authorName: PERSON.name });
 ---
-<Base locale={locale} title={title} description={`${tx(p.tagline, locale)}. ${tx(p.summary, locale)}`} image={ogImagePath('project', p.slug, locale)} jsonLd={[projectLd]} type="article">
+<Base locale={locale} title={title} description={tx(p.tagline, locale)}>
   <div class="wrap-wide pt-5">
     <a href={localePath(locale, '/#work')} class="text-sm font-medium text-ink-2 hover:text-cobalt">← {t('detail.back')}</a>
 
@@ -102,7 +100,24 @@ const projectLd = projectJsonLd({ site: SITE_URL, locale, slug: p.slug, name: ti
       </dl>
     </section>
 
-    {video && (
+    {p.story ? (
+      <section aria-labelledby="story">
+        <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+          <h2 id="story" class="section-title">{t('detail.story')}</h2>
+          <a class="btn btn-ghost !px-3 !py-1.5 text-sm" href={storyUrl} target="_blank" rel="noopener">{t('detail.story.fullscreen')} <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="story-frame mt-6 overflow-hidden rounded-[18px] border border-rule bg-canvas shadow-[var(--shadow-soft)]">
+          <iframe class="story-embed h-full w-full border-0" src={storyUrl} title={`${t('detail.story')}: ${title}`} allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+          <div class="story-poster canvas on-canvas">
+            <p class="eyebrow">{t('detail.story')}</p>
+            <p class="font-display text-xl font-bold">{title}</p>
+            <p class="text-sm">{t('detail.story.rotate')}</p>
+            <a class="btn btn-ghost !px-3 !py-1.5 text-sm" href={storyUrl} target="_blank" rel="noopener">{t('detail.story.fullscreen')} <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <p class="story-hint mt-3 text-sm text-ink-2">{t('detail.story.hint')}</p>
+      </section>
+    ) : video ? (
       <section>
         <h2 class="section-title">{t('detail.video')}</h2>
         <div class="mt-6 overflow-hidden rounded-[18px] border border-rule bg-canvas shadow-[var(--shadow-soft)]" style="aspect-ratio:16/9">
@@ -111,7 +126,7 @@ const projectLd = projectJsonLd({ site: SITE_URL, locale, slug: p.slug, name: ti
             : <iframe class="h-full w-full" src={video.url} title={video.title ? tx(video.title, locale) : title} allowfullscreen loading="lazy"></iframe>}
         </div>
       </section>
-    )}
+    ) : null}
 
     <nav aria-label="Projects" class="grid gap-4 sm:grid-cols-2">
       <a class="card block p-5 hover:border-cobalt" href={localePath(locale, `/projects/${prev.slug}`)}>
@@ -125,3 +140,14 @@ const projectLd = projectJsonLd({ site: SITE_URL, locale, slug: p.slug, name: ti
     </nav>
   </div>
 </Base>
+
+<style>
+  .story-frame { aspect-ratio: 16 / 9; position: relative; }
+  .story-poster { display: none; }
+  /* Phone held upright: the 1920x1080 stage would be unreadable. Show a poster and the fullscreen link instead. */
+  @media (orientation: portrait) and (max-width: 700px) {
+    .story-frame { aspect-ratio: auto; }
+    .story-embed, .story-hint { display: none; }
+    .story-poster { display: grid; gap: 0.75rem; justify-items: start; padding: 1.5rem 1.25rem; border-radius: 0; border: 0; box-shadow: none; }
+  }
+</style>

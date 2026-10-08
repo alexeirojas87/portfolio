@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test --experimental-strip-types tests/",
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run build:stories && astro build",
+    "build:stories": "npm --prefix stories install --no-audit --no-fund && npm --prefix stories run build && node scripts/copy-stories.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "privacy": "node scripts/privacy-scan.mjs",

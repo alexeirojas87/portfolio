@@ -1,0 +1,42 @@
+// Records the automatic beats as screen videos (Playwright, 1920x1080) into artifacts/rec/.
+//   node scripts/record.mjs [dist=dist] [--lang=en]
+// One clip per scene: lifecycle (4.1-4.7), cerberus (5.1-5.4), gateway (6.1-6.4), tools (7.1-7.4).
+// Not part of beatdeck: a portfolio addition, for reviewing motion by eye (verify only compares settled frames).
+import { mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs';
+import { launchBrowser, startServer, sleep } from './lib.mjs';
+
+const args = process.argv.slice(2);
+const DIST = args.find((a) => !a.startsWith('--')) ?? 'dist';
+const LANG = args.find((a) => a.startsWith('--lang='))?.slice(7) ?? 'en';
+const OUT = 'artifacts/rec';
+rmSync(OUT, { recursive: true, force: true });
+mkdirSync(OUT, { recursive: true });
+
+// how long to watch each beat (ms): its automatic motion plus a short rest
+const CLIPS = {
+  lifecycle: { start: '#3.3', waits: [800, 5200, 6400, 7000, 6600, 6200, 4600, 3200] },
+  cerberus: { start: '#4.7', waits: [800, 4400, 4600, 4000, 6200] },
+  gateway: { start: '#5.4', waits: [800, 4600, 4200, 8200, 5600] },
+  tools: { start: '#6.4', waits: [800, 3200, 3200, 7600, 3000] },
+};
+
+const { base, stop } = await startServer({ dist: DIST, port: 4188 });
+const browser = await launchBrowser();
+for (const [name, c] of Object.entries(CLIPS)) {
+  const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, recordVideo: { dir: `${OUT}/tmp-${name}`, size: { width: 1920, height: 1080 } } });
+  const page = await ctx.newPage();
+  await page.goto(`${base}?story=agentic-orchestration&lang=${LANG}${c.start}`);
+  await page.waitForFunction(() => document.fonts.status === 'loaded');
+  await sleep(c.waits[0]);
+  for (const w of c.waits.slice(1)) {
+    await page.keyboard.press('ArrowRight');
+    await sleep(w);
+  }
+  await ctx.close(); // flushes the video
+  const f = readdirSync(`${OUT}/tmp-${name}`)[0];
+  renameSync(`${OUT}/tmp-${name}/${f}`, `${OUT}/${name}-${LANG}.webm`);
+  rmSync(`${OUT}/tmp-${name}`, { recursive: true });
+  console.log(`✓ ${OUT}/${name}-${LANG}.webm`);
+}
+await browser.close();
+await stop();

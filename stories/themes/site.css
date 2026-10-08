@@ -1,0 +1,53 @@
+/*
+ * Portfolio theme for the project stories.
+ * Same tokens as the Astro site (navy canvas, cobalt accent, node-kind colours) on beatdeck's token names.
+ * Fonts are local @fontsource packages bundled by Vite: nothing is fetched at runtime.
+ */
+@import '@fontsource-variable/archivo/wdth.css';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root {
+  --bg: #0f1b2d;
+  --surface: #16253b;
+  --ink: #e8eef8;
+  --ink-2: rgba(232, 238, 248, 0.74);
+  --ink-3: rgba(232, 238, 248, 0.44);
+  --hair: rgba(232, 238, 248, 0.14);
+  --hair-strong: rgba(232, 238, 248, 0.24);
+
+  --accent: #2f5bea; /* cobalt: fills and lines */
+  --accent-strong: #2448c4;
+  --accent-text: #9db8ff; /* cobalt tint that reads as text on navy */
+  --ok: #19b39b;
+  --warning: #f2a93b;
+  --fault: #e0559e;
+
+  /* node-kind colours, same meaning as the site diagrams */
+  --k-compute: #5b8cff;
+  --k-data: #19b39b;
+  --k-queue: #f2a93b;
+  --k-ai: #e0559e;
+  --k-client: #c7d2e3;
+  --k-external: #8a97ab;
+
+  --op-accent: var(--accent);
+  --op-accent-strong: var(--accent-strong);
+
+  --font-display: 'Archivo Variable', system-ui, sans-serif;
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Type roles. Display = Archivo at its widest ("Archivo Expanded"). */
+.t-statement { font-family: var(--font-display); font-stretch: 125%; font-weight: 700; letter-spacing: -0.03em; line-height: 1; white-space: nowrap; }
+.t-editorial { font-family: var(--font-sans); font-weight: 500; letter-spacing: -0.01em; line-height: 1.25; }
+.t-numeral { font-family: var(--font-display); font-stretch: 125%; font-weight: 300; letter-spacing: -0.04em; line-height: 0.8; font-variant-numeric: tabular-nums; }
+.t-meta { font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+.t-eyebrow { font-family: var(--font-mono); font-size: 30px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-text); }
+.t-body { font-family: var(--font-sans); font-weight: 400; line-height: 1.32; color: var(--ink-2); }
+.t-accent { color: var(--accent-text); }

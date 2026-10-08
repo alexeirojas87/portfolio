@@ -47,7 +47,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T7d Dissolve redesign: the console surface itself decomposes into a grid of glyph cells (solid -> glitch -> detached -> falls), erosion driven by a clustered noise/distance field starting at the typed text, revealing the page through the holes; rain-over-curtain removed. Route: delegated writer.
 - [x] T7e Dissolve v3: navy overlay split into columns draining downward behind falling binary heads (glyphs only on navy, 3 depth layers, wave from the typed text outward). Route: delegated writer.
 - [x] T6 Backend: dropped by owner (static content, no backend needed).
-- [ ] T8 Project story slides (beatdeck) replace the video slot: per project, beats explaining the system and why the architecture was chosen; pilot on agentic-orchestration, then the rest. Video slot hidden until a story exists. Route: delegated writer.
+- [~] T8 (pilot agentic-orchestration done on feat/project-stories; rest pending) Project story slides (beatdeck) replace the video slot: per project, beats explaining the system and why the architecture was chosen; pilot on agentic-orchestration, then the rest. Video slot hidden until a story exists. Route: delegated writer.
 - [x] T9 SEO: per-page title/description, Open Graph + Twitter cards with generated images, hreflang en/es, canonical, favicon, robots.txt, sitemap.xml, 404 page, structured data (Person). Route: delegated writer.
 - [ ] T10 Publish: GitHub repo, merge to main, Cloudflare Pages deploy (pages.dev until alexeirojas.dev is bought). Route: inline (remote ops need owner authorization).
 
