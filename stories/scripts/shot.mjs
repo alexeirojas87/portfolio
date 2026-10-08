@@ -27,7 +27,7 @@ if (!specs.length) {
 mkdirSync(OUT, { recursive: true });
 
 const dist = flag('dist');
-const { base, stop } = await startServer(dist ? { dist, port: 4176 } : { dev: true, mode: flag('mode'), port: 4176 });
+const { base, stop } = await startServer(dist ? { dist, port: Number(process.env.BEATDECK_PORT) || 4176 } : { dev: true, mode: flag('mode'), port: Number(process.env.BEATDECK_PORT) || 4176 });
 const browser = await launchBrowser();
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 const errors = [];
