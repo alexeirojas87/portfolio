@@ -3,11 +3,27 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { useTranslations, type Locale } from '../i18n/ui';
+import { SITE_URL } from '../lib/site';
+import { alternates, basePath, clampDescription, metaTags, ogImagePath, pageUrl } from '../lib/seo';
 
-interface Props { locale: Locale; title?: string; description?: string }
-const { locale, title, description } = Astro.props;
+interface Props {
+  locale: Locale;
+  title?: string;
+  description?: string;
+  /** Open Graph image path (under the site root); defaults to the page card for this locale. */
+  image?: string;
+  jsonLd?: object[];
+  noindex?: boolean;
+  type?: 'website' | 'article';
+}
+const { locale, title, description, image, jsonLd = [], noindex = false, type } = Astro.props;
 const t = useTranslations(locale);
 const pageTitle = title ? `${title} · ${t('site.name')}` : `${t('site.name')} · ${t('site.role')}`;
+const path = basePath(Astro.url.pathname);
+const desc = clampDescription(description ?? t('site.description'));
+const canonical = pageUrl(SITE_URL, locale, path);
+const ogImage = SITE_URL + (image ?? ogImagePath('page', 'home', locale));
+const tags = metaTags({ site: SITE_URL, locale, path, title: pageTitle, description: desc, image: ogImage, type });
 ---
 <!doctype html>
 <html lang={locale}>
@@ -15,10 +31,18 @@ const pageTitle = title ? `${title} · ${t('site.name')}` : `${t('site.name')} �
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
-    <meta name="description" content={description ?? t('site.description')} />
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical} />
+    {alternates(SITE_URL, path).map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    {noindex && <meta name="robots" content="noindex" />}
+    {tags.map((m) => (m.attr === 'name' ? <meta name={m.key} content={m.content} /> : <meta property={m.key} content={m.content} />))}
     <meta name="theme-color" content="#EEF1F6" />
+    {jsonLd.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
     <slot name="head" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%232F5BEA'/%3E%3C/svg%3E" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
