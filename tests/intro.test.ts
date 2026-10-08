@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { countProjects, typedLines, hasPlayed, markPlayed, shouldPlayIntro, beatAt, introTotalMs, dissolveStartMs, terminalDuration, charsTypedAt, CHAR_MS, LINE_PAUSE_MS, READY_PAUSE_MS, CURSOR_MS, TERMINAL_END_MS, DISSOLVE_MS, INTRO_STORAGE_KEY } from '../src/lib/intro.ts';
-import { planDecompose, mulberry32, stageAt, endOf, openFraction, glyphIndex, fallState, GLYPHS, MAX_LIFE_MS, valueNoise, type Piece } from '../src/lib/decompose.ts';
+import { countProjects, typedLines, hasPlayed, markPlayed, shouldPlayIntro, beatAt, introTotalMs,
+  dissolveStartMs, terminalDuration, charsTypedAt, CHAR_MS, LINE_PAUSE_MS, READY_PAUSE_MS, CURSOR_MS, TERMINAL_END_MS, DISSOLVE_MS, INTRO_STORAGE_KEY } from '../src/lib/intro.ts';
+import { planColumns, mulberry32, edgeY, navyTop, isDrained, dropRows, glyphAt, clearFraction, GLYPHS, SOFT_ROWS, LAYER } from '../src/lib/columns.ts';
 
 test('counts are derived from project data', () => {
   const c = countProjects([{ category: 'corporate' }, { category: 'personal' }, { category: 'personal' }]);
@@ -66,7 +67,7 @@ test('constants are within the readable ranges', () => {
   assert.ok(CHAR_MS >= 35 && CHAR_MS <= 45);
   assert.ok(CURSOR_MS >= 600 && CURSOR_MS <= 800);
   assert.ok(TERMINAL_END_MS >= 1000, 'last line readable for >= 1s');
-  assert.ok(DISSOLVE_MS >= 2200 && DISSOLVE_MS <= 2800);
+  assert.ok(DISSOLVE_MS >= 2000 && DISSOLVE_MS <= 2500);
 });
 
 test('beats: cursor, terminal, dissolve, done; skip ends immediately', () => {
@@ -83,89 +84,88 @@ test('beats: cursor, terminal, dissolve, done; skip ends immediately', () => {
   assert.equal(introTotalMs(LINES) - dissolve, DISSOLVE_MS);
 });
 
-// ---- console decomposition ----
+// ---- column drain ----
 const W = 1440, H = 900, CW = 16, CH = 25;
-const text = LINES.flatMap((l, row) => [...l].map((ch, i) => ({ x: 56 + i * 12, y: 56 + row * 32, w: 12, h: 26, ch, row }))).filter((t) => t.ch.trim());
-const plan = (seed = 1) => planDecompose({ width: W, height: H, cellW: CW, cellH: CH, durationMs: DISSOLVE_MS, text, rng: mulberry32(seed), seed });
+const textXs = LINES.flatMap((l, row) => [...l].map((ch, i) => ({ ch, x: 56 + i * 12 + 6 }))).filter((t) => t.ch.trim()).map((t) => t.x);
+const plan = (seed = 1) => planColumns({ width: W, height: H, cellW: CW, cellH: CH, durationMs: DISSOLVE_MS, textXs, rng: mulberry32(seed) });
 
-test('decompose: a cell grid covers the whole screen plus one text piece per typed character', () => {
-  const pieces = plan();
-  const cells = pieces.filter((p) => p.kind === 'cell');
-  assert.equal(cells.length, Math.ceil(W / CW) * Math.ceil(H / CH));
-  assert.equal(pieces.filter((p) => p.kind === 'text').length, text.length);
-  assert.ok(cells.every((c) => c.w === CW && c.h === CH));
+test('columns: one drain column per glyph advance, covering the whole width', () => {
+  const p = plan();
+  assert.equal(p.columns.length, Math.ceil(W / CW));
+  p.columns.forEach((c, i) => { assert.equal(c.x, i * CW); assert.equal(c.index, i); });
+  assert.equal(GLYPHS, '01');
 });
 
-test('decompose: every piece has crumbled and fallen before the dissolve ends', () => {
+test('columns: every column is fully drained before the dissolve ends', () => {
   for (const seed of [1, 2, 3, 42]) {
-    const pieces = plan(seed);
-    for (const p of pieces) assert.ok(endOf(p) <= DISSOLVE_MS, `piece ends by ${DISSOLVE_MS}`);
-    assert.ok(pieces.every((p) => stageAt(p, DISSOLVE_MS).stage === 'done'));
-    assert.equal(openFraction(pieces, DISSOLVE_MS), 1);
-  }
-  assert.ok(MAX_LIFE_MS < DISSOLVE_MS / 2);
-});
-
-test('decompose: stages run solid -> glitch -> detached -> falling -> done and navy opens at detach', () => {
-  const p = plan()[0] as Piece;
-  assert.equal(stageAt(p, p.act - 1).stage, 'solid');
-  assert.equal(stageAt(p, p.act + 1).stage, 'glitch');
-  assert.equal(stageAt(p, p.act + p.glitch + 1).stage, 'detached');
-  assert.equal(stageAt(p, p.act + p.glitch + p.hover + 1).stage, 'falling');
-  assert.equal(stageAt(p, endOf(p) + 1).stage, 'done');
-  const f = fallState(p, 0.5);
-  assert.ok(f.dy > 0 && f.alpha > 0 && f.alpha < 1);
-  assert.ok(fallState(p, 0.2).dy < fallState(p, 0.9).dy);
-});
-
-test('decompose: the page opens progressively (about half at the midpoint), monotonically, not as a curtain', () => {
-  const pieces = plan(5);
-  let prev = 0;
-  for (let t = 0; t <= DISSOLVE_MS; t += 100) {
-    const f = openFraction(pieces, t);
-    assert.ok(f >= prev - 1e-9, 'monotonic');
-    prev = f;
-  }
-  const mid = openFraction(pieces, DISSOLVE_MS / 2);
-  assert.ok(mid > 0.4 && mid < 0.7, `midpoint ${mid}`);
-  assert.ok(openFraction(pieces, 300) < 0.2);
-  // not a horizontal curtain: at the midpoint holes appear in every band of rows
-  const cells = pieces.filter((p) => p.kind === 'cell');
-  const bands = 6;
-  for (let b = 0; b < bands; b++) {
-    const inBand = cells.filter((c) => c.y >= (H / bands) * b && c.y < (H / bands) * (b + 1));
-    const open = inBand.filter((c) => c.act + c.glitch <= DISSOLVE_MS / 2).length / inBand.length;
-    assert.ok(open > 0.1 && open < 0.95, `band ${b} open ${open}`);
+    const p = plan(seed);
+    for (const c of p.columns) assert.ok(isDrained(c, DISSOLVE_MS, CH, H), `column ${c.index} drained`);
+    assert.equal(clearFraction(p, DISSOLVE_MS, H), 1);
+    assert.ok(clearFraction(p, 0, H) < 0.01);
   }
 });
 
-test('decompose: the typed text crumbles first, line by line, then it spreads outward in clusters', () => {
-  const pieces = plan(9);
-  const texts = pieces.filter((p) => p.kind === 'text');
-  const cells = pieces.filter((p) => p.kind === 'cell');
-  const lastText = Math.max(...texts.map((p) => p.act));
-  const firstQuarterCells = cells.filter((c) => c.act < lastText * 2).length;
-  assert.ok(lastText < DISSOLVE_MS * 0.2, 'text starts crumbling early');
-  assert.ok(firstQuarterCells < cells.length * 0.2, 'most of the screen is still solid when the text is crumbling');
-  const row0 = texts.filter((p) => p.y < 80).map((p) => p.act);
-  const row3 = texts.filter((p) => p.y > 140).map((p) => p.act);
-  assert.ok(Math.min(...row0) < Math.max(...row3));
-  // clustering: neighbouring cells activate closer in time than random pairs
-  const by = new Map(cells.map((c) => [`${c.x},${c.y}`, c.act]));
-  let adj = 0, n = 0;
-  for (const c of cells) { const r = by.get(`${c.x + CW},${c.y}`); if (r !== undefined) { adj += Math.abs(r - c.act); n++; } }
-  const rnd = mulberry32(3); let rand = 0;
-  for (let i = 0; i < n; i++) rand += Math.abs(cells[Math.floor(rnd() * cells.length)].act - cells[Math.floor(rnd() * cells.length)].act);
-  assert.ok(adj / n < (rand / n) * 0.35, `adjacent ${adj / n} vs random ${rand / n}`);
+test('columns: the wave starts under the typed text and spreads outward with jitter', () => {
+  const p = plan(5);
+  const lo = Math.min(...textXs), hi = Math.max(...textXs);
+  const under = p.columns.filter((c) => c.fromText);
+  assert.ok(under.length > 5);
+  assert.ok(under.every((c) => c.cx >= lo - CW && c.cx <= hi + CW));
+  const underMax = Math.max(...under.map((c) => c.start));
+  const outside = p.columns.filter((c) => !c.fromText);
+  assert.ok(outside.every((c) => c.start >= 0));
+  // further from the text starts later, on average (left and right)
+  const dist = (c: { cx: number }) => Math.max(0, lo - c.cx, c.cx - hi);
+  const near = outside.filter((c) => dist(c) < 300), far = outside.filter((c) => dist(c) > 700);
+  const mean = (a: { start: number }[]) => a.reduce((x, y) => x + y.start, 0) / a.length;
+  assert.ok(underMax < DISSOLVE_MS * 0.1);
+  assert.ok(mean(near) < mean(far), `near ${mean(near)} vs far ${mean(far)}`);
+  // jitter: starts are not a clean monotone sweep
+  const right = outside.filter((c) => c.cx > hi).sort((a, b) => a.cx - b.cx);
+  assert.ok(right.some((c, i) => i > 0 && c.start < right[i - 1].start));
+  // a wave, not noise: half the page is clear around the middle of the dissolve
+  const mid = clearFraction(p, DISSOLVE_MS * 0.5, H);
+  assert.ok(mid > 0.25 && mid < 0.75, `midpoint ${mid}`);
 });
 
-test('decompose: glitch glyphs cycle over time, deterministically, from the binary set', () => {
-  const p = plan()[10];
-  assert.equal(glyphIndex(p, p.act + 50), glyphIndex(p, p.act + 50));
-  const seen = new Set<number>();
-  for (let t = 0; t < 1200; t += 70) seen.add(glyphIndex(p, p.act + t));
-  assert.equal(seen.size, 2);
-  assert.ok([...seen].every((i) => i >= 0 && i < GLYPHS.length));
-  const a = valueNoise(3.2, 4.1, 1);
-  assert.ok(a >= 0 && a <= 1);
+test('columns: the drain edge only moves down and is a soft gradient of SOFT_ROWS glyphs', () => {
+  const p = plan();
+  const c = p.columns[40];
+  let prev = -Infinity;
+  for (let t = 0; t <= DISSOLVE_MS; t += 50) { const e = edgeY(c, t, CH); assert.ok(e >= prev); prev = e; }
+  assert.equal(navyTop(c, 1000, CH) - edgeY(c, 1000, CH), SOFT_ROWS * CH);
+});
+
+test('columns: no glyph is ever drawn above the drain edge (glyphs live only on navy), on every layer', () => {
+  for (const seed of [1, 7]) {
+    const p = plan(seed);
+    for (let t = 0; t <= DISSOLVE_MS; t += 80) {
+      for (const d of p.drops) {
+        const clip = navyTop(p.columns[d.col], t, CH);
+        for (const r of dropRows(d, t, clip)) assert.ok(r.y >= clip, `layer ${d.layer} row at ${r.y} >= ${clip}`);
+      }
+    }
+  }
+});
+
+test('columns: three depth layers, back dimmer, slower and smaller than front', () => {
+  const p = plan(2);
+  const layers = new Set(p.drops.map((d) => d.layer));
+  assert.deepEqual([...layers].sort(), [0, 1, 2]);
+  assert.ok(LAYER[0].alpha < LAYER[1].alpha && LAYER[1].alpha < LAYER[2].alpha);
+  assert.ok(LAYER[0].speed < LAYER[1].speed && LAYER[1].speed < LAYER[2].speed);
+  const avg = (l: number, f: (d: (typeof p.drops)[number]) => number) => { const a = p.drops.filter((d) => d.layer === l); return a.reduce((x, d) => x + f(d), 0) / a.length; };
+  assert.ok(avg(0, (d) => d.cell) < avg(2, (d) => d.cell));
+  assert.ok(avg(0, (d) => d.speed) < avg(2, (d) => d.speed));
+  for (const d of p.drops) assert.ok(d.trail >= 12 && d.trail <= 25);
+});
+
+test('columns: glyphs are binary, deterministic, and occasionally flicker', () => {
+  const salt = 12345;
+  assert.equal(glyphAt(salt, 3, 100), glyphAt(salt, 3, 100));
+  const seen = new Set<number>(); let flips = 0, prevG = -1;
+  for (let t = 0; t < 4000; t += 90) { const g = glyphAt(salt, 5, t); seen.add(g); if (prevG >= 0 && g !== prevG) flips++; prevG = g; }
+  assert.ok([...seen].every((g) => g === 0 || g === 1));
+  for (let r = 0; r < 30; r++) for (let t = 0; t < 900; t += 90) assert.ok([0, 1].includes(glyphAt(salt + r, r, t)));
+  assert.ok(flips < 40);
 });

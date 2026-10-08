@@ -45,6 +45,7 @@ Strategy: ask-on-risk (default). Forecast exceeds ~400 authored lines; no remote
 - [x] T7b Retime the intro for readability: named timing constants in `src/lib/intro.ts` (cursor 700ms, 35ms/char, line pauses, staged title entrance + 2.5s hold, 800ms ease-in-out exit), skip visible from the first frame. Route: delegated writer.
 - [x] T7c Intro becomes terminal beat only + Matrix-style canvas dissolve that erodes the navy overlay column by column to reveal the home page (title card, uptime and morph removed). Route: delegated writer.
 - [x] T7d Dissolve redesign: the console surface itself decomposes into a grid of glyph cells (solid -> glitch -> detached -> falls), erosion driven by a clustered noise/distance field starting at the typed text, revealing the page through the holes; rain-over-curtain removed. Route: delegated writer.
+- [x] T7e Dissolve v3: navy overlay split into columns draining downward behind falling binary heads (glyphs only on navy, 3 depth layers, wave from the typed text outward). Route: delegated writer.
 - [ ] T6 (later) Backend design.
 
 ## Acceptance criteria
