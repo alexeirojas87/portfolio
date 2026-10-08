@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import { useTranslations, type Locale, type UiKey } from '../i18n/ui';
 import { capabilityGroups, CAREER_START_YEAR } from '../lib/profile';
+import { PERSON, SITE_URL } from '../lib/site';
+import { ogImagePath, personJsonLd } from '../lib/seo';
 import { CLASS_COLOR } from '../components/diagram/kinds';
 
 interface Props { locale: Locale }
@@ -9,8 +11,9 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 const career = [1, 2, 3, 4].map((n) => ({ when: t(`about.career.${n}.when` as UiKey), what: t(`about.career.${n}.what` as UiKey) }));
 const research = [1, 2, 3, 4].map((n) => t(`about.research.${n}` as UiKey));
+const personLd = personJsonLd({ site: SITE_URL, locale, name: PERSON.name, jobTitle: PERSON.jobTitle, sameAs: PERSON.sameAs, knowsAbout: capabilityGroups.flatMap((g) => g.items), description: t('about.lead', { year: CAREER_START_YEAR }) });
 ---
-<Base locale={locale} title={t('about.title')} description={t('about.lead', { year: CAREER_START_YEAR })}>
+<Base locale={locale} title={t('about.title')} description={t('about.lead', { year: CAREER_START_YEAR })} image={ogImagePath('page', 'about', locale)} jsonLd={[personLd]}>
   <div class="wrap pt-14">
     <p class="eyebrow">{t('about.eyebrow')}</p>
     <h1 class="display mt-3 text-[clamp(2.2rem,5vw,3.6rem)]">{t('about.title')}</h1>

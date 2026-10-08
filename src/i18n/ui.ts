@@ -180,6 +180,7 @@ const en = {
 
   '404.title': 'Page not found',
   '404.body': 'That page does not exist.',
+  '404.home': 'Back home',
 } as const;
 
 export type UiKey = keyof typeof en;
@@ -364,6 +365,7 @@ const es: Record<UiKey, string> = {
 
   '404.title': 'Página no encontrada',
   '404.body': 'Esa página no existe.',
+  '404.home': 'Volver al inicio',
 };
 
 export const ui: Record<Locale, Record<UiKey, string>> = { en, es };

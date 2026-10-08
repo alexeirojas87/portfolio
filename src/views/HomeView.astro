@@ -8,6 +8,8 @@ import { CLASS_COLOR } from '../components/diagram/kinds';
 import { capabilityGroups, CAREER_START_YEAR } from '../lib/profile';
 import BootIntro from '../components/BootIntro.tsx';
 import { countProjects } from '../lib/intro';
+import { PERSON, SITE_URL } from '../lib/site';
+import { ogImagePath, personJsonLd } from '../lib/seo';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -20,8 +22,9 @@ const featured = featuredSlugs
   .map((s) => all.find((p) => p.slug === s))
   .filter((p): p is NonNullable<typeof p> => !!p)
   .map((p) => ({ slug: p.slug, title: tx(p.title, locale), href: localePath(locale, `/projects/${p.slug}`), architecture: p.architecture }));
+const personLd = personJsonLd({ site: SITE_URL, locale, name: PERSON.name, jobTitle: PERSON.jobTitle, sameAs: PERSON.sameAs, knowsAbout: capabilityGroups.flatMap((g) => g.items), description: t('hero.lead', { year: CAREER_START_YEAR }) });
 ---
-<Base locale={locale}>
+<Base locale={locale} image={ogImagePath('page', 'home', locale)} jsonLd={[personLd]}>
   <script is:inline slot="head">
     // Decide before first paint: play the boot intro once per session, never with reduced motion.
     (function () {
