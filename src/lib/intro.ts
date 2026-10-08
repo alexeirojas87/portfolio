@@ -44,7 +44,7 @@ export const CHAR_MS = 35; // typing speed per character
 export const LINE_PAUSE_MS = 250; // pause after each terminal line
 export const READY_PAUSE_MS = 400; // slightly longer pause before the last ("> ready") line
 export const TERMINAL_END_MS = 1100; // hold on the finished terminal so the last line is readable
-export const DISSOLVE_MS = 2400; // the console drains into falling binary columns and reveals the page
+export const DISSOLVE_MS = 3200; // the console drains into falling binary columns and reveals the page
 
 /** Time to type all lines, including the pauses between them (none after the last line). */
 export function terminalDuration(lines: string[]): number {

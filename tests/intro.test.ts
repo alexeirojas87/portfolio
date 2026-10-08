@@ -67,7 +67,7 @@ test('constants are within the readable ranges', () => {
   assert.ok(CHAR_MS >= 35 && CHAR_MS <= 45);
   assert.ok(CURSOR_MS >= 600 && CURSOR_MS <= 800);
   assert.ok(TERMINAL_END_MS >= 1000, 'last line readable for >= 1s');
-  assert.ok(DISSOLVE_MS >= 2000 && DISSOLVE_MS <= 2500);
+  assert.ok(DISSOLVE_MS >= 2800 && DISSOLVE_MS <= 3600);
 });
 
 test('beats: cursor, terminal, dissolve, done; skip ends immediately', () => {
