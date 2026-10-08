@@ -12,7 +12,9 @@ export const t = (text: LocalizedText, locale: Locale): string => text[locale] ?
 
 export async function getProjects(): Promise<Project[]> {
   const entries = await getCollection('projects');
-  return entries.map((e) => e.data).sort((a, b) => a.title.en.localeCompare(b.title.en));
+  // Client (corporate) projects come first: they are the strongest evidence for recruiters.
+  const rank = (p: { category: string }) => (p.category === 'corporate' ? 0 : 1);
+  return entries.map((e) => e.data).sort((a, b) => rank(a) - rank(b) || a.title.en.localeCompare(b.title.en));
 }
 
 export async function getProjectsByCategory(category: ProjectCategory): Promise<Project[]> {

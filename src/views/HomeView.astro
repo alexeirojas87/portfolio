@@ -68,20 +68,20 @@ const personLd = personJsonLd({ site: SITE_URL, locale, name: PERSON.name, jobTi
     <h2 class="section-title mt-2">{t('home.work.title')}</h2>
 
     <div class="mt-12">
-      <p class="eyebrow" style="color:var(--cobalt)">{t('home.personal.label')} · {t('home.systems', { n: personal.length })}</p>
-      <h3 class="display-md mt-1 text-2xl">{t('home.personal.title')}</h3>
-      <p class="mt-2 max-w-2xl text-ink-2">{t('home.personal.note')}</p>
-      <div class="cards mt-6">
-        {personal.map((p) => <ProjectCard project={p} locale={locale} />)}
-      </div>
-    </div>
-
-    <div class="mt-20">
       <p class="eyebrow" style="color:var(--cobalt)">{t('home.corporate.label')} · {t('home.systems', { n: corporate.length })}</p>
       <h3 class="display-md mt-1 text-2xl">{t('home.corporate.title')}</h3>
       <p class="mt-2 max-w-2xl rounded-xl border border-rule bg-surface px-4 py-3 text-sm text-ink-2">{t('home.corporate.note')}</p>
       <div class="cards mt-6">
         {corporate.map((p) => <ProjectCard project={p} locale={locale} />)}
+      </div>
+    </div>
+
+    <div class="mt-20">
+      <p class="eyebrow" style="color:var(--cobalt)">{t('home.personal.label')} · {t('home.systems', { n: personal.length })}</p>
+      <h3 class="display-md mt-1 text-2xl">{t('home.personal.title')}</h3>
+      <p class="mt-2 max-w-2xl text-ink-2">{t('home.personal.note')}</p>
+      <div class="cards mt-6">
+        {personal.map((p) => <ProjectCard project={p} locale={locale} />)}
       </div>
     </div>
   </section>
