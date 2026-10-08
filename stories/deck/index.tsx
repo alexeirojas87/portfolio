@@ -12,6 +12,7 @@ import { lang } from './shared/lang';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const STORIES: Record<string, () => Promise<{ default: DeckDefinition<any> }>> = {
   'agentic-orchestration': () => import('./stories/agentic-orchestration'),
+  'apagones-habana': () => import('./stories/apagones-habana'),
 };
 
 /** Resolve `?story=<slug>` (default story when missing or unknown) and add the portrait-phone hint. */

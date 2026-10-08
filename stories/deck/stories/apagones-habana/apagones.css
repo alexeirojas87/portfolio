@@ -1,0 +1,19 @@
+/* Apagones Habana story: ambient motion only. Every loop stops in ?capture=1 (verify) and with reduced motion. */
+.flicker { animation: flicker 2.6s steps(1, end) infinite; }
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  8% { opacity: 0.25; } 12% { opacity: 1; } 15% { opacity: 0.4; } 19% { opacity: 1; }
+  62% { opacity: 1; } 64% { opacity: 0.15; } 67% { opacity: 1; } 70% { opacity: 0.5; } 72% { opacity: 1; }
+}
+.drift { animation: drift 7s ease-in-out infinite alternate; }
+.drift.d2 { animation-duration: 9s; animation-delay: -3s; }
+.drift.d3 { animation-duration: 8s; animation-delay: -5s; }
+@keyframes drift { from { transform: translate(0, 0) rotate(-1deg); } to { transform: translate(14px, -18px) rotate(1.2deg); } }
+.ripple { animation: ripple 2.2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes ripple { from { transform: scale(0.4); opacity: 0.9; } to { transform: scale(2.4); opacity: 0; } }
+.beam { animation: beam 3.2s ease-in-out infinite alternate; }
+@keyframes beam { from { opacity: 0.55; } to { opacity: 1; } }
+
+.capture .flicker, .reduced-motion .flicker, .capture .drift, .reduced-motion .drift, .capture .ripple, .reduced-motion .ripple,
+.capture .beam, .reduced-motion .beam { animation: none; }
+.capture .ripple, .reduced-motion .ripple { opacity: 0; }
