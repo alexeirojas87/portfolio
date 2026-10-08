@@ -13,6 +13,7 @@ import { lang } from './shared/lang';
 const STORIES: Record<string, () => Promise<{ default: DeckDefinition<any> }>> = {
   'agentic-orchestration': () => import('./stories/agentic-orchestration'),
   'wagering-platform': () => import('./stories/wagering-platform'),
+  'crypto-payments': () => import('./stories/crypto-payments'),
 };
 
 /** Resolve `?story=<slug>` (default story when missing or unknown) and add the portrait-phone hint. */
