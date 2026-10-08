@@ -27,7 +27,7 @@ export const name = (s, b) => `${String(s).padStart(2, '0')}-${String(b).padStar
  * Serve the deck locally: `vite preview` of a build (`dist`), or the dev server (`dev: true`, no build needed;
  * `mode` picks an example). Resolves to { base, stop }.
  */
-export async function startServer({ dist = 'dist', dev = false, mode, port = 4174 } = {}) {
+export async function startServer({ dist = 'dist', dev = false, mode, port = Number(process.env.BEATDECK_PORT) || 4174 } = {}) {
   const vite = 'node_modules/vite/bin/vite.js';
   const argv = dev
     ? [vite, '--host', '127.0.0.1', '--port', String(port), '--strictPort', ...(mode ? ['--mode', mode] : [])]

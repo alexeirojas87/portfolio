@@ -120,6 +120,13 @@ export const copy = {
     },
   ] as Pair[],
 
+  /** Region labels of the zoomed-out map (authored UI words). */
+  region: {
+    lifecycle: { name: { en: 'Lifecycle', es: 'Ciclo de vida' }, sub: { en: 'orchestrator + agents', es: 'orquestador + agentes' } },
+    gateway: { name: { en: 'Gateway', es: 'Gateway' }, sub: { en: 'model access only', es: 'solo acceso al modelo' } },
+    tools: { name: { en: 'Tools', es: 'Herramientas' }, sub: { en: 'MCP, memory, code graph', es: 'MCP, memoria, grafo' } },
+  },
+
   badge: {
     awaiting: { en: 'Awaiting approval', es: 'Esperando aprobación' },
     approved: { en: 'Approved', es: 'Aprobado' },
@@ -214,8 +221,9 @@ export const copy = {
     {
       head: { en: 'Orchestrator, gateway, tools.', es: 'Orquestador, gateway, herramientas.' },
       cap: {
-        en: 'Workflow state, tools and memory live in the orchestrator and agent runtimes; the gateway only provides model access.',
-        es: 'El estado, las herramientas y la memoria viven en el orquestador y los runtimes de agentes; el gateway solo da acceso al modelo.',
+        // empty on purpose: the three region labels of the map carry the sentence
+        en: '',
+        es: '',
       },
     },
     {
