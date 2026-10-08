@@ -125,7 +125,8 @@ export function openFraction(pieces: Piece[], t: number): number {
   return n ? open / n : 1;
 }
 
-export const GLYPHS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎ0123456789<>{}[]=+-*/#$%&;:';
+/** Binary rain: the console breaks into ones and zeros only. */
+export const GLYPHS = '01';
 export const GLYPH_TICK_MS = 70;
 
 /** Deterministic cycling glyph index for a piece. */

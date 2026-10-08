@@ -159,12 +159,12 @@ test('decompose: the typed text crumbles first, line by line, then it spreads ou
   assert.ok(adj / n < (rand / n) * 0.35, `adjacent ${adj / n} vs random ${rand / n}`);
 });
 
-test('decompose: glitch glyphs cycle over time, deterministically, from the katakana/digit/symbol set', () => {
+test('decompose: glitch glyphs cycle over time, deterministically, from the binary set', () => {
   const p = plan()[10];
   assert.equal(glyphIndex(p, p.act + 50), glyphIndex(p, p.act + 50));
   const seen = new Set<number>();
   for (let t = 0; t < 1200; t += 70) seen.add(glyphIndex(p, p.act + t));
-  assert.ok(seen.size > 4);
+  assert.equal(seen.size, 2);
   assert.ok([...seen].every((i) => i >= 0 && i < GLYPHS.length));
   const a = valueNoise(3.2, 4.1, 1);
   assert.ok(a >= 0 && a <= 1);
