@@ -388,7 +388,7 @@ html.intro-pending body::before { content: ''; position: fixed; inset: 0; backgr
 .intro.is-dissolve .intro-inner { visibility: hidden; } /* the typed characters live on in the canvas */
 .intro-inner { position: absolute; inset: 0; padding: clamp(20px, 4vw, 56px); }
 .intro-term p { margin: 0 0 6px; font-size: clamp(0.9rem, 1.6vw, 1.25rem); letter-spacing: 0; min-height: 1.4em; }
-.intro-term .ch { display: inline-block; }
+.intro-term .ch { display: inline-block; white-space: pre; } /* pre keeps spaces from collapsing to zero width */
 .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: 2px; vertical-align: -0.15em; background: var(--canvas-text); animation: intro-blink .9s steps(1) infinite; }
 @keyframes intro-blink { 50% { opacity: 0; } }
 .cur.fast { animation-duration: .32s; }

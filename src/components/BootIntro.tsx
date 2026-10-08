@@ -3,13 +3,44 @@ import { useTranslations, type Locale } from '../i18n/ui.ts';
 import {
   CURSOR_MS, DISSOLVE_MS, charsTypedAt, dissolveStartMs, introTotalMs, markPlayed, typedLines, type IntroCounts,
 } from '../lib/intro.ts';
-import { columnCount, finishTime, glyphFor, headY, mulberry32, planRain, revealLines, tailY, type Seed } from '../lib/rain.ts';
+import {
+  GLYPHS, TEXT_HOLD_MS, endOf, fallState, glyphIndex, mulberry32, planDecompose, stageAt, type Piece, type TextSeed,
+} from '../lib/decompose.ts';
 
 interface Props { locale: Locale; counts: IntroCounts }
 
+type Atlas = { atlas: { white: HTMLCanvasElement; teal: HTMLCanvasElement; page: HTMLCanvasElement }; sw: number; sh: number; glyphPx: number };
+let atlasCache: (Atlas & { key: string }) | null = null;
+
+/** Sprite atlases: glyphs pre-rendered once (white flash / teal on navy / teal with a halo over the page). */
+function getAtlas(cellW: number, cellH: number, dpr: number): Atlas {
+  const key = `${cellW}x${cellH}@${dpr}`;
+  if (atlasCache?.key === key) return atlasCache;
+  const glyphPx = Math.round(cellH * 0.8);
+  const sw = Math.round(cellW * dpr), sh = Math.round(cellH * dpr);
+  const sprite = (style: 'white' | 'teal' | 'page') => {
+    const c = document.createElement('canvas');
+    c.width = sw * GLYPHS.length; c.height = sh;
+    const g = c.getContext('2d')!;
+    g.scale(dpr, dpr);
+    g.font = `${glyphPx}px "JetBrains Mono", monospace`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (let i = 0; i < GLYPHS.length; i++) {
+      const cx = (sw / dpr) * i + cellW / 2, cy = cellH / 2 + 1;
+      if (style === 'page') { g.lineWidth = 3; g.strokeStyle = 'rgba(15, 27, 45, .55)'; g.lineJoin = 'round'; g.strokeText(GLYPHS[i], cx, cy); }
+      g.fillStyle = style === 'white' ? '#ffffff' : TEAL;
+      g.fillText(GLYPHS[i], cx, cy);
+    }
+    return c;
+  };
+  atlasCache = { key, atlas: { white: sprite('white'), teal: sprite('teal'), page: sprite('page') }, sw, sh, glyphPx };
+  return atlasCache;
+}
+
+
 const NAVY = '#0f1b2d';
-const TEAL = '25, 179, 155'; // --k-data (#19B39B)
-const HEAD = '#b9fff0';
+const TEAL = '#19b39b'; // --k-data
+const TEXT = '#e8eef8'; // --canvas-text
 
 /**
  * Boot-sequence intro, home page only: a typed terminal, then a Matrix-style dissolve that erodes the
@@ -65,73 +96,100 @@ export default function BootIntro({ locale, counts }: Props) {
       const overlay = overlayRef.current, term = termRef.current;
       if (!overlay || !term || done) return;
       const W = window.innerWidth, H = window.innerHeight;
-      // Seeds: where each typed character sits on screen.
-      const chEls = [...term.querySelectorAll<HTMLElement>('.ch')];
-      const seeds: Seed[] = [];
-      let cell = 12;
-      for (const el of chEls) {
-        const r = el.getBoundingClientRect();
-        cell = r.width || cell;
-        const ch = el.textContent ?? '';
-        if (ch.trim()) seeds.push({ x: r.left + r.width / 2, y: r.top, ch });
-      }
-      const fontSize = Math.max(11, Math.round(cell / 0.6));
-      const cols = columnCount(W, cell);
-      const streams = planRain({ width: W, height: H, cell, durationMs: DISSOLVE_MS, seeds, rng: mulberry32(Date.now() & 0xffff) });
-
       const dpr = Math.min(2, window.devicePixelRatio || 1);
+      // Text pieces: each typed character exactly where the DOM draws it (spaces keep their slot, no piece).
+      const termFont = parseFloat(getComputedStyle(term.querySelector('p') ?? term).fontSize) || 16;
+      const lineEls = [...term.querySelectorAll('p')];
+      const text: TextSeed[] = [];
+      lineEls.forEach((pEl, row) => {
+        pEl.querySelectorAll<HTMLElement>('.ch').forEach((el) => {
+          const ch = el.textContent ?? '';
+          if (!ch.trim()) return;
+          const r = el.getBoundingClientRect();
+          text.push({ x: r.left, y: r.top, w: r.width, h: r.height, ch, row });
+        });
+        pEl.querySelectorAll<HTMLElement>('.cur').forEach((el) => {
+          const r = el.getBoundingClientRect();
+          text.push({ x: r.left, y: r.top, w: r.width, h: r.height, ch: '', row, cursor: true });
+        });
+      });
+      const cellW = W < 720 ? 13 : 16, cellH = Math.round(cellW * 1.55);
+      const pieces = planDecompose({ width: W, height: H, cellW, cellH, durationMs: DISSOLVE_MS, text, rng: mulberry32(Date.now() & 0xffff), seed: Date.now() & 0xff });
+      const cells = pieces.filter((p) => p.kind === 'cell').sort((a, b) => a.act + a.glitch - (b.act + b.glitch));
+      const actors = pieces.slice().sort((a, b) => a.act - b.act);
+
       canvas = document.createElement('canvas');
       canvas.className = 'intro-rain';
       canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       const ctx = canvas.getContext('2d');
       if (!ctx) { finish(); return; }
-      ctx.scale(dpr, dpr);
-      overlay.appendChild(canvas);
-      const endT = Math.max(...streams.map((s) => finishTime(s, H, cell))) + 40; // everything has left the screen
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const { atlas, sw, sh, glyphPx } = getAtlas(cellW, cellH, dpr);
+      const drawGlyph = (a: HTMLCanvasElement, idx: number, x: number, y: number) =>
+        ctx.drawImage(a, idx * sw, 0, sw, sh, x, y, cellW, cellH);
+
+      ctx.font = `${termFont}px "JetBrains Mono", monospace`;
+      // DOM glyph boxes include half-leading: baseline = top + (box height - content height) / 2 + ascent
+      const m = ctx.measureText('M');
+      const ascM = m.fontBoundingBoxAscent || termFont * 0.98, descM = m.fontBoundingBoxDescent || termFont * 0.3;
+      const boxH = text.find((x) => !x.cursor)?.h ?? ascM + descM;
+      const asc = (boxH - (ascM + descM)) / 2 + ascM;
+      let lo = 0;
       const t0 = performance.now();
-      let reveal: number[] = new Array(cols).fill(0);
 
       const frame = (now: number) => {
         if (done) return;
         const t = now - t0;
         ctx.clearRect(0, 0, W, H);
-        reveal = revealLines(streams, cols, t, cell, H, reveal);
-        // navy curtain per column, eroded from the top behind each falling trail
+        // 1) the console surface: solid navy, with a hole wherever a cell has detached
         ctx.fillStyle = NAVY;
-        for (let c = 0; c < cols; c++) if (reveal[c] < H) ctx.fillRect(c * cell, reveal[c], cell + 1, H - reveal[c] + 1);
-        ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        for (const s of streams) {
-          if (t < s.delay && s.y0 < 0) continue;
-          const head = headY(s, t);
-          if (tailY(s, t, cell) > H) continue;
-          for (let i = 0; i < s.trail; i++) {
-            const y = head - i * cell;
-            if (y < -cell || y > H) continue;
-            const a = Math.pow(1 - i / s.trail, 1.7);
-            if (i === 0) {
-              ctx.shadowColor = `rgba(${TEAL}, .95)`; ctx.shadowBlur = 8;
-              ctx.fillStyle = HEAD;
-              ctx.fillText(s.seed && t - s.delay < 140 ? s.seed : glyphFor(s, 0, t), s.x, y);
-              ctx.shadowBlur = 0;
-            } else {
-              ctx.fillStyle = `rgba(${TEAL}, ${a.toFixed(2)})`;
-              ctx.fillText(glyphFor(s, i, t), s.x, y);
-            }
+        ctx.fillRect(0, 0, W, H);
+        for (const c of cells) {
+          if (c.act + c.glitch > t) break;
+          ctx.clearRect(c.x, c.y, c.w + 1, c.h + 1);
+        }
+        // 2) pieces: typed text still solid, glitching cells, detached and falling glyphs
+        while (lo < actors.length && endOf(actors[lo]) < t && actors[lo].act < t) lo++;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.font = `${termFont}px "JetBrains Mono", monospace`;
+        for (const p of actors) {
+          const { stage, p: prog } = stageAt(p, t);
+          if (stage === 'done') continue;
+          if (p.kind === 'cell' && stage === 'solid') continue;
+          if (p.kind === 'text' && (stage === 'solid' || (stage === 'glitch' && t - p.act < TEXT_HOLD_MS))) {
+            ctx.fillStyle = TEXT;
+            if (p.cursor) ctx.fillRect(p.x, p.y, p.w, p.h); else ctx.fillText(p.ch ?? '', p.x + p.w / 2, p.y + asc);
+            continue;
+          }
+          const gx = p.kind === 'text' ? p.x + p.w / 2 - cellW / 2 : p.x;
+          const gy = p.kind === 'text' ? p.y + p.h / 2 - cellH / 2 : p.y;
+          const idx = glyphIndex(p, t);
+          if (stage === 'glitch') drawGlyph(t - p.act < 60 ? atlas.white : atlas.teal, idx, gx, gy);
+          else if (stage === 'detached') drawGlyph(atlas.page, idx, gx, gy);
+          else {
+            const { dy, alpha } = fallState(p, prog);
+            ctx.globalAlpha = alpha;
+            drawGlyph(atlas.page, idx, gx, gy + dy);
+            for (let k = 1; k <= 3; k++) { ctx.globalAlpha = alpha * (0.4 / k); drawGlyph(atlas.teal, (idx + k * 7) % GLYPHS.length, gx, gy + dy - k * cellH * 0.62 * Math.min(1, prog * 3)); }
+            ctx.globalAlpha = 1;
           }
         }
-        if (t > endT * 0.7) overlay.classList.add('is-late'); // fade the skip button as the last trails leave
-        if (t >= endT) { finish(); return; }
+        if (t > DISSOLVE_MS * 0.8) overlay.classList.add('is-late'); // fade the skip button near the end
+        if (t >= DISSOLVE_MS) { finish(); return; }
         raf = requestAnimationFrame(frame);
       };
-      // First frame is drawn synchronously, identical to the terminal, then the DOM text and the
-      // navy overlay background are dropped in the same task: no flash, no jump.
+      // First frame is drawn synchronously and is identical to the DOM terminal; the DOM text and the
+      // overlay background are dropped in the same task: no flash, no jump.
+      overlay.appendChild(canvas);
       frame(performance.now());
       overlay.classList.add('is-dissolve');
-      root.classList.remove('intro-pending'); // the page shows through the eroded curtain
+      root.classList.remove('intro-pending'); // the page shows through the first holes
       raf = requestAnimationFrame(frame);
     };
 
+    // build the glyph sprites while the terminal types, so the dissolve starts without a hitch
+    timers.push(window.setTimeout(() => { const w = window.innerWidth; const cw = w < 720 ? 13 : 16; getAtlas(cw, Math.round(cw * 1.55), Math.min(2, window.devicePixelRatio || 1)); }, 120));
     timers.push(window.setTimeout(() => setBeat('terminal'), CURSOR_MS));
     timers.push(window.setTimeout(startDissolve, dissolveStartMs(lines)));
     const typing = window.setInterval(() => {
