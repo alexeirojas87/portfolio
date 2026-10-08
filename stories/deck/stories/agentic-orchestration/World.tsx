@@ -43,6 +43,7 @@ function useCamera(ref: React.RefObject<HTMLDivElement | null>) {
 }
 
 function WNode({ k, w, view }: { k: NodeKey; w: WorldState; view: Cam }) {
+  const map = w.map;
   const r = RECT[k];
   // a box outside the camera window is hidden once the camera has arrived (it would otherwise be text outside the stage)
   const vis = r.x + r.w > view.x && r.x < view.x + 1920 / view.s && r.y + r.h > view.y && r.y < view.y + 1080 / view.s;
@@ -60,17 +61,19 @@ function WNode({ k, w, view }: { k: NodeKey; w: WorldState; view: Cam }) {
       style={{
         position: 'absolute', left: r.x, top: r.y, width: r.w, height: r.h, boxSizing: 'border-box', padding: '0 24px',
         display: 'flex', flexDirection: 'column', justifyContent: 'center', borderRadius: 6,
-        border: `${hot ? 4 : 2}px solid ${dim ? 'var(--ink-3)' : color}`,
-        background: hot ? 'var(--surface)' : 'var(--bg)',
-        boxShadow: dim ? 'none' : hot ? `0 0 60px -4px ${color}, inset 0 0 34px -10px ${color}` : `0 0 26px -8px ${color}`,
+        border: `${map ? 8 : hot ? 4 : 2}px solid ${dim ? 'var(--ink-3)' : color}`,
+        background: map ? `color-mix(in srgb, ${color} 30%, var(--bg))` : hot ? 'var(--surface)' : 'var(--bg)',
+        boxShadow: map ? `0 0 70px -2px ${color}` : dim ? 'none' : hot ? `0 0 60px -4px ${color}, inset 0 0 34px -10px ${color}` : `0 0 26px -8px ${color}`,
         opacity: on ? (dim ? 0.62 : 1) : 0, transform: `scale(${on ? 1 : 0.94})`, visibility: vis ? 'visible' : 'hidden',
         transition: `visibility 0s ${vis ? 0 : 1800}ms, opacity 600ms ${EASE}, transform 800ms ${EASE}, border-color 350ms, box-shadow 450ms, background 350ms`,
       }}
     >
+      <div style={{ opacity: map ? 0 : 1, transition: 'opacity 500ms' }}>
       {!isProv && n.tech && (
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 28, letterSpacing: '0.08em', textTransform: 'uppercase', color: dim ? 'var(--ink-3)' : color, marginBottom: 2 }}>{n.tech}</div>
       )}
       <div style={{ fontFamily: 'var(--font-sans)', fontSize: 34, fontWeight: 600, lineHeight: 1.1, color: dim ? 'var(--ink-3)' : 'var(--ink)' }}>{label}</div>
+      </div>
       {isProv && (
         <div style={{ position: 'absolute', right: 22, top: 0, bottom: 0, display: 'flex', alignItems: 'center', fontSize: 48, color, opacity: tone === 'fault' || tone === 'ok' ? 1 : 0, transition: 'opacity 300ms' }}>
           {tone === 'fault' ? '✕' : '✓'}
@@ -123,7 +126,7 @@ function Edges({ w }: { w: WorldState }) {
         return (
           <g key={def.id} style={{ opacity: on ? (tone === 'dimline' ? 0.5 : 1) : 0, transition: 'opacity 500ms', filter: hot ? `drop-shadow(0 0 7px ${color})` : 'none' }}>
             <path
-              d={`M${a.x} ${a.y} L${bx} ${by}`} fill="none" stroke={color} strokeWidth={hot ? 4 : 2.5}
+              d={`M${a.x} ${a.y} L${bx} ${by}`} fill="none" stroke={color} strokeWidth={w.map ? 9 : hot ? 4 : 2.5}
               pathLength={def.async ? undefined : 1}
               strokeDasharray={def.async ? '16 10' : 1}
               strokeDashoffset={def.async || on ? 0 : 1}
@@ -249,10 +252,32 @@ function Extras({ w, s, b }: { w: WorldState; s: number; b: number }) {
       <Badge x={RECT.runstore.x + RECT.runstore.w + 24} y={RECT.runstore.y + 44} on={lc && !!st.persist} color={st.persist === 'resumed' ? 'var(--ok)' : 'var(--accent-text)'}>
         {st.persist === 'resumed' ? tr(copy.badge.resumed) : tr(copy.badge.persisted)}
       </Badge>
-      <div style={{ position: 'absolute', left: RECT.prov0.x, top: RECT.prov0.y - 84, fontFamily: 'var(--font-mono)', fontSize: 30, letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'normal', width: 320, lineHeight: 1.15, color: 'var(--ink-2)', opacity: w.on.prov0 && (s === S_GW || (s === S_TC && b === 0)) ? 1 : 0, transition: 'opacity 600ms' }}>
+      <div style={{ position: 'absolute', left: RECT.prov0.x, top: RECT.prov0.y - 84, fontFamily: 'var(--font-mono)', fontSize: 30, letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'normal', width: 320, lineHeight: 1.15, color: 'var(--ink-2)', opacity: w.on.prov0 && s === S_GW ? 1 : 0, transition: 'opacity 600ms' }}>
         {tr(arch.node('provider').label)}
       </div>
       <Meters s={s} b={b} />
+    </>
+  );
+}
+
+/** Zoomed-out map: three dashed regions, each with a big label (world px sized so it reads at the map zoom). */
+const REGIONS: { key: 'lifecycle' | 'gateway' | 'tools'; x: number; y: number; w: number; h: number; lx: number; ly: number; color: string }[] = [
+  { key: 'lifecycle', x: 0, y: 320, w: 1900, h: 720, lx: 40, ly: 1080, color: 'var(--k-compute)' },
+  { key: 'gateway', x: 2090, y: 320, w: 1030, h: 740, lx: 2140, ly: 1100, color: 'var(--k-ai)' },
+  { key: 'tools', x: 1400, y: 1470, w: 1620, h: 740, lx: 40, ly: 1700, color: 'var(--k-data)' },
+];
+function Regions({ on }: { on: boolean }) {
+  return (
+    <>
+      {REGIONS.map((r, i) => (
+        <div key={r.key} style={{ opacity: on ? 1 : 0, transition: `opacity 700ms ${EASE} ${on ? 500 + i * 150 : 0}ms` }}>
+          <div style={{ position: 'absolute', left: r.x, top: r.y, width: r.w, height: r.h, boxSizing: 'border-box', border: `6px dashed ${r.color}`, borderRadius: 40, opacity: 0.55 }} />
+          <div style={{ position: 'absolute', left: r.lx, top: r.ly, whiteSpace: 'nowrap', color: r.color }}>
+            <div className="t-statement" style={{ fontSize: 130, color: r.color, textShadow: `0 0 50px ${r.color}` }}>{tr(copy.region[r.key].name)}</div>
+            <div className="t-meta" style={{ fontSize: 72, marginTop: 10, color: 'var(--ink-2)', textTransform: 'none' }}>{tr(copy.region[r.key].sub)}</div>
+          </div>
+        </div>
+      ))}
     </>
   );
 }
@@ -267,6 +292,7 @@ export function World() {
   return (
     <div className="layer" style={{ opacity: w.visible ? 1 : 0, transition: layerFade(w.visible) }}>
       <div ref={ref} style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, transformOrigin: '0 0' }}>
+        <Regions on={w.map} />
         <Edges w={w} />
         {NODE_KEYS.map((k) => <WNode key={k} k={k} w={w} view={camFor(s, b)} />)}
         <Extras w={w} s={s} b={b} />

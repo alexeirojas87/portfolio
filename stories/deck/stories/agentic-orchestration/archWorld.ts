@@ -189,11 +189,13 @@ export function seqValue(key: SeqKey, s: number, b: number, atStart: boolean): n
 // ── camera ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface Cam { x: number; y: number; s: number }
+/** The map beat (7.1): the whole world (about 3020 x 1810) under a one-line headline, node details faded, three big region labels. */
+export const MAP_CAM: Cam = { x: -763, y: -255, s: 0.415 };
 /** Top-left world coordinate seen at the stage origin, and zoom. Lifecycle → gateway pans right; tools pans down; the map zooms out. */
 export function camFor(s: number, b: number): Cam {
   if (s <= S_LC) return { x: 0, y: 0, s: 1 };
   if (s === S_CERB || s === S_GW) return { x: 1180, y: 0, s: 1 };
-  if (s === S_TC) return b === 0 ? { x: -1025, y: -540, s: 0.37 } : { x: 1220, y: 1200, s: 1 };
+  if (s === S_TC) return b === 0 ? MAP_CAM : { x: 1220, y: 1200, s: 1 };
   return { x: 1220, y: 1200, s: 1 };
 }
 export const worldVisible = (s: number) => s === S_LC || s === S_GW || s === S_TC;
@@ -231,6 +233,8 @@ export interface WorldState {
   step: Step;
   active: SeqKey | null;
   stream: boolean;
+  /** True on the zoomed-out map beat: boxes show colour only, regions carry the labels. */
+  map: boolean;
 }
 
 export function deriveWorld(s: number, b: number, live: Live): WorldState {
@@ -307,5 +311,6 @@ export function deriveWorld(s: number, b: number, live: Live): WorldState {
     visible: worldVisible(s), tone, on, edges,
     pkt: step.pkt, prevPkt: prev.pkt, step, active,
     stream: gwFocus && step.stream,
+    map: mapBeat,
   };
 }

@@ -36,7 +36,7 @@ restate a JSON fact, **I** illustrative (invented to make a mechanism visible; l
 | 6.2 | Per-role meters count up to their limit; one hits "Limit" (automatic) | `highlights[1]` ("per-role rate limiting"); the numbers | I |
 | 6.3 | Scan, primary provider fails (red), fallback answers (automatic) | edges `e14`, `e15`; node `provider` (primary, fallback, self-hosted); `highlights[1]` (fallback with circuit breaking) | C |
 | 6.4 | Response comes back, scanned again, written to audit, delivered (automatic) | edges `e16`, `e13`; nodes `safety`, `audit`; `highlights[1]` | C |
-| 7.1 | Camera zooms out over the whole world | `decisions[0].why`; nodes of both views | C |
+| 7.1 | Camera zooms out (less, 0.415) over the whole world; node text fades, three large region labels (Lifecycle / Gateway / Tools; authored words, sublines condensed from `decisions[0].why`) | `decisions[0].why`; nodes of both views | C |
 | 7.2 | MCP hub and its orbit of tools | edges `e8` to `e12`; node `mcp`; `decisions[4].why` | C |
 | 7.3 | Tools light up as called: memory, code graph, workspace, work tracking (automatic) | `flow-dev-tools` | C |
 | 7.4 | Code graph highlighted | edge `e12`; node `indexer`; `highlights[4]`; `decisions[5].why` | C |
