@@ -61,6 +61,7 @@ const projects = defineCollection({
     stack: z.array(z.object({ name: z.string(), category: z.string() })),
     highlights: z.array(text),
     decisions: z.array(z.object({ title: text, why: text })),
+    story: z.boolean().nullish(),
     video: z.object({ url: z.url(), title: text.optional() }).nullish(),
     architecture,
     additionalViews: z

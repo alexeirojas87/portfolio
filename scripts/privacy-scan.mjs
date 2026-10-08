@@ -28,8 +28,9 @@ const BINARY = /\.(png|jpe?g|gif|webp|avif|ico|woff2?|ttf|otf|pdf|mp4|webm|zip)$
 
 // Minified vendor bundles in dist/_astro (JS, CSS, source maps) produce false positives on short
 // terms. Project content is still covered by scanning src/, public/, odd/ and the generated
-// HTML/JSON/XML in dist/.
-const VENDOR = /^dist[\\/]_astro[\\/].*\.(m?js|css|map)$/i;
+// HTML/JSON/XML in dist/. The story deck's minified bundles (public|dist/stories/assets) are skipped the same way;
+// their authored source (stories/deck, stories/docs, stories/themes) is scanned instead.
+const VENDOR = /^(dist[\\/]_astro|(dist|public)[\\/]stories[\\/]assets)[\\/].*\.(m?js|css|map)$/i;
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
@@ -42,7 +43,7 @@ function* walk(dir) {
 }
 
 let hits = 0;
-for (const target of ['src', 'public', 'odd', 'dist']) {
+for (const target of ['src', 'public', 'odd', 'dist', 'stories/deck', 'stories/docs', 'stories/themes']) {
   const dir = join(root, target);
   if (!existsSync(dir)) continue;
   for (const file of walk(dir)) {
