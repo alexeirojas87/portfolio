@@ -41,3 +41,7 @@ Apply five approved design fixes to the portfolio site, preserving the existing 
 - Compact diagram previews render only for the first item of each group (`showDiagram`), matching the approved rhythm. Hero, detail player and their animations are unchanged.
 - OG cards regenerated with static Familjen Grotesk / Schibsted Grotesk / Spline Sans Mono and a flat canvas; the grid wallpaper is gone there too.
 - Removed `lucide-react` and the old Archivo / IBM Plex Sans / JetBrains Mono packages. No `fonts.googleapis.com` or `lucide` references remain in `src/` or `dist/_astro`.
+
+## Commits
+- `806bf43` — design system: flat canvas, radius scale, custom icons, self-hosted typefaces, OG cards.
+- `9cd9bea` — home rhythm and project detail editorial blocks.
