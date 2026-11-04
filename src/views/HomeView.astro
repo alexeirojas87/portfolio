@@ -63,25 +63,40 @@ const personLd = personJsonLd({ site: SITE_URL, locale, name: PERSON.name, jobTi
     </div>
   </section>
 
-  <section id="work" class="wrap pt-20">
-    <p class="eyebrow">{t('home.work.eyebrow')}</p>
-    <h2 class="section-title mt-2">{t('home.work.title')}</h2>
+  <section id="work" class="wrap work">
+    <div class="work-head">
+      <p class="eyebrow">{t('home.work.eyebrow')}</p>
+      <h2 class="display">{t('home.work.title')}</h2>
+    </div>
 
-    <div class="mt-12">
-      <p class="eyebrow" style="color:var(--cobalt)">{t('home.corporate.label')} · {t('home.systems', { n: corporate.length })}</p>
-      <h3 class="display-md mt-1 text-2xl">{t('home.corporate.title')}</h3>
-      <p class="mt-2 max-w-2xl rounded-xl border border-rule bg-surface px-4 py-3 text-sm text-ink-2">{t('home.corporate.note')}</p>
-      <div class="cards mt-6">
-        {corporate.map((p) => <ProjectCard project={p} locale={locale} />)}
+    <div class="group">
+      <div class="group-head">
+        <p class="eyebrow">{t('home.corporate.label')} · {t('home.systems', { n: corporate.length })}</p>
+        <h3 class="display">{t('home.corporate.title')}</h3>
+        <p class="note">{t('home.corporate.note')}</p>
+      </div>
+      <div class="work-list corporate">
+        {corporate.map((p, i) => (
+          <ProjectCard project={p} locale={locale} index={i} total={corporate.length} showDiagram={i === 0} />
+        ))}
       </div>
     </div>
 
-    <div class="mt-20">
-      <p class="eyebrow" style="color:var(--cobalt)">{t('home.personal.label')} · {t('home.systems', { n: personal.length })}</p>
-      <h3 class="display-md mt-1 text-2xl">{t('home.personal.title')}</h3>
-      <p class="mt-2 max-w-2xl text-ink-2">{t('home.personal.note')}</p>
-      <div class="cards mt-6">
-        {personal.map((p) => <ProjectCard project={p} locale={locale} />)}
+    <section class="statement" aria-label={t('home.statement.label')}>
+      <p class="eyebrow">{t('home.statement.label')}</p>
+      <p class="statement-text" set:html={t('home.statement')} />
+    </section>
+
+    <div class="group">
+      <div class="group-head">
+        <p class="eyebrow">{t('home.personal.label')} · {t('home.systems', { n: personal.length })}</p>
+        <h3 class="display">{t('home.personal.title')}</h3>
+        <p class="note">{t('home.personal.note')}</p>
+      </div>
+      <div class="work-list personal">
+        {personal.map((p, i) => (
+          <ProjectCard project={p} locale={locale} index={i} total={personal.length} showDiagram={i === 0} />
+        ))}
       </div>
     </div>
   </section>

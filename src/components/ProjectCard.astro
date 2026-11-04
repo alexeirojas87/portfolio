@@ -1,30 +1,39 @@
 ---
 import ArchitectureDiagram from './diagram/ArchitectureDiagram.tsx';
+import { IconArrow } from './diagram/icons.tsx';
 import StatusPill from './StatusPill.astro';
 import StackChip from './StackChip.astro';
 import { useTranslations, localePath, type Locale } from '../i18n/ui';
 import { t as tx, type Project } from '../lib/projects';
 
-interface Props { project: Project; locale: Locale }
-const { project: p, locale } = Astro.props;
+interface Props {
+  project: Project;
+  locale: Locale;
+  index: number;
+  total: number;
+  /** Only the first item of each group shows its architecture preview. */
+  showDiagram?: boolean;
+}
+const { project: p, locale, index, total, showDiagram = false } = Astro.props;
 const t = useTranslations(locale);
 const title = tx(p.title, locale);
+const href = localePath(locale, `/projects/${p.slug}`);
+const num = `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
 ---
-<article class="card group relative flex flex-col overflow-hidden transition-shadow hover:shadow-[var(--shadow-lift)]">
-  <div class="p-2.5 pb-0">
-    <ArchitectureDiagram architecture={p.architecture} locale={locale} mode="compact" title={title} />
-  </div>
-  <div class="flex flex-1 flex-col gap-3 p-5">
-    <div class="flex flex-wrap items-center gap-2">
-      <StatusPill status={p.status} locale={locale} />
+<article class="project">
+  <span class="num">{num}</span>
+  {showDiagram && (
+    <div class="media">
+      <ArchitectureDiagram architecture={p.architecture} locale={locale} mode="compact" title={title} />
     </div>
-    <h3 class="display-md text-xl">
-      <a href={localePath(locale, `/projects/${p.slug}`)} class="after:absolute after:inset-0 after:content-[''] focus-visible:after:rounded-[18px]">{title}</a>
-    </h3>
-    <p class="text-sm text-ink-2">{tx(p.tagline, locale)}</p>
-    <div class="mt-auto flex flex-wrap gap-1.5 pt-1">
+  )}
+  <div class="body">
+    <div class="kicker"><StatusPill status={p.status} locale={locale} /></div>
+    <h3 class="title"><a href={href}>{title}</a></h3>
+    <p class="tag">{tx(p.tagline, locale)}</p>
+    <div class="stack">
       {p.stack.slice(0, 4).map((s) => <StackChip name={s.name} category={s.category} />)}
     </div>
-    <span class="pt-2 text-sm font-semibold text-cobalt">{t('card.open')}</span>
   </div>
+  <span class="open" aria-hidden="true">{t('card.open')}<IconArrow size={14} /></span>
 </article>

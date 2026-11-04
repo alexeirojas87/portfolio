@@ -52,37 +52,38 @@ const links = [
   </section>
 
   <div class="wrap mt-16 grid gap-14">
-    <section class="grid gap-8 lg:grid-cols-[3fr_2fr]">
-      <div>
-        <h2 class="section-title">{t('detail.what')}</h2>
-        <p class="mt-4 max-w-[68ch] text-ink-2">{tx(p.summary, locale)}</p>
-      </div>
-      <div class="card p-5">
-        <h3 class="eyebrow">{t('detail.problem')}</h3>
-        <p class="mt-2">{tx(p.problem, locale)}</p>
-      </div>
+    <section>
+      <h2 class="section-title">{t('detail.what')}</h2>
+      <p class="mt-4 max-w-[68ch] text-ink-2">{tx(p.summary, locale)}</p>
+    </section>
+
+    <section class="detail-problem">
+      <p class="eyebrow">{t('detail.problem')}</p>
+      <blockquote>{tx(p.problem, locale)}</blockquote>
     </section>
 
     <section>
       <h2 class="section-title">{t('detail.built')}</h2>
-      <ul class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {p.highlights.map((h) => (
-          <li class="card flex gap-3 p-4 text-sm">
-            <span aria-hidden="true" class="mt-1.5 h-2 w-2 flex-none rounded-full bg-cobalt"></span>
+      <ol class="built-list">
+        {p.highlights.map((h, i) => (
+          <li>
+            <span class="n">{String(i + 1).padStart(2, '0')}</span>
             <span>{tx(h, locale)}</span>
           </li>
         ))}
-      </ul>
+      </ol>
     </section>
 
     <section>
       <h2 class="section-title">{t('detail.decisions')}</h2>
-      <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div class="decision-list">
         {p.decisions.map((d, i) => (
-          <article class="card p-5">
-            <p class="eyebrow">{String(i + 1).padStart(2, '0')}</p>
-            <h3 class="display-md mt-1 text-lg">{tx(d.title, locale)}</h3>
-            <p class="mt-2 text-sm text-ink-2">{tx(d.why, locale)}</p>
+          <article class="decision-item">
+            <span class="n">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{tx(d.title, locale)}</h3>
+              <p>{tx(d.why, locale)}</p>
+            </div>
           </article>
         ))}
       </div>
@@ -106,11 +107,11 @@ const links = [
           <h2 id="story" class="section-title">{t('detail.story')}</h2>
           <a class="btn btn-ghost !px-3 !py-1.5 text-sm" href={storyUrl} target="_blank" rel="noopener">{t('detail.story.fullscreen')} <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="story-frame mt-6 overflow-hidden rounded-[18px] border border-rule bg-canvas shadow-[var(--shadow-soft)]">
+        <div class="story-frame mt-6 overflow-hidden rounded-none border border-rule bg-canvas">
           <iframe class="story-embed h-full w-full border-0" src={storyUrl} title={`${t('detail.story')}: ${title}`} allow="fullscreen" allowfullscreen loading="lazy"></iframe>
           <div class="story-poster canvas on-canvas">
             <p class="eyebrow">{t('detail.story')}</p>
-            <p class="font-display text-xl font-bold">{title}</p>
+            <p class="font-display text-xl font-semibold">{title}</p>
             <p class="text-sm">{t('detail.story.rotate')}</p>
             <a class="btn btn-ghost !px-3 !py-1.5 text-sm" href={storyUrl} target="_blank" rel="noopener">{t('detail.story.fullscreen')} <span aria-hidden="true">↗</span></a>
           </div>
@@ -120,7 +121,7 @@ const links = [
     ) : video ? (
       <section>
         <h2 class="section-title">{t('detail.video')}</h2>
-        <div class="mt-6 overflow-hidden rounded-[18px] border border-rule bg-canvas shadow-[var(--shadow-soft)]" style="aspect-ratio:16/9">
+        <div class="mt-6 overflow-hidden rounded-none border border-rule bg-canvas" style="aspect-ratio:16/9">
           {isFile
             ? <video class="h-full w-full" controls preload="metadata" src={video.url} title={video.title ? tx(video.title, locale) : title}></video>
             : <iframe class="h-full w-full" src={video.url} title={video.title ? tx(video.title, locale) : title} allowfullscreen loading="lazy"></iframe>}

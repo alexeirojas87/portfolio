@@ -17,7 +17,7 @@ const personLd = personJsonLd({ site: SITE_URL, locale, name: PERSON.name, jobTi
   <div class="wrap pt-14">
     <p class="eyebrow">{t('about.eyebrow')}</p>
     <h1 class="display mt-3 text-[clamp(2.2rem,5vw,3.6rem)]">{t('about.title')}</h1>
-    <p class="mt-5 max-w-3xl font-display text-2xl font-bold leading-snug tracking-tight">{t('about.lead', { year: CAREER_START_YEAR })}</p>
+    <p class="mt-5 max-w-3xl font-display text-2xl font-semibold leading-snug tracking-tight">{t('about.lead', { year: CAREER_START_YEAR })}</p>
     <div class="mt-5 grid max-w-3xl gap-4 text-ink-2">
       <p>{t('about.summary.1')}</p>
       <p>{t('about.summary.2')}</p>
@@ -29,7 +29,7 @@ const personLd = personJsonLd({ site: SITE_URL, locale, name: PERSON.name, jobTi
     <div class="mt-6 grid gap-4 md:grid-cols-2">
       {capabilityGroups.map((g) => (
         <article class="card p-5">
-          <h3 class="flex items-center gap-2 font-display text-lg font-bold tracking-tight">
+          <h3 class="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
             <span aria-hidden="true" class="h-3 w-3 rounded" style={`background:${CLASS_COLOR[g.tone]}`}></span>
             {t(`about.cap.${g.id}` as UiKey)}
           </h3>

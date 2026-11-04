@@ -46,6 +46,9 @@ const en = {
 
   'home.work.eyebrow': 'Selected work',
   'home.work.title': 'Systems I have built',
+  'home.statement.label': 'Thesis',
+  'home.statement':
+    'A system is not proven by a screenshot. It is proven by its <b>architecture</b>.',
   'home.capabilities': 'What I work with',
   'hero.now': 'Now showing',
   'hero.dot': 'Show {title}',
@@ -53,7 +56,7 @@ const en = {
   'detail.built': 'What I built',
   'detail.prev': 'Previous project',
   'detail.next': 'Next project',
-  'card.open': 'View architecture →',
+  'card.open': 'View architecture',
   'card.diagram.alt': 'Architecture preview with {nodes} components and {flows} flows.',
 
   'status.live': 'Live',
@@ -234,6 +237,9 @@ const es: Record<UiKey, string> = {
 
   'home.work.eyebrow': 'Trabajo seleccionado',
   'home.work.title': 'Sistemas que he construido',
+  'home.statement.label': 'Tesis',
+  'home.statement':
+    'Un sistema no se demuestra con una captura de pantalla. Se demuestra con su <b>arquitectura</b>.',
   'home.capabilities': 'Con qué trabajo',
   'hero.now': 'Mostrando',
   'hero.dot': 'Mostrar {title}',
@@ -241,7 +247,7 @@ const es: Record<UiKey, string> = {
   'detail.built': 'Qué construí',
   'detail.prev': 'Proyecto anterior',
   'detail.next': 'Proyecto siguiente',
-  'card.open': 'Ver arquitectura →',
+  'card.open': 'Ver arquitectura',
   'card.diagram.alt': 'Vista previa de arquitectura con {nodes} componentes y {flows} flujos.',
 
   'status.live': 'En vivo',
