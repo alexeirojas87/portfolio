@@ -11,10 +11,8 @@ interface Props {
   locale: Locale;
   index: number;
   total: number;
-  /** Only the first item of each group shows its architecture preview. */
-  showDiagram?: boolean;
 }
-const { project: p, locale, index, total, showDiagram = false } = Astro.props;
+const { project: p, locale, index, total } = Astro.props;
 const t = useTranslations(locale);
 const title = tx(p.title, locale);
 const href = localePath(locale, `/projects/${p.slug}`);
@@ -22,11 +20,9 @@ const num = `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2,
 ---
 <article class="project">
   <span class="num">{num}</span>
-  {showDiagram && (
-    <div class="media">
-      <ArchitectureDiagram architecture={p.architecture} locale={locale} mode="compact" title={title} />
-    </div>
-  )}
+  <div class="media">
+    <ArchitectureDiagram architecture={p.architecture} locale={locale} mode="compact" title={title} />
+  </div>
   <div class="body">
     <div class="kicker"><StatusPill status={p.status} locale={locale} /></div>
     <h3 class="title"><a href={href}>{title}</a></h3>

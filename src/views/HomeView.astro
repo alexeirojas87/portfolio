@@ -77,7 +77,7 @@ const personLd = personJsonLd({ site: SITE_URL, locale, name: PERSON.name, jobTi
       </div>
       <div class="work-list corporate">
         {corporate.map((p, i) => (
-          <ProjectCard project={p} locale={locale} index={i} total={corporate.length} showDiagram={i === 0} />
+          <ProjectCard project={p} locale={locale} index={i} total={corporate.length} />
         ))}
       </div>
     </div>
@@ -95,7 +95,7 @@ const personLd = personJsonLd({ site: SITE_URL, locale, name: PERSON.name, jobTi
       </div>
       <div class="work-list personal">
         {personal.map((p, i) => (
-          <ProjectCard project={p} locale={locale} index={i} total={personal.length} showDiagram={i === 0} />
+          <ProjectCard project={p} locale={locale} index={i} total={personal.length} />
         ))}
       </div>
     </div>

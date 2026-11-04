@@ -29,6 +29,7 @@ Apply five approved design fixes to the portfolio site, preserving the existing 
 - L2 (mockup approval): «si dale».
 - L3 (hard constraint): «espero que no toques las animaciones de los diagramas, eso estaba perfe[cto]».
 - L4: Mockup approved: `Extra/mockups/design-fixes-before-after.html` (gitignored) + self-hosted preview fonts.
+- L5 (follow-up): «tiene que mostrar el mini diagrama» — every row renders its compact architecture preview; the first item keeps the large one.
 
 ## Progress / Evidence
 - T1-T5 implemented inline on branch `feat/design-fixes` (single coherent design change; no parallel writers).
@@ -38,7 +39,7 @@ Apply five approved design fixes to the portfolio site, preserving the existing 
 - `npm run privacy`: 0 hits.
 - Static screenshots reviewed at 1440px and 390px for home, project detail and about; no page-level horizontal scroll.
 - Animation safety: `git diff` contains no changes to `flow.ts`, `@keyframes`, animation/transition declarations, timings, playback or edge rendering. Only static canvas background, node/zone `rx`, icon glyphs/stroke and UI radii changed.
-- Compact diagram previews render only for the first item of each group (`showDiagram`), matching the approved rhythm. Hero, detail player and their animations are unchanged.
+- Every project row renders its compact diagram (13 previews); the first item of each group keeps the large preview. Hero, detail player and their animations are unchanged.
 - OG cards regenerated with static Familjen Grotesk / Schibsted Grotesk / Spline Sans Mono and a flat canvas; the grid wallpaper is gone there too.
 - Removed `lucide-react` and the old Archivo / IBM Plex Sans / JetBrains Mono packages. No `fonts.googleapis.com` or `lucide` references remain in `src/` or `dist/_astro`.
 
