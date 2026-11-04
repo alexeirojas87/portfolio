@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { IconClose } from './icons.tsx';
 import { localePath, useTranslations, type Locale as UiLocale } from '../../i18n/ui.ts';
 import { connectionsFor, type Connection } from './connections.ts';
 import { CLASS_COLOR, KIND_CLASS } from './kinds.ts';
@@ -74,7 +74,7 @@ export default function NodePanel({ arch, node, locale, emphasisEdge, onEmphasis
             </div>
           </div>
           <button type="button" ref={closeRef} className="np-close" onClick={onClose} aria-label={t('details.close')}>
-            <X size={18} aria-hidden="true" />
+            <IconClose size={18} aria-hidden="true" />
           </button>
         </div>
         <div className="np-body">

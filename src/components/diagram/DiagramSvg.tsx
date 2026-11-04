@@ -69,7 +69,7 @@ export default function DiagramSvg(p: DiagramSvgProps) {
 
       {layout.zones.map((z) => (
         <g key={z.id} className="dg-zone">
-          <rect x={z.x} y={z.y} width={z.w} height={z.h} rx={full ? 20 : 12} />
+          <rect x={z.x} y={z.y} width={z.w} height={z.h} rx={2} />
           {full && <text x={z.x + 16} y={z.y + 24}>{z.label.toUpperCase()}</text>}
         </g>
       ))}
@@ -122,8 +122,8 @@ export default function DiagramSvg(p: DiagramSvgProps) {
           if (!full) {
             return (
               <g key={n.id} className={`dg-node compact st-${st}`} style={style} transform={`translate(${n.x} ${n.y})`}>
-                <rect width={n.w} height={n.h} rx={12} className="dg-box" />
-                <Icon x={n.w / 2 - 9} y={n.h / 2 - 9} size={18} strokeWidth={2} color={color} />
+                <rect width={n.w} height={n.h} rx={2} className="dg-box" />
+                <Icon x={n.w / 2 - 9} y={n.h / 2 - 9} size={18} strokeWidth={1.4} color={color} />
               </g>
             );
           }
@@ -141,9 +141,9 @@ export default function DiagramSvg(p: DiagramSvgProps) {
               onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}
               onClick={() => p.onSelect?.(n.id)}
               onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); p.onSelect?.(n.id); } }}>
-              <rect width={n.w} height={n.h} rx={16} className="dg-box" />
-              <rect x={10} y={(n.h - 32) / 2} width={32} height={32} rx={10} className="dg-ibox" />
-              <Icon x={10 + 7} y={(n.h - 32) / 2 + 7} size={18} strokeWidth={2} color={color} />
+              <rect width={n.w} height={n.h} rx={2} className="dg-box" />
+              <rect x={10} y={(n.h - 32) / 2} width={32} height={32} rx={3} className="dg-ibox" />
+              <Icon x={10 + 7} y={(n.h - 32) / 2 + 7} size={18} strokeWidth={1.4} color={color} />
               <text x={50} className="dg-label">
                 {label.map((l, i) => <tspan key={i} x={50} y={y0 + i * lineH}>{l}</tspan>)}
               </text>

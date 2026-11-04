@@ -26,7 +26,7 @@ function getAtlas(cellW: number, cellH: number, dpr: number): Atlas {
     c.width = sw * GLYPHS.length; c.height = sh;
     const g = c.getContext('2d')!;
     g.scale(dpr, dpr);
-    g.font = `${Math.round(cellH * 0.78)}px "JetBrains Mono", monospace`;
+    g.font = `${Math.round(cellH * 0.78)}px "Spline Sans Mono Variable", monospace`;
     g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillStyle = color;
     for (let i = 0; i < GLYPHS.length; i++) g.fillText(GLYPHS[i], i * cellW + cellW / 2, cellH / 2 + 1);
@@ -114,7 +114,7 @@ export default function BootIntro({ locale, counts }: Props) {
       if (!ctx) { finish(); return; }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const atlas = getAtlas(cellW, cellH, dpr);
-      ctx.font = `${termFont}px "JetBrains Mono", monospace`;
+      ctx.font = `${termFont}px "Spline Sans Mono Variable", monospace`;
       // DOM glyph boxes include half-leading: baseline = top + (box height - content height) / 2 + ascent
       const m = ctx.measureText('M');
       const ascM = m.fontBoundingBoxAscent || termFont * 0.98, descM = m.fontBoundingBoxDescent || termFont * 0.3;
@@ -144,7 +144,7 @@ export default function BootIntro({ locale, counts }: Props) {
         }
         // 2) the typed text stays until the head reaches it, then it is swallowed by the stream
         ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-        ctx.font = `${termFont}px "JetBrains Mono", monospace`;
+        ctx.font = `${termFont}px "Spline Sans Mono Variable", monospace`;
         ctx.fillStyle = TEXT;
         for (const x of text) {
           const top = navyTop(colOf(x.x + x.w / 2), t, cellH);

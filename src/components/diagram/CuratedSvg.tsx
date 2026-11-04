@@ -79,10 +79,10 @@ export default function CuratedSvg(p: CuratedSvgProps) {
 
       {layout.boundary && (
         <g className="dg-boundary">
-          <rect x={layout.boundary.x} y={layout.boundary.y} width={layout.boundary.w} height={layout.boundary.h} rx={compact ? 24 : 22} />
+          <rect x={layout.boundary.x} y={layout.boundary.y} width={layout.boundary.w} height={layout.boundary.h} rx={2} />
           {!compact && p.boundaryLabel && (
             <g transform={`translate(${layout.boundary.x + 16} ${layout.boundary.y + 8})`}>
-              <rect width={p.boundaryLabel.length * 7.6 + 30} height={22} rx={11} className="dg-btab" />
+              <rect width={p.boundaryLabel.length * 7.6 + 30} height={22} rx={2} className="dg-btab" />
               <circle cx={12} cy={11} r={3.5} className="dg-bdot" />
               <text x={22} y={15}>{p.boundaryLabel.toUpperCase()}</text>
             </g>
@@ -133,8 +133,8 @@ export default function CuratedSvg(p: CuratedSvgProps) {
           if (compact && !p.labels) {
             return (
               <g key={n.id} className={`dg-node compact ${own} st-${st}`} style={style} transform={`translate(${n.x} ${n.y})`}>
-                <rect width={n.w} height={n.h} rx={18} className="dg-box" />
-                <Icon x={n.w / 2 - 20} y={n.h / 2 - 20} size={40} strokeWidth={1.8} color={color} />
+                <rect width={n.w} height={n.h} rx={2} className="dg-box" />
+                <Icon x={n.w / 2 - 20} y={n.h / 2 - 20} size={40} strokeWidth={1.2} color={color} />
               </g>
             );
           }
@@ -162,8 +162,8 @@ export default function CuratedSvg(p: CuratedSvgProps) {
               onFocus={() => p.onHover?.(n.id)} onBlur={() => p.onHover?.(null)}
               onClick={() => p.onSelect?.(n.id)}
               onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); p.onSelect?.(n.id); } }}>
-              <rect width={n.w} height={n.h} rx={16} className="dg-box" />
-              {!narrow && <Icon x={iconX} y={11} size={16} strokeWidth={2} color={color} />}
+              <rect width={n.w} height={n.h} rx={2} className="dg-box" />
+              {!narrow && <Icon x={iconX} y={11} size={16} strokeWidth={1.4} color={color} />}
               {tech && (
                 <g transform={`translate(${narrow ? 8 : iconX + 22} 9)`}>
                   <rect width={techW} height={19} rx={9.5} className="dg-tech-bg" />

@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Pause, Play, RotateCcw, SkipBack, SkipForward } from 'lucide-react';
+import { IconNext, IconPause, IconPlay, IconPrev, IconRestart } from './icons.tsx';
 import { useTranslations, type Locale as UiLocale } from '../../i18n/ui.ts';
 import DiagramSvg from './DiagramSvg.tsx';
 import CuratedSvg from './CuratedSvg.tsx';
@@ -180,12 +180,12 @@ function FullDiagram({ architecture, locale, title }: Omit<Props, 'mode' | 'clas
               {t('diagram.eyebrow', { nodes: architecture.nodes.length, flows: architecture.flows.length })}
             </span>
             <div className="dg-controls">
-              <button type="button" className="dg-ctl" onClick={() => goTo(prevStep(step, steps.length))} aria-label={t('diagram.prev')}><SkipBack size={16} aria-hidden="true" /></button>
+              <button type="button" className="dg-ctl" onClick={() => goTo(prevStep(step, steps.length))} aria-label={t('diagram.prev')}><IconPrev size={16} aria-hidden="true" /></button>
               <button type="button" className="dg-ctl primary" onClick={() => setPlaying((p) => !p)} aria-label={isPlaying ? t('diagram.pause') : t('diagram.play')}>
-                {isPlaying ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
+                {isPlaying ? <IconPause size={16} aria-hidden="true" /> : <IconPlay size={16} aria-hidden="true" />}
               </button>
-              <button type="button" className="dg-ctl" onClick={() => goTo(nextStep(step, steps.length))} aria-label={t('diagram.next')}><SkipForward size={16} aria-hidden="true" /></button>
-              <button type="button" className="dg-ctl" onClick={() => goTo(0)} aria-label={t('diagram.restart')}><RotateCcw size={16} aria-hidden="true" /></button>
+              <button type="button" className="dg-ctl" onClick={() => goTo(nextStep(step, steps.length))} aria-label={t('diagram.next')}><IconNext size={16} aria-hidden="true" /></button>
+              <button type="button" className="dg-ctl" onClick={() => goTo(0)} aria-label={t('diagram.restart')}><IconRestart size={16} aria-hidden="true" /></button>
             </div>
           </div>
 
