@@ -46,3 +46,4 @@ Apply five approved design fixes to the portfolio site, preserving the existing 
 ## Commits
 - `806bf43` — design system: flat canvas, radius scale, custom icons, self-hosted typefaces, OG cards.
 - `9cd9bea` — home rhythm and project detail editorial blocks.
+- `9ce983c` — compact diagram preview in every project row.
